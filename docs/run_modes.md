@@ -119,6 +119,18 @@ Launch from the editor (F5) or:
 
 ---
 
+## C. 2D strategic mode (read-only)
+
+**Scene:** `res://run_modes/strategic_2d_mode.tscn`
+
+Read-only 2D hex board driven by `BoardWorldMapper` snapshots and `BotGameSession`. Enter/N advances bot turns. Does not replace the F5 main scene (`wizard_world_mode.tscn`).
+
+```powershell
+& "C:\Tools\Godot\godot.exe" --path "C:\Users\joesa\Documents\Cursor\BoardGame\gods-and-wizards\godot_game" res://run_modes/strategic_2d_mode.tscn
+```
+
+---
+
 ## Tests
 
 ```powershell
