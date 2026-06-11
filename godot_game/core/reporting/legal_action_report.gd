@@ -28,4 +28,12 @@ static func format_action(action: GameAction) -> String:
 				ResourceType.to_key(action.give_resource),
 				ResourceType.to_key(action.receive_resource),
 			]
+		ActionKind.Kind.PLAYER_TRADE:
+			return "%d:%s p%d %s->%s" % [
+				action.action_id,
+				kind_key,
+				action.partner_player_id,
+				ResourceType.to_key(action.give_resource),
+				ResourceType.to_key(action.receive_resource),
+			]
 	return "%d:%s" % [action.action_id, kind_key]

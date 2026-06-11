@@ -9,6 +9,7 @@ var hero_id: int = -1
 var target_node: BoardNode = null
 var give_resource: ResourceType.Type = ResourceType.Type.WOOD
 var receive_resource: ResourceType.Type = ResourceType.Type.WOOD
+var partner_player_id: int = -1
 
 
 func _init(
@@ -19,7 +20,8 @@ func _init(
 	p_hero_id: int = -1,
 	p_target_node: BoardNode = null,
 	p_give_resource: ResourceType.Type = ResourceType.Type.WOOD,
-	p_receive_resource: ResourceType.Type = ResourceType.Type.WOOD
+	p_receive_resource: ResourceType.Type = ResourceType.Type.WOOD,
+	p_partner_player_id: int = -1
 ) -> void:
 	action_id = p_action_id
 	kind = p_kind
@@ -29,6 +31,7 @@ func _init(
 	target_node = p_target_node
 	give_resource = p_give_resource
 	receive_resource = p_receive_resource
+	partner_player_id = p_partner_player_id
 
 
 func equals(other: GameAction) -> bool:
@@ -49,6 +52,12 @@ func equals(other: GameAction) -> bool:
 			return hero_id == other.hero_id and target_node != null and other.target_node != null and target_node.equals(other.target_node)
 		ActionKind.Kind.BANK_TRADE:
 			return give_resource == other.give_resource and receive_resource == other.receive_resource
+		ActionKind.Kind.PLAYER_TRADE:
+			return (
+				partner_player_id == other.partner_player_id
+				and give_resource == other.give_resource
+				and receive_resource == other.receive_resource
+			)
 		_:
 			return true
 
@@ -69,6 +78,10 @@ func to_dict() -> Dictionary:
 	if kind == ActionKind.Kind.BANK_TRADE:
 		data["give_resource"] = ResourceType.to_key(give_resource)
 		data["receive_resource"] = ResourceType.to_key(receive_resource)
+	if kind == ActionKind.Kind.PLAYER_TRADE:
+		data["give_resource"] = ResourceType.to_key(give_resource)
+		data["receive_resource"] = ResourceType.to_key(receive_resource)
+		data["partner_player_id"] = partner_player_id
 	return data
 
 
@@ -91,7 +104,8 @@ static func from_dict(data: Dictionary) -> GameAction:
 		data.get("hero_id", -1),
 		target_node,
 		_resource_from_key(data.get("give_resource", "")),
-		_resource_from_key(data.get("receive_resource", ""))
+		_resource_from_key(data.get("receive_resource", "")),
+		int(data.get("partner_player_id", -1))
 	)
 
 
@@ -125,5 +139,7 @@ static func _kind_from_key(key: String) -> ActionKind.Kind:
 			return ActionKind.Kind.BUILD_DEVELOPMENT
 		"bank_trade":
 			return ActionKind.Kind.BANK_TRADE
+		"player_trade":
+			return ActionKind.Kind.PLAYER_TRADE
 		_:
 			return ActionKind.Kind.END_TURN

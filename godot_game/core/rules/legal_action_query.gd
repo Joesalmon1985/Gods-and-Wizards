@@ -48,5 +48,20 @@ static func _is_legal(state: GameState, active_player: Player, action: GameActio
 			if not BuildCosts.can_afford(active_player, BuildCosts.BUILD_DEVELOPMENT):
 				return false
 			return DevelopmentRules.can_build(state, active_player.id, action.vertex)
+		ActionKind.Kind.BANK_TRADE:
+			return BankTradeRules.can_trade(
+				state,
+				active_player.id,
+				action.give_resource,
+				action.receive_resource
+			)
+		ActionKind.Kind.PLAYER_TRADE:
+			return PlayerTradeRules.can_trade(
+				state,
+				active_player.id,
+				action.partner_player_id,
+				action.give_resource,
+				action.receive_resource
+			)
 		_:
 			return false

@@ -29,6 +29,7 @@ static func from_board(board: HexBoard) -> ActionSpace:
 		next_id += 1
 
 	_register_bank_trades(space)
+	_register_player_trades(space, 4)
 	return space
 
 
@@ -48,6 +49,26 @@ static func _register_bank_trades(space: ActionSpace) -> void:
 				receive_resource
 			)
 			space._register(trade_action)
+
+
+static func _register_player_trades(space: ActionSpace, player_count: int) -> void:
+	for partner_id in player_count:
+		for give_resource in ResourceType.all():
+			for receive_resource in ResourceType.all():
+				if give_resource == receive_resource:
+					continue
+				var trade_action := GameAction.new(
+					space.size(),
+					ActionKind.Kind.PLAYER_TRADE,
+					null,
+					null,
+					-1,
+					null,
+					give_resource,
+					receive_resource,
+					partner_id
+				)
+				space._register(trade_action)
 
 
 static func from_state(state: GameState) -> ActionSpace:
@@ -107,6 +128,14 @@ static func _action_layout_part(action: GameAction) -> String:
 			return "%d:%s:%s->%s" % [
 				action.action_id,
 				ActionKind.to_key(action.kind),
+				ResourceType.to_key(action.give_resource),
+				ResourceType.to_key(action.receive_resource),
+			]
+		ActionKind.Kind.PLAYER_TRADE:
+			return "%d:%s:p%d:%s->%s" % [
+				action.action_id,
+				ActionKind.to_key(action.kind),
+				action.partner_player_id,
 				ResourceType.to_key(action.give_resource),
 				ResourceType.to_key(action.receive_resource),
 			]

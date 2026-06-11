@@ -26,9 +26,9 @@
 | M32 playable 2D | `fffa3aa` | Done |
 | M33 3D spectator | `a66c428` | Done |
 | M34 combat replay | `8bd7cdb` | Done |
-| M35 playable micro | (pending commit) | Done — tests green |
-
-Stretch M36/M37: not started (optional).
+| M35 playable micro | `086c728` | Done |
+| M36 player trade | (pending commit) | Done — tests green |
+| M37 minimal draft UI | — | Skipped — no headless draft session |
 
 ---
 

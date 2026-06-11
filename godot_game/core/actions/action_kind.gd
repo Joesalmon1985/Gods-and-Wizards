@@ -8,6 +8,7 @@ enum Kind {
 	MOVE_HERO,
 	BUILD_DEVELOPMENT,
 	BANK_TRADE,
+	PLAYER_TRADE,
 }
 
 
@@ -25,5 +26,7 @@ static func to_key(kind: Kind) -> String:
 			return "build_development"
 		Kind.BANK_TRADE:
 			return "bank_trade"
+		Kind.PLAYER_TRADE:
+			return "player_trade"
 		_:
 			return "unknown"

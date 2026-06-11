@@ -17,6 +17,10 @@ static func apply(state: GameState, action: GameAction) -> Array:
 			return _apply_move_hero(state, action)
 		ActionKind.Kind.BUILD_DEVELOPMENT:
 			return _apply_build_development(state, action)
+		ActionKind.Kind.BANK_TRADE:
+			return _apply_bank_trade(state, action)
+		ActionKind.Kind.PLAYER_TRADE:
+			return _apply_player_trade(state, action)
 		_:
 			return []
 
@@ -70,6 +74,31 @@ static func _apply_move_hero(state: GameState, action: GameAction) -> Array:
 static func _apply_build_development(state: GameState, action: GameAction) -> Array:
 	var player := TurnRules.get_active_player(state)
 	return DevelopmentRules.apply(state, player.id, action.vertex)
+
+
+static func _apply_bank_trade(state: GameState, action: GameAction) -> Array:
+	var player := TurnRules.get_active_player(state)
+	if player == null:
+		return []
+	return BankTradeRules.apply(
+		state,
+		player.id,
+		action.give_resource,
+		action.receive_resource
+	)
+
+
+static func _apply_player_trade(state: GameState, action: GameAction) -> Array:
+	var player := TurnRules.get_active_player(state)
+	if player == null:
+		return []
+	return PlayerTradeRules.apply(
+		state,
+		player.id,
+		action.partner_player_id,
+		action.give_resource,
+		action.receive_resource
+	)
 
 
 static func _apply_end_turn(state: GameState) -> Array:

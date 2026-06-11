@@ -60,6 +60,15 @@ static func summarize_event_entry(entry_type: String, payload: Dictionary, state
 				int(payload.get("receive_amount", 0)),
 				_resource_label_from_key(str(payload.get("receive_resource", ""))),
 			]
+		"player_trade":
+			return "%s traded %d %s for %d %s with %s." % [
+				_player_name(state, int(payload.get("player_id", -1))),
+				int(payload.get("amount", 0)),
+				_resource_label_from_key(str(payload.get("give_resource", ""))),
+				int(payload.get("amount", 0)),
+				_resource_label_from_key(str(payload.get("receive_resource", ""))),
+				_player_name(state, int(payload.get("partner_player_id", -1))),
+			]
 		"victory_points_changed":
 			return "%s now has %d victory points." % [
 				_player_name(state, int(payload.get("player_id", -1))),
