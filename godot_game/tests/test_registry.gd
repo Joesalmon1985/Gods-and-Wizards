@@ -50,6 +50,7 @@ static func all_modules() -> Array:
 		{"category": CATEGORY_UNIT, "name": "TestEventSummary", "module": TestEventSummary},
 		{"category": CATEGORY_ARCHITECTURE, "name": "TestBoardVisualization", "module": TestBoardVisualization},
 		{"category": CATEGORY_ARCHITECTURE, "name": "TestStrategicBoardView", "module": TestStrategicBoardView},
+		{"category": CATEGORY_ARCHITECTURE, "name": "TestStrategicAuditMode", "module": TestStrategicAuditMode},
 		{"category": CATEGORY_INTEGRATION, "name": "TestRunModes", "module": TestRunModes},
 		{"category": CATEGORY_INTEGRATION, "name": "TestPlaythroughCsvExporter", "module": TestPlaythroughCsvExporter},
 		{"category": CATEGORY_INTEGRATION, "name": "TestHeadlessDuelRunner", "module": TestHeadlessDuelRunner},
