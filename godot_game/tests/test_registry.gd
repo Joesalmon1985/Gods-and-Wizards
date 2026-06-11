@@ -30,6 +30,7 @@ static func all_modules() -> Array:
 		{"category": CATEGORY_INTEGRATION, "name": "TestDemonSpread", "module": TestDemonSpread},
 		{"category": CATEGORY_INTEGRATION, "name": "TestBreachEnd", "module": TestBreachEnd},
 		{"category": CATEGORY_INTEGRATION, "name": "TestDevelopmentBuild", "module": TestDevelopmentBuild},
+		{"category": CATEGORY_INTEGRATION, "name": "TestDevelopmentCatalog", "module": TestDevelopmentCatalog},
 		{"category": CATEGORY_INTEGRATION, "name": "TestBotPolicy", "module": TestBotPolicy},
 		{"category": CATEGORY_INTEGRATION, "name": "TestHeuristicBot", "module": TestHeuristicBot},
 		{"category": CATEGORY_INTEGRATION, "name": "TestScoring", "module": TestScoring},
