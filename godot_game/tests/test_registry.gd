@@ -55,6 +55,7 @@ static func all_modules() -> Array:
 		{"category": CATEGORY_INTEGRATION, "name": "TestPlaythroughCsvExporter", "module": TestPlaythroughCsvExporter},
 		{"category": CATEGORY_INTEGRATION, "name": "TestHeadlessDuelRunner", "module": TestHeadlessDuelRunner},
 		{"category": CATEGORY_INTEGRATION, "name": "TestHumanPlayerSession", "module": TestHumanPlayerSession},
+		{"category": CATEGORY_INTEGRATION, "name": "TestBankTrade", "module": TestBankTrade},
 		{"category": CATEGORY_INTEGRATION, "name": "TestMacroTrainingEnv", "module": TestMacroTrainingEnv},
 		{"category": CATEGORY_INTEGRATION, "name": "TestMacroTrainingTelemetry", "module": TestMacroTrainingTelemetry},
 		{"category": CATEGORY_INTEGRATION, "name": "TestSpellCatalog", "module": TestSpellCatalog},

@@ -7,6 +7,8 @@ var vertex: BoardNode = null
 var edge: EdgeCoord = null
 var hero_id: int = -1
 var target_node: BoardNode = null
+var give_resource: ResourceType.Type = ResourceType.Type.WOOD
+var receive_resource: ResourceType.Type = ResourceType.Type.WOOD
 
 
 func _init(
@@ -15,7 +17,9 @@ func _init(
 	p_vertex: BoardNode = null,
 	p_edge: EdgeCoord = null,
 	p_hero_id: int = -1,
-	p_target_node: BoardNode = null
+	p_target_node: BoardNode = null,
+	p_give_resource: ResourceType.Type = ResourceType.Type.WOOD,
+	p_receive_resource: ResourceType.Type = ResourceType.Type.WOOD
 ) -> void:
 	action_id = p_action_id
 	kind = p_kind
@@ -23,6 +27,8 @@ func _init(
 	edge = p_edge
 	hero_id = p_hero_id
 	target_node = p_target_node
+	give_resource = p_give_resource
+	receive_resource = p_receive_resource
 
 
 func equals(other: GameAction) -> bool:
@@ -41,6 +47,8 @@ func equals(other: GameAction) -> bool:
 			return edge.equals(other.edge)
 		ActionKind.Kind.MOVE_HERO:
 			return hero_id == other.hero_id and target_node != null and other.target_node != null and target_node.equals(other.target_node)
+		ActionKind.Kind.BANK_TRADE:
+			return give_resource == other.give_resource and receive_resource == other.receive_resource
 		_:
 			return true
 
@@ -58,6 +66,9 @@ func to_dict() -> Dictionary:
 		data["hero_id"] = hero_id
 		if target_node != null:
 			data["target_node"] = target_node.to_dict()
+	if kind == ActionKind.Kind.BANK_TRADE:
+		data["give_resource"] = ResourceType.to_key(give_resource)
+		data["receive_resource"] = ResourceType.to_key(receive_resource)
 	return data
 
 
@@ -78,8 +89,26 @@ static func from_dict(data: Dictionary) -> GameAction:
 		vertex,
 		edge,
 		data.get("hero_id", -1),
-		target_node
+		target_node,
+		_resource_from_key(data.get("give_resource", "")),
+		_resource_from_key(data.get("receive_resource", ""))
 	)
+
+
+static func _resource_from_key(key: String) -> ResourceType.Type:
+	match key:
+		"wood":
+			return ResourceType.Type.WOOD
+		"brick":
+			return ResourceType.Type.BRICK
+		"wheat":
+			return ResourceType.Type.WHEAT
+		"sheep":
+			return ResourceType.Type.SHEEP
+		"ore":
+			return ResourceType.Type.ORE
+		_:
+			return ResourceType.Type.WOOD
 
 
 static func _kind_from_key(key: String) -> ActionKind.Kind:
@@ -94,5 +123,7 @@ static func _kind_from_key(key: String) -> ActionKind.Kind:
 			return ActionKind.Kind.MOVE_HERO
 		"build_development":
 			return ActionKind.Kind.BUILD_DEVELOPMENT
+		"bank_trade":
+			return ActionKind.Kind.BANK_TRADE
 		_:
 			return ActionKind.Kind.END_TURN

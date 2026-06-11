@@ -52,6 +52,14 @@ static func summarize_event_entry(entry_type: String, payload: Dictionary, state
 			return "An underworld breach occurred (total breaches: %d)." % int(payload.get("breach_count", 0))
 		"development_built":
 			return "%s built a development." % _player_name(state, int(payload.get("player_id", -1)))
+		"bank_trade":
+			return "%s traded %d %s for %d %s with the bank." % [
+				_player_name(state, int(payload.get("player_id", -1))),
+				int(payload.get("give_amount", 0)),
+				_resource_label_from_key(str(payload.get("give_resource", ""))),
+				int(payload.get("receive_amount", 0)),
+				_resource_label_from_key(str(payload.get("receive_resource", ""))),
+			]
 		"victory_points_changed":
 			return "%s now has %d victory points." % [
 				_player_name(state, int(payload.get("player_id", -1))),

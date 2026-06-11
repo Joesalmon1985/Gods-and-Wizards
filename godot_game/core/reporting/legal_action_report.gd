@@ -21,4 +21,11 @@ static func format_action(action: GameAction) -> String:
 		ActionKind.Kind.MOVE_HERO:
 			var target := action.target_node.to_key() if action.target_node != null else "none"
 			return "%d:%s hero=%d->%s" % [action.action_id, kind_key, action.hero_id, target]
+		ActionKind.Kind.BANK_TRADE:
+			return "%d:%s %s->%s" % [
+				action.action_id,
+				kind_key,
+				ResourceType.to_key(action.give_resource),
+				ResourceType.to_key(action.receive_resource),
+			]
 	return "%d:%s" % [action.action_id, kind_key]
