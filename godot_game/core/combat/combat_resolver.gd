@@ -58,6 +58,22 @@ static func resolve_encounter(
 	}
 
 
+static func run_seeded_smoke_duel(game_seed: int) -> Dictionary:
+	var rng := GameRng.new()
+	rng.seed(game_seed)
+	rng.enable_deterministic_stream(game_seed)
+
+	var deck_definition := default_warrior_deck()
+	var attacker_deck := CombatDeckRuntime.new()
+	var defender_deck := CombatDeckRuntime.new()
+	attacker_deck.init_from(deck_definition, rng)
+	defender_deck.init_from(deck_definition, rng)
+
+	var attacker := CombatantState.new("hero", 10, attacker_deck)
+	var defender := CombatantState.new("demon", 8, defender_deck)
+	return resolve_encounter(rng, attacker, defender, [], [])
+
+
 static func _pick_move(
 	combatant: CombatantState,
 	scripted: Array[StringName],

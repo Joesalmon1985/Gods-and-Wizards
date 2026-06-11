@@ -154,24 +154,33 @@ Read-only 2D hex board driven by `BoardWorldMapper` snapshots and `BotGameSessio
 
 ---
 
-## D. Headless micro-duel runner — **not implemented (proposed M21)**
+## D. Headless micro-duel runner
 
-**Status:** No `run_headless_duel.gd` or similar exists under `run_modes/`.
+**Script:** `res://run_modes/run_headless_duel.gd`
 
-**Existing headless combat (tests only):**
+Runs a single headless `CombatResolver.resolve_encounter()` from a seed and writes a CSV with one summary row plus per-round detail. No `GameState`, no 3D.
 
-- `core/combat/` — `CombatResolver`, `CombatRules`, deck runtime
-- Tests: `TestCombatRules`, `TestDeckRuntime`, `TestEncounterResolver`, `TestIntegrationBridge`
+### Command
 
-**Proposed M21:**
+```powershell
+$ProjectRoot = "C:\Users\joesa\Documents\Cursor\BoardGame\gods-and-wizards"
+$Out = Join-Path $ProjectRoot "logs\duel_seed_123.csv"
+New-Item -ItemType Directory -Force (Split-Path $Out) | Out-Null
+& "C:\Tools\Godot\godot.exe" --headless --path (Join-Path $ProjectRoot "godot_game") -s res://run_modes/run_headless_duel.gd -- --seed 123 --output $Out
+```
 
-- Script: `res://run_modes/run_headless_duel.gd`
-- Args: `--seed`, `--output` (CSV or JSON)
-- Single call to `CombatResolver.resolve_encounter()` — no `GameState`, no 3D
-- Optional: `core/export/duel_log_exporter.gd` for round-by-round columns
-- Tests: `test_headless_duel_runner.gd` — same seed → identical export
+### Optional arguments
 
-See [NEXT_MILESTONES.md](NEXT_MILESTONES.md#m21--headless-micro-duel-smoke-runner-proposed-not-implemented).
+| Flag | Default | Meaning |
+|---|---|---|
+| `--seed` | `42` | Duel RNG seed |
+| `--output` | `user://duel_seed_<seed>.csv` | CSV output path |
+
+### CSV columns
+
+Summary row: `seed`, `winner_id`, `attacker_id`, `defender_id`, `attacker_health_final`, `defender_health_final`, `rounds_played`
+
+Round rows (below blank line): `seed`, `round`, `att_move`, `def_move`, `att_damage`, `def_damage`
 
 ---
 
