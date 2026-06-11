@@ -24,6 +24,7 @@ static func all_modules() -> Array:
 		{"category": CATEGORY_INTEGRATION, "name": "TestActionApplication", "module": TestActionApplication},
 		{"category": CATEGORY_INTEGRATION, "name": "TestRoadBuild", "module": TestRoadBuild},
 		{"category": CATEGORY_INTEGRATION, "name": "TestRoadLegality", "module": TestRoadLegality},
+		{"category": CATEGORY_INTEGRATION, "name": "TestBuildRuleLegality", "module": TestBuildRuleLegality},
 		{"category": CATEGORY_INTEGRATION, "name": "TestHeroMove", "module": TestHeroMove},
 		{"category": CATEGORY_INTEGRATION, "name": "TestHeroOccupancy", "module": TestHeroOccupancy},
 		{"category": CATEGORY_INTEGRATION, "name": "TestDemonSpread", "module": TestDemonSpread},
