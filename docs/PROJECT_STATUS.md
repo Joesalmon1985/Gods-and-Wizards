@@ -1,6 +1,6 @@
 # Project Status — Gods and Wizards
 
-**Last updated:** 2026-06-10  
+**Last updated:** 2026-06-11  
 **Purpose:** Human-readable handoff for reviewers and Cursor agents before the next milestone.
 
 ---
@@ -9,10 +9,11 @@
 
 | Item | Value |
 |---|---|
-| Branch | `main` |
-| Latest commit | `e3e4c55` — *Initial commit: Gods and Wizards headless board game with wizard-world mode.* |
+| Active development branch | `milestone/macro-foundation-autonomous` |
+| Baseline tag | `checkpoint/macro-foundation-baseline` |
+| Latest M14 commit | `3242cff` — *M14: add human player turn shell to BotGameSession* |
+| Build legality | On milestone branch (`BuildRules.can_build_city`, CSV logging fix) |
 | Remote | `origin` → https://github.com/Joesalmon1985/Gods-and-Wizards.git |
-| Working tree | Clean at time of writing (no uncommitted changes) |
 
 ---
 
@@ -28,9 +29,9 @@
 
 | Metric | Value |
 |---|---|
-| Modules run | **40** |
-| Assertions | **53,472** |
-| Passed | **53,472** |
+| Modules run | **42** |
+| Assertions | **~54,860** |
+| Passed | **All** |
 | Failed | **0** |
 | Warnings | None reported by the test runner (Godot engine startup only) |
 
@@ -90,7 +91,8 @@ Donor folders under `donor_projects/` are **reference-only** (`project.godot.don
 | Players, resources, cities | Setup, build rules, scoring hooks |
 | Turn order and rounds | `TurnRules`, `GameStartRules` |
 | Legal action masks | `LegalActionQuery`, `ActionSpace` |
-| Build city / build road | Costs, legality, events |
+| Build city / build road | Costs, legality (distance + road network), events; `TestBuildRuleLegality` |
+| Human player turn shell (M14) | `start_one_human_three_bots`, `submit_human_action`, `TestHumanPlayerSession` |
 | Hero move | `MoveRules`, occupancy rules |
 | Demon spread | Node-to-node along edges |
 | Breach loss | `BreachEndCondition`, `GameConstants.BREACH_LIMIT` |
@@ -115,14 +117,16 @@ Donor folders under `donor_projects/` are **reference-only** (`project.godot.don
 | Combat UI | `ui/combat/combat_presenter.gd` — presentation layer, not wired into main run mode |
 | Integration bridge | `encounter_bridge.gd`, `sync_controller.gd` — contract exists; not full embodied loop |
 | Phase model | Overlay shows generic “Player turn”; no fine-grained phase enum in `GameState` |
-| Human player | All active run modes use bots only |
+| Human player UI | M14 session API complete; no clickable 2D/3D action selection yet |
+| Macro training env | Skeleton in progress on autonomous branch |
 
 ### Planned / not yet implemented
 
 | System | Notes |
 |---|---|
-| **2D strategic board UI** | Top priority next direction (see [NEXT_MILESTONES.md](NEXT_MILESTONES.md)) |
-| **Human player (1 human + 3 bots)** | No action selection UI or human turn injection yet |
+| **2D strategic board UI** | Read-only mode planned (M15); see [NEXT_MILESTONES.md](NEXT_MILESTONES.md) |
+| **Macro training / batch balance** | Skeleton env + batch runner on autonomous branch |
+| **Human click-to-build (2D)** | After read-only 2D (M16) |
 | Drafting (Seven Wonders-style) | Explicitly out of scope until requested |
 | Full development card system | Beyond current stub |
 | Full embodied encounter gameplay | 3D combat loop not connected to main scene |
@@ -187,7 +191,7 @@ See [integration_plan.md](integration_plan.md) for the original M0–M9 plan (hi
 | `docs/integration_plan.md` | Milestone table stops at M9; does not list run modes, reporting, or next 2D/human-player direction |
 | `.cursor/rules/project-architecture.mdc` | “Do not build embodied before…” gates are largely passed; constraints on *direct mutation* still apply |
 
-For agent workflow and next steps, prefer **this file**, [TESTING_AND_GIT_WORKFLOW.md](TESTING_AND_GIT_WORKFLOW.md), and [NEXT_MILESTONES.md](NEXT_MILESTONES.md).
+For agent workflow and next steps, prefer **this file**, [GAME_DESIGN_BRIEF.md](GAME_DESIGN_BRIEF.md), [TESTING_AND_GIT_WORKFLOW.md](TESTING_AND_GIT_WORKFLOW.md), and [NEXT_MILESTONES.md](NEXT_MILESTONES.md).
 
 ---
 

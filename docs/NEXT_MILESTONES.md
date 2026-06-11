@@ -2,11 +2,15 @@
 
 **Not implemented.** This document proposes the next 3–5 milestones for human review.
 
-**Strategic direction:** The 3D wizard-world view exists, but the board game is still bot-only and hard to play as a human. The next focus should be a **playable, inspectable 2D strategic layer** with **one human player and three bots**, built on the existing headless core and `BotGameSession`.
+**Strategic direction:** Macro-first, trainable mythic civilisation simulation. One authoritative `GameState`. Headless core and `BotGameSession` are source of truth. **2D strategic mode** supports debug/training/balancing; **3D wizard mode** is a deferred presentation layer. See [GAME_DESIGN_BRIEF.md](GAME_DESIGN_BRIEF.md).
 
 ---
 
-## M14 — Human player turn shell (1 human + 3 bots)
+## M14 — Human player turn shell (1 human + 3 bots) — **COMPLETE**
+
+Implemented on `milestone/macro-foundation-autonomous`: `start_one_human_three_bots`, `get_legal_human_actions`, `submit_human_action`, `TestHumanPlayerSession`.
+
+---
 
 ### Goal
 
@@ -194,15 +198,46 @@ Supports design iteration before adding more gameplay systems.
 
 ---
 
+## M19 — Macro training environment skeleton
+
+### Goal
+
+Headless wrapper around `BotGameSession` exposing `reset`, `observe`, `legal_actions`, and `step` for future RL/bot training — **not** in-engine neural networks.
+
+### Acceptance criteria
+
+- Deterministic observations for same seed
+- Illegal steps rejected without mutation
+- Bot-only and human-wait modes supported via existing session API
+- Full test suite passes
+
+---
+
+## M20 — Batch balance runner + config skeleton
+
+### Goal
+
+Headless N-seed runner with aggregate summary (game length, VP spread, breach rate, build counts). Optional `BalanceConfig` JSON skeleton with defaults matching `GameConstants`.
+
+### Acceptance criteria
+
+- One headless command runs multiple seeds and writes summary JSON/CSV
+- Default balance config does not change gameplay
+- Full test suite passes
+
+---
+
 ## Priority recommendation
 
 | Order | Milestone | Rationale |
 |---|---|---|
-| 1 | **M14** Human turn shell | Core interaction contract |
-| 2 | **M15** 2D read-only board | Understandability |
-| 3 | **M16** 2D human actions | First playable loop |
-| 4 | **M17** Unified entry | UX coherence |
-| 5 | **M18** Balance tooling | Optional; parallelizable later |
+| 1 | **M14** Human turn shell | Core interaction contract — **done** |
+| 2 | **M19** Macro training env | Training/balance foundation |
+| 3 | **M20** Batch balance + config | Design iteration tooling |
+| 4 | **M15** 2D read-only board | Understandability |
+| 5 | **M16** 2D human actions | First playable loop |
+| 6 | **M17** Unified entry | UX coherence |
+| 7 | **M18** Extended balance tooling | Optional extensions |
 
 ---
 
