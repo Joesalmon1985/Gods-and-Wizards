@@ -49,6 +49,7 @@ static func all_modules() -> Array:
 		{"category": CATEGORY_UNIT, "name": "TestEventSummary", "module": TestEventSummary},
 		{"category": CATEGORY_ARCHITECTURE, "name": "TestBoardVisualization", "module": TestBoardVisualization},
 		{"category": CATEGORY_INTEGRATION, "name": "TestRunModes", "module": TestRunModes},
+		{"category": CATEGORY_INTEGRATION, "name": "TestHumanPlayerSession", "module": TestHumanPlayerSession},
 		{"category": CATEGORY_DEBUG, "name": "TestDebugController", "module": TestDebugController},
 		{"category": CATEGORY_DEBUG, "name": "TestDebugRunExport", "module": TestDebugRunExport},
 	]
