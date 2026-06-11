@@ -1,0 +1,319 @@
+{
+  "schema_version": "combatant_loadouts_v1",
+  "loadouts": {
+    "hero_patrol": {
+      "combatant_id": "hero_patrol",
+      "display_name": "Hero Patrol",
+      "base_health": 100,
+      "base_mana": 100,
+      "spell_ids": [
+        "smite",
+        "renew",
+        "purify",
+        "pain_hex",
+        "wither"
+      ]
+    },
+    "demon_breach": {
+      "combatant_id": "demon_breach",
+      "display_name": "Demon Breach",
+      "base_health": 90,
+      "base_mana": 80,
+      "spell_ids": [
+        "pain_hex",
+        "wither",
+        "curse",
+        "smite",
+        "brain_hex"
+      ]
+    },
+    "apostate": {
+      "combatant_id": "apostate",
+      "display_name": "Apostate",
+      "base_health": 100,
+      "base_mana": 100,
+      "spell_ids": [
+        "brain_hex",
+        "curse",
+        "fatigue",
+        "pain_hex",
+        "purify",
+        "regen",
+        "renew",
+        "restore",
+        "smite",
+        "wither"
+      ]
+    },
+    "apprentice": {
+      "combatant_id": "apprentice",
+      "display_name": "Apprentice",
+      "base_health": 100,
+      "base_mana": 100,
+      "spell_ids": [
+        "aid",
+        "cleanse",
+        "fireball",
+        "focus",
+        "interrupt",
+        "maggic_missile",
+        "protect",
+        "quiet",
+        "spell_bolt",
+        "stupefy"
+      ]
+    },
+    "arcanist": {
+      "combatant_id": "arcanist",
+      "display_name": "Arcanist",
+      "base_health": 100,
+      "base_mana": 100,
+      "spell_ids": [
+        "blood_mana",
+        "brain_hex",
+        "curse",
+        "execution",
+        "fatigue",
+        "lifedrain",
+        "pain_hex",
+        "quick_sigils",
+        "sanguine_drain",
+        "wither"
+      ]
+    },
+    "archon": {
+      "combatant_id": "archon",
+      "display_name": "Archon",
+      "base_health": 100,
+      "base_mana": 100,
+      "spell_ids": [
+        "counter_spell",
+        "purify",
+        "regen",
+        "renew",
+        "restore",
+        "shield",
+        "silence",
+        "smite",
+        "spell_shock",
+        "unmake"
+      ]
+    },
+    "blightblade": {
+      "combatant_id": "blightblade",
+      "display_name": "Blightblade",
+      "base_health": 100,
+      "base_mana": 100,
+      "spell_ids": [
+        "blight",
+        "brain_hex",
+        "curse",
+        "fatigue",
+        "harden",
+        "pain_hex",
+        "quicken",
+        "strengthen",
+        "vinewhip",
+        "wither"
+      ]
+    },
+    "cabalist": {
+      "combatant_id": "cabalist",
+      "display_name": "Cabalist",
+      "base_health": 100,
+      "base_mana": 100,
+      "spell_ids": [
+        "brain_hex",
+        "counter_spell",
+        "curse",
+        "fatigue",
+        "pain_hex",
+        "shield",
+        "silence",
+        "spell_shock",
+        "unmake",
+        "wither"
+      ]
+    },
+    "cleric": {
+      "combatant_id": "cleric",
+      "display_name": "Cleric",
+      "base_health": 100,
+      "base_mana": 100,
+      "spell_ids": [
+        "fireball",
+        "focus",
+        "interrupt",
+        "protect",
+        "purify",
+        "regen",
+        "renew",
+        "restore",
+        "smite",
+        "stupefy"
+      ]
+    },
+    "druid": {
+      "combatant_id": "druid",
+      "display_name": "Druid",
+      "base_health": 100,
+      "base_mana": 100,
+      "spell_ids": [
+        "aid",
+        "blight",
+        "cleanse",
+        "harden",
+        "interrupt",
+        "quicken",
+        "quiet",
+        "strengthen",
+        "stupefy",
+        "vinewhip"
+      ]
+    },
+    "mage": {
+      "combatant_id": "mage",
+      "display_name": "Mage",
+      "base_health": 100,
+      "base_mana": 100,
+      "spell_ids": [
+        "aid",
+        "blood_mana",
+        "execution",
+        "interrupt",
+        "lifedrain",
+        "protect",
+        "quick_sigils",
+        "quiet",
+        "sanguine_drain",
+        "stupefy"
+      ]
+    },
+    "pyroclast": {
+      "combatant_id": "pyroclast",
+      "display_name": "Pyroclast",
+      "base_health": 100,
+      "base_mana": 100,
+      "spell_ids": [
+        "blood_mana",
+        "execution",
+        "fireball",
+        "lifedrain",
+        "purify",
+        "quick_sigils",
+        "regen",
+        "renew",
+        "restore",
+        "sanguine_drain"
+      ]
+    },
+    "savant": {
+      "combatant_id": "savant",
+      "display_name": "Savant",
+      "base_health": 100,
+      "base_mana": 100,
+      "spell_ids": [
+        "blood_mana",
+        "counter_spell",
+        "execution",
+        "lifedrain",
+        "quick_sigils",
+        "sanguine_drain",
+        "shield",
+        "silence",
+        "spell_shock",
+        "unmake"
+      ]
+    },
+    "shifter": {
+      "combatant_id": "shifter",
+      "display_name": "Shifter",
+      "base_health": 100,
+      "base_mana": 100,
+      "spell_ids": [
+        "blight",
+        "counter_spell",
+        "harden",
+        "quicken",
+        "shield",
+        "silence",
+        "spell_shock",
+        "strengthen",
+        "unmake",
+        "vinewhip"
+      ]
+    },
+    "tempest": {
+      "combatant_id": "tempest",
+      "display_name": "Tempest",
+      "base_health": 100,
+      "base_mana": 100,
+      "spell_ids": [
+        "blight",
+        "blood_mana",
+        "execution",
+        "harden",
+        "lifedrain",
+        "quick_sigils",
+        "quicken",
+        "sanguine_drain",
+        "strengthen",
+        "vinewhip"
+      ]
+    },
+    "vitalist": {
+      "combatant_id": "vitalist",
+      "display_name": "Vitalist",
+      "base_health": 100,
+      "base_mana": 100,
+      "spell_ids": [
+        "blight",
+        "harden",
+        "purify",
+        "quicken",
+        "regen",
+        "renew",
+        "restore",
+        "smite",
+        "strengthen",
+        "vinewhip"
+      ]
+    },
+    "warlock": {
+      "combatant_id": "warlock",
+      "display_name": "Warlock",
+      "base_health": 100,
+      "base_mana": 100,
+      "spell_ids": [
+        "aid",
+        "brain_hex",
+        "cleanse",
+        "curse",
+        "fatigue",
+        "focus",
+        "interrupt",
+        "pain_hex",
+        "protect",
+        "wither"
+      ]
+    },
+    "wizard": {
+      "combatant_id": "wizard",
+      "display_name": "Wizard",
+      "base_health": 100,
+      "base_mana": 100,
+      "spell_ids": [
+        "aid",
+        "cleanse",
+        "counter_spell",
+        "fireball",
+        "focus",
+        "shield",
+        "silence",
+        "spell_bolt",
+        "spell_shock",
+        "unmake"
+      ]
+    }
+  }
+}
