@@ -16,7 +16,19 @@ var waiting_for_human: bool = false
 
 
 static func start_four_player(game_seed: int, policy: String = BotTurnResolver.POLICY_HEURISTIC) -> BotGameSession:
-	return _start_session(game_seed, policy, [])
+	return _start_session(game_seed, policy, [], ScenarioBuilder.build_four_player_bot_game(game_seed))
+
+
+static func start_four_player_underworld_pressure(
+	game_seed: int,
+	policy: String = BotTurnResolver.POLICY_HEURISTIC
+) -> BotGameSession:
+	return _start_session(
+		game_seed,
+		policy,
+		[],
+		ScenarioBuilder.build_underworld_pressure_game(game_seed)
+	)
 
 
 static func start_one_human_three_bots(
@@ -30,13 +42,14 @@ static func start_one_human_three_bots(
 static func _start_session(
 	game_seed: int,
 	policy: String,
-	human_ids: Array[int]
+	human_ids: Array[int],
+	initial_state: GameState = null
 ) -> BotGameSession:
 	var session := BotGameSession.new()
 	session.seed = game_seed
 	session.policy_name = policy
 	session.human_player_ids = human_ids.duplicate()
-	session.state = ScenarioBuilder.build_four_player_bot_game(game_seed)
+	session.state = initial_state if initial_state != null else ScenarioBuilder.build_four_player_bot_game(game_seed)
 	session.event_log = EventLog.new()
 	session.replay_baseline = EventLogReplay.capture_baseline(session.state)
 

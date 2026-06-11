@@ -184,6 +184,27 @@ Round rows (below blank line): `seed`, `round`, `att_move`, `def_move`, `att_dam
 
 ---
 
+## E. Underworld pressure telemetry (CSV summary)
+
+**Script:** `res://run_modes/run_underworld_pressure.gd`
+
+Runs **N** bot games using the underworld pressure scenario (seeded initial demon clusters) and writes one CSV row per game with spread/breach telemetry.
+
+### Command
+
+```powershell
+$ProjectRoot = "C:\Users\joesa\Documents\Cursor\BoardGame\gods-and-wizards"
+$Out = Join-Path $ProjectRoot "logs\underworld_pressure.csv"
+New-Item -ItemType Directory -Force (Split-Path $Out) | Out-Null
+& "C:\Tools\Godot\godot.exe" --headless --path (Join-Path $ProjectRoot "godot_game") -s res://run_modes/run_underworld_pressure.gd -- --games 20 --seed 42 --max-turns 120 --output $Out
+```
+
+### CSV columns (one row per game)
+
+`seed`, `turns_played`, `rounds_played`, `breach_count`, `peak_demon_count`, `spread_event_count`, `game_over`, `winner_id`, `outcome_reason`, `policy_name`
+
+---
+
 ## Known CSV quirks (playthrough mode A)
 
 - **`production_check` rows** — now include human-readable `event_summary` (roll, hex, hit/miss).

@@ -41,6 +41,31 @@ static func build_four_player_bot_game(game_seed: int) -> GameState:
 	return state
 
 
+static func build_underworld_pressure_game(game_seed: int) -> GameState:
+	var state := build_four_player_bot_game(game_seed)
+	_seed_underworld_pressure(state)
+	return state
+
+
+static func _seed_underworld_pressure(state: GameState) -> void:
+	var candidates: Array[BoardNode] = []
+	for node in state.board.get_all_nodes_sorted():
+		if state.cities_by_vertex.has(node.to_key()):
+			continue
+		if state.heroes_by_node.has(node.to_key()):
+			continue
+		candidates.append(node)
+
+	if candidates.is_empty():
+		return
+
+	var slots := mini(4, candidates.size())
+	var start_index := state.rng.randi_range(0, candidates.size() - 1)
+	for offset in range(slots):
+		var node := candidates[(start_index + offset) % candidates.size()]
+		SetupRules.set_demon_count(state, node, 2)
+
+
 static func _create_players_and_cities(game_seed: int) -> GameState:
 	var state := SetupRules.create_game(game_seed)
 	SetupRules.add_player(state, "Alice")
