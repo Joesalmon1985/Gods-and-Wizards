@@ -17,6 +17,7 @@ static func build_snapshot(state: GameState, recent_events: Array = []) -> Dicti
 		"active_player_name": _active_player_name(state),
 		"player_turn_hint": state.active_player_index,
 		"breach_count": state.breach_count,
+		"total_demons": _total_demons(state),
 		"game_finished": state.game_finished,
 		"winner_id": state.winner_id,
 		"recent_events": _recent_event_summaries(recent_events, state),
@@ -52,14 +53,19 @@ static func _map_hexes(state: GameState) -> Array:
 		var tile := state.board.get_tile(coord)
 		var world := hex_to_world(coord)
 		var max_chance := 0
+		var dominant_resource := ""
 		for resource in ResourceType.all():
-			max_chance = maxi(max_chance, tile.get_production_chance(resource))
+			var chance := tile.get_production_chance(resource)
+			max_chance = maxi(max_chance, chance)
+			if chance >= max_chance and chance > 0:
+				dominant_resource = ResourceType.to_key(resource)
 		hexes.append({
 			"id": coord.to_key(),
 			"q": coord.q,
 			"r": coord.r,
 			"world": {"x": world.x, "y": world.y, "z": world.z},
 			"max_production_chance": max_chance,
+			"dominant_resource": dominant_resource,
 		})
 	return hexes
 
@@ -102,6 +108,7 @@ static func _map_cities(state: GameState) -> Array:
 			"id": "city:%s" % city.vertex.to_key(),
 			"node_id": city.vertex.to_key(),
 			"player_id": city.player_id,
+			"development_id": city.development_id,
 		})
 	return cities
 
@@ -162,3 +169,10 @@ static func _recent_event_summaries(events: Array, state: GameState) -> Array:
 		return []
 	var start := maxi(0, events.size() - 30)
 	return EventSummary.summarize_events(events.slice(start), state)
+
+
+static func _total_demons(state: GameState) -> int:
+	var total := 0
+	for key in state.demon_counts_by_node.keys():
+		total += int(state.demon_counts_by_node[key])
+	return total

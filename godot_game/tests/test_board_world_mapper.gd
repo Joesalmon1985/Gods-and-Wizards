@@ -45,6 +45,13 @@ static func _test_valid_core_ids(test_assert: TestAssert, state: GameState) -> v
 	for entry in snapshot.get("cities", []):
 		var node_id: String = entry.get("node_id", "")
 		test_assert.check(state.cities_by_vertex.has(node_id), "city visual should map to core city node")
+		if str(entry.get("development_id", "")) != "":
+			var city: City = state.cities_by_vertex[node_id]
+			test_assert.eq(
+				entry.get("development_id", ""),
+				city.development_id,
+				"snapshot should expose city development_id"
+			)
 
 	for entry in snapshot.get("roads", []):
 		var edge_id: String = entry.get("edge_id", "")

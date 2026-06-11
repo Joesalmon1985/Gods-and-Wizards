@@ -27,6 +27,7 @@ static func run(test_assert: TestAssert) -> void:
 static func _test_snapshot_render_deterministic(test_assert: TestAssert) -> void:
 	var session := BotGameSession.start_four_player(11)
 	var snapshot := BoardWorldMapper.build_snapshot(session.state, session.events)
+	test_assert.check(snapshot.has("total_demons"), "snapshot should expose total_demons for threat overlay")
 	var view_a := StrategicBoardView.new()
 	var view_b := StrategicBoardView.new()
 	view_a.sync_from_snapshot(snapshot)

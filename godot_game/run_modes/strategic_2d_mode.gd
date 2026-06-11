@@ -40,6 +40,11 @@ func _refresh_view() -> void:
 		_board_view.sync_from_snapshot(snapshot)
 	var summary := GameStateSummary.build(_session.state, _session)
 	if _header_label != null:
-		_header_label.text = GameStateSummary.format_header(summary)
+		var header := GameStateSummary.format_header(summary)
+		header += " | Breaches: %d | Demons: %d" % [
+			int(snapshot.get("breach_count", 0)),
+			int(snapshot.get("total_demons", 0)),
+		]
+		_header_label.text = header
 	if _scoreboard_label != null:
 		_scoreboard_label.text = GameStateSummary.format_scoreboard(summary)

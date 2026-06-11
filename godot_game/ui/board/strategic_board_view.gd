@@ -33,7 +33,7 @@ func _draw_hexes(hexes: Array) -> void:
 		var r: int = entry.get("r", 0)
 		var center := _axial_to_pixel(HexCoord.new(q, r))
 		var chance: int = entry.get("max_production_chance", 0)
-		var fill := Color(0.15, 0.25 + float(chance) / 9.0 * 0.35, 0.15, 0.35)
+		var fill := _hex_fill_for_resource(str(entry.get("dominant_resource", "")), chance)
 		_draw_hex_polygon(center, fill)
 
 
@@ -56,6 +56,26 @@ func _draw_cities(cities: Array) -> void:
 			continue
 		var player_id: int = entry.get("player_id", -1)
 		draw_circle(center, 6.0, BoardWorldMapper.player_color(player_id))
+		var development_id: String = entry.get("development_id", "")
+		if development_id != "":
+			draw_circle(center + Vector2(5, -5), 3.0, Color(0.95, 0.85, 0.25))
+
+
+func _hex_fill_for_resource(resource_key: String, chance: int) -> Color:
+	var intensity := 0.25 + float(chance) / 9.0 * 0.35
+	match resource_key:
+		"wood":
+			return Color(0.12, 0.35 + intensity, 0.12, 0.4)
+		"brick":
+			return Color(0.45 + intensity * 0.2, 0.18, 0.12, 0.4)
+		"wheat":
+			return Color(0.55 + intensity * 0.2, 0.5, 0.12, 0.4)
+		"sheep":
+			return Color(0.2, 0.55 + intensity * 0.2, 0.25, 0.4)
+		"ore":
+			return Color(0.25, 0.25, 0.35 + intensity * 0.2, 0.4)
+		_:
+			return Color(0.15, 0.25 + intensity, 0.15, 0.35)
 
 
 func _draw_heroes(heroes: Array) -> void:
