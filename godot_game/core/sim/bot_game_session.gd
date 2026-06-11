@@ -33,7 +33,7 @@ func advance_one_player_turn() -> Array:
 
 	var turn_events := BotTurnResolver.resolve_player_turn(state, event_log, policy_name)
 	for event in turn_events:
-		_record_event(event)
+		events.append(event)
 
 	player_turn_count += 1
 	finished = _check_game_over()
