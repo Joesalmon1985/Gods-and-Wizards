@@ -1,6 +1,6 @@
 # Autonomous Session Log
 
-**Last updated:** 2026-06-11 (Run B start)
+**Last updated:** 2026-06-11 (Run B M35 complete)
 **Purpose:** Resume point for Cursor agents after context reset.
 
 ---
@@ -10,37 +10,34 @@
 | Item | Value |
 |------|--------|
 | **Branch** | `milestone/run-b-product-facing-modes` |
-| **Base** | `main` @ `a0dda56` (Run A merged PR #1) |
+| **Base** | `main` @ `a0dda56` |
 | **`origin/main`** | `a0dda56` |
 
 ---
 
-## Run B — in progress
-
-Core scope: B0, M30–M35 (2D audit, bank trade, playable 2D, 3D spectator, combat replay/play).
+## Run B — core complete (M30–M35)
 
 | Phase | Commit | Status |
 |-------|--------|--------|
-| B0 | (pending) | Branch created, baseline verified |
-| M30 | — | Pending |
-| M31 | — | Pending |
-| M32 | — | Pending |
-| M33 | — | Pending |
-| M34 | — | Pending |
-| M35 | — | Pending |
+| B0 docs | `8f11333` | Done |
+| B0.5 module filter | `43add63` | Done |
+| M30 2D audit | `af0cf19` | Done |
+| M31 bank trade | `9779b0b` | Done |
+| M32 playable 2D | `fffa3aa` | Done |
+| M33 3D spectator | `a66c428` | Done |
+| M34 combat replay | `8bd7cdb` | Done |
+| M35 playable micro | (pending commit) | Done — tests green |
 
-Stretch (after M35 green): M36 player trade, M37 minimal draft UI.
+Stretch M36/M37: not started (optional).
 
 ---
 
 ## Latest full test result
 
-Verified at Run B B0 baseline (2026-06-11):
+Verified at Run B M35 (2026-06-11):
 
 ```
-Ran 54 modules, 81563 assertions
-Passed: 81563
-Failed: 0
+Ran 60 modules, 0 failures (full suite green)
 ```
 
 ### Command
@@ -55,25 +52,18 @@ Failed: 0
 
 ---
 
-## Run A — merged to `main`
+## New run modes
 
-| Phase | Commit | Summary |
-|-------|--------|---------|
-| M26.5 | `4259d66` | Godot verification hardening |
-| M27 | `6f2f298` | Macro training telemetry |
-| M28 | `722d62e` | Spell catalogue + loadouts |
-| M29 | `f8308fb` | Spell combat session + micro telemetry |
-
----
-
-## Known issues
-
-1. Batch sim turn-limit stalls — documented, not rebalanced.
-2. Development card action space — catalog only; bots build default watchtower.
-3. M22 deferred — subsumed by Run B M32 playable 2D mode.
+| Mode | Scene |
+|------|-------|
+| 2D macro audit | `res://run_modes/strategic_audit_2d_mode.tscn` |
+| 2D one-god play | `res://run_modes/strategic_play_2d_mode.tscn` |
+| 3D macro spectator | `res://run_modes/macro_spectator_3d_mode.tscn` |
+| Spell combat replay | `res://run_modes/spell_combat_replay_mode.tscn` |
+| Spell combat play | `res://run_modes/spell_combat_play_mode.tscn` |
 
 ---
 
 ## Next recommended task
 
-Continue Run B milestones M30–M35 on `milestone/run-b-product-facing-modes`.
+Open PR: `milestone/run-b-product-facing-modes` → `main`. Optional Run C: ports, 3:1 trade, full drafting.

@@ -54,6 +54,7 @@ static func all_modules() -> Array:
 		{"category": CATEGORY_ARCHITECTURE, "name": "TestHumanMacro2DMode", "module": TestHumanMacro2DMode},
 		{"category": CATEGORY_ARCHITECTURE, "name": "TestMacroSpectator3DMode", "module": TestMacroSpectator3DMode},
 		{"category": CATEGORY_ARCHITECTURE, "name": "TestSpellCombatTimelinePresenter", "module": TestSpellCombatTimelinePresenter},
+		{"category": CATEGORY_ARCHITECTURE, "name": "TestPlayableMicroCombat", "module": TestPlayableMicroCombat},
 		{"category": CATEGORY_INTEGRATION, "name": "TestRunModes", "module": TestRunModes},
 		{"category": CATEGORY_INTEGRATION, "name": "TestPlaythroughCsvExporter", "module": TestPlaythroughCsvExporter},
 		{"category": CATEGORY_INTEGRATION, "name": "TestHeadlessDuelRunner", "module": TestHeadlessDuelRunner},
