@@ -166,7 +166,7 @@ Runs a single headless `CombatResolver.resolve_encounter()` from a seed and writ
 $ProjectRoot = "C:\Users\joesa\Documents\Cursor\BoardGame\gods-and-wizards"
 $Out = Join-Path $ProjectRoot "logs\duel_seed_123.csv"
 New-Item -ItemType Directory -Force (Split-Path $Out) | Out-Null
-& "C:\Tools\Godot\godot.exe" --headless --path (Join-Path $ProjectRoot "godot_game") -s res://run_modes/run_headless_duel.gd -- --seed 123 --output $Out
+& "C:\Tools\Godot\godot.exe.exe" --headless --path (Join-Path $ProjectRoot "godot_game") -s res://run_modes/run_headless_duel.gd -- --seed 123 --output $Out
 ```
 
 ### Optional arguments
@@ -213,10 +213,34 @@ New-Item -ItemType Directory -Force (Split-Path $Out) | Out-Null
 
 ---
 
+## E. Headless macro training telemetry export
+
+**Script:** `res://run_modes/run_macro_training_export.gd`
+
+Exports step-level macro training rows (observations, legal masks, selected actions, rewards) from `MacroTrainingEnv`.
+
+```powershell
+& "C:\Tools\Godot\godot.exe.exe" --headless --path (Join-Path $ProjectRoot "godot_game") -s res://run_modes/run_macro_training_export.gd -- --seed 42 --max-steps 50 --output (Join-Path $ProjectRoot "logs\macro_training_seed_42.csv")
+```
+
+---
+
+## F. Headless micro combat telemetry export
+
+**Script:** `res://run_modes/run_micro_combat_export.gd`
+
+Exports step-level spell combat telemetry from `SpellCombatSession` / `MicroCombatTrainingEnv`.
+
+```powershell
+& "C:\Tools\Godot\godot.exe.exe" --headless --path (Join-Path $ProjectRoot "godot_game") -s res://run_modes/run_micro_combat_export.gd -- --seed 123 --max-steps 80 --output (Join-Path $ProjectRoot "logs\micro_combat_seed_123.csv")
+```
+
+---
+
 ## Tests
 
 ```powershell
-& "C:\Tools\Godot\godot.exe" --headless --path "C:\Users\joesa\Documents\Cursor\BoardGame\gods-and-wizards\godot_game" -s res://tests/test_runner.gd
+& "C:\Tools\Godot\godot.exe.exe" --headless --path "C:\Users\joesa\Documents\Cursor\BoardGame\gods-and-wizards\godot_game" -s res://tests/test_runner.gd
 ```
 
 Architecture tests verify:
