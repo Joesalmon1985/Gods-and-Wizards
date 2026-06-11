@@ -1,34 +1,38 @@
 # Next Milestones (Proposed)
 
-**Last updated:** 2026-06-11
+**Last updated:** 2026-06-11 (post Run A merge to `main`)
 
 **Strategic direction:** Macro-first, trainable mythic civilisation simulation. One authoritative `GameState`. Headless core and `BotGameSession` are source of truth. **2D strategic mode** supports debug/training/balancing; **3D wizard mode** is a deferred presentation layer. See [GAME_DESIGN_BRIEF.md](GAME_DESIGN_BRIEF.md).
 
 **Architecture constraints (all milestones):**
 
-- One authoritative `GameState`; no second state machine.
+- One authoritative `GameState`; no second state machine for macro play.
+- One authoritative `SpellCombatSession` for micro spell combat (separate from macro `GameState`).
 - Core is headless; no UI in `godot_game/core/`.
-- UI, `run_modes/`, `integration/`, and `embodied/` submit legal actions only — they do not directly mutate `GameState`.
+- UI, `run_modes/`, `integration/`, and `embodied/` submit legal actions or consume snapshots/timelines only.
 - Donor projects under `donor_projects/` are reference-only.
+- Heroes, demons, and wizards are generic combatants with spell loadouts — not wizard-only spell APIs.
 
 ---
 
-## Roadmap reconciliation note (2026-06-11)
+## Roadmap reconciliation note
 
-Completed milestone history (M14–M18) is **not renumbered**.
+Completed milestone history (M14–M18, M21–M25) is **not renumbered**.
 
-During the `milestone/macro-product-autonomous-run` session, these IDs were used for new headless/tooling work:
-
-| ID used this run | Delivered | Earlier draft meaning (unchanged / deferred) |
+| ID | Status | Notes |
 |---|---|---|
-| **M21** | Headless micro-duel smoke runner | Same intent — now **done** |
-| **M23** | Small development-card catalog foundation | Draft M23 was unified run-mode entry → see **future M27** below |
-| **M24** | Underworld pressure smoke scenario + telemetry | Draft M24 was balance-config wiring → remains optional future work |
-| **M25** | Read-only 2D strategic board improvements | Extends M18 read-only lens — **done** |
+| **M21** | Done | Headless card micro-duel smoke runner |
+| **M22** | Deferred | 2D human click-to-build — not implemented |
+| **M23** (product run) | Done | Development-card catalog foundation |
+| **M24** (product run) | Done | Underworld pressure telemetry |
+| **M25** | Done | Read-only 2D strategic board improvements |
+| **M26** | Deferred | Divine instruction offers — docs only |
+| **M26.5** | **Done** (Run A) | Local Godot verification hardening |
+| **M27** | **Done** (Run A) | Macro training telemetry export |
+| **M28** | **Done** (Run A) | Spell catalogue + combatant loadout model |
+| **M29** | **Done** (Run A) | Spell combat session + micro combat telemetry |
 
-**M22 remains:** 2D human click-to-build (deferred to next run).
-
-**M26 added:** divine instruction offer system (future core/headless bridge — docs only this run).
+Run A merged via PR #1 → `main` @ `a0dda56`.
 
 ---
 
@@ -53,6 +57,19 @@ During the `milestone/macro-product-autonomous-run` session, these IDs were used
 | **M24** | Underworld pressure smoke + telemetry | `d0a7667` | `TestUnderworldPressure` |
 | **M25** | Read-only 2D strategic board improvements | `9c1df90` | `TestBoardWorldMapper`, `TestStrategicBoardView` |
 | **Fix** | Playthrough CSV road replay + production summaries | `9b46681` | `TestPlaythroughCsvExporter` |
+
+---
+
+## Completed on `milestone/run-a-telemetry-and-spells` (merged to `main`)
+
+| ID | Title | Commit | Tests |
+|---|---|---|---|
+| **M26.5** | Local Godot verification hardening | `4259d66` | Scripts/docs; `Invoke-GodotHeadless.ps1` |
+| **M27** | Macro training telemetry runner | `6f2f298` | `TestMacroTrainingTelemetry` |
+| **M28** | Spell catalogue and combatant loadout model | `722d62e` | `TestSpellCatalog` |
+| **M29** | Spell combat session + micro combat telemetry | `f8308fb` | `TestSpellCombatSession`, `TestMicroCombatTelemetry` |
+
+Spell balance source: workbook `SpellSpecs` sheet → `godot_game/data/spells/`. See [SPELL_BALANCE_SOURCE.md](SPELL_BALANCE_SOURCE.md).
 
 ---
 
@@ -93,7 +110,7 @@ Lets embodied wizard UX propose macro choices without becoming a second source o
 ### Prerequisites
 
 - M21 headless micro-duel runner green
-- M22 playable 2D loop (recommended)
+- Playable 2D macro loop (recommended)
 - Stable encounter contracts (`EncounterRequest` / `EncounterResult`) before embodied integration
 
 ### Scope (initial)
@@ -116,7 +133,7 @@ Lets embodied wizard UX propose macro choices without becoming a second source o
 
 ### Unified run mode entry (draft M23)
 
-Single entry defaulting to 2D playable mode with 3D observatory — **after M22**.
+Single entry defaulting to 2D playable mode with 3D observatory — **after playable 2D macro loop**.
 
 ### Balance config wiring (draft M24)
 
@@ -128,27 +145,24 @@ Drive selected `GameConstants` / `BuildCosts` from `BalanceConfig` JSON for batc
 
 | Order | Milestone | Status |
 |---|---|---|
-| 1 | M14–M18 Macro foundation | **Done** (`macro-foundation-autonomous`) |
-| 2 | M21 Headless micro-duel runner | **Done** |
-| 3 | CSV telemetry fix | **Done** |
-| 4 | M24 Underworld pressure telemetry | **Done** |
-| 5 | M23 Development-card foundation | **Done** |
-| 6 | M25 2D read-only improvements | **Done** |
-| 7 | **M22 2D human click-to-build** | **Next (playable loop)** |
-| 8 | M26 Divine instruction offers | Future headless bridge |
-| 9 | Draft M23 unified entry | After M22 |
-| 10 | Draft M24 balance wiring | Optional |
+| 1 | M14–M18 Macro foundation | **Done** |
+| 2 | M21–M25 Macro product run | **Done** |
+| 3 | M26.5–M29 Run A (telemetry + spells) | **Done** — merged PR #1 |
+| 4 | **M22 2D human click-to-build** | **Deferred** |
+| 5 | M26 Divine instruction offers | Future headless bridge |
+| 6 | Draft M23 unified entry | After playable macro loop |
+| 7 | Draft M24 balance wiring | Optional |
 
 ---
 
-## Explicitly not next
+## Explicitly not next (until requested)
 
 - Full drafting system
 - Wizard marker → hero position binding
-- Combat UI in main loop
+- Full 3D combat presentation loop
 - Donor project merges
 - Second parallel `GameState`
 - Weakening architecture tests
-- Merge to `main` without human PR review
+- Neural network training infrastructure
 
 See [PROJECT_STATUS.md](PROJECT_STATUS.md) and [AUTONOMOUS_SESSION_LOG.md](AUTONOMOUS_SESSION_LOG.md) for current state.

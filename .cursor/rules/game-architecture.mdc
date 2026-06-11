@@ -39,30 +39,34 @@ It combines:
 - Pandemic-style heroes moving around the board to contain a spreading demonic underworld.
 - Seven Wonders-style drafting of development cards, which are built into cities as special buildings.
 
-## Current project state (2026-06)
+## Current project state (2026-06, post Run A merge)
 
-The headless milestone is **complete and extended**. The active Godot project is `godot_game/`.
+The headless milestone is **complete and extended**. Production branch is `main` @ `a0dda56` (PR #1). Active Godot project: `godot_game/`.
 
 **Implemented in core (test-covered):**
 
-- Seeded radius-3 hex board, players, cities, production
-- Roads, heroes, demon spread, breach loss, victory-point win
+- Seeded radius-3 hex board, players, cities, production, roads, heroes
+- Demon spread, breach loss, victory-point win
 - Legal actions, bots, event log, deterministic simulation
-- Development build stub, headless card combat contract
-- `BotGameSession`, CSV export, reporting helpers
+- `BotGameSession`, CSV export, macro training env + telemetry export
+- Development catalog stub, headless card combat (legacy smoke)
+- Spell catalogue, combatant spell loadouts, `SpellCombatSession`, micro combat telemetry
+- Godot verification scripts (`scripts/Invoke-GodotHeadless.ps1`)
 
 **Implemented in presentation (read-only / bot-advance):**
 
-- Headless CSV bot run mode
-- 3D wizard-world board visualisation with human-readable overlay
+- Headless CSV/batch/telemetry run modes
+- 3D wizard-world board visualisation with overlay
+- 2D strategic read-only board mode (`strategic_2d_mode.tscn`)
 - Legacy debug event-log overlay
 
 **Not yet implemented:**
 
-- Human player action selection
-- 2D strategic board UI
+- Human macro player action selection (M22 deferred)
+- Bank trade, 2D audit mode, 3D combat replay/playable micro
 - Full drafting and development-card library
 - Full embodied wizard/combat gameplay loop
+- Neural network training loop (telemetry export only)
 
 See `docs/PROJECT_STATUS.md` and `docs/NEXT_MILESTONES.md` for handoff details.
 
