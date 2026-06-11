@@ -51,6 +51,7 @@ static func all_modules() -> Array:
 		{"category": CATEGORY_INTEGRATION, "name": "TestRunModes", "module": TestRunModes},
 		{"category": CATEGORY_INTEGRATION, "name": "TestHumanPlayerSession", "module": TestHumanPlayerSession},
 		{"category": CATEGORY_INTEGRATION, "name": "TestMacroTrainingEnv", "module": TestMacroTrainingEnv},
+		{"category": CATEGORY_INTEGRATION, "name": "TestBatchSim", "module": TestBatchSim},
 		{"category": CATEGORY_DEBUG, "name": "TestDebugController", "module": TestDebugController},
 		{"category": CATEGORY_DEBUG, "name": "TestDebugRunExport", "module": TestDebugRunExport},
 	]

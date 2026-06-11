@@ -60,6 +60,34 @@ Columns are always present; unimplemented fields use blank or default values.
 
 ---
 
+## A2. Headless batch balance simulation (CSV summary)
+
+**Script:** `res://run_modes/run_batch_sim.gd`
+
+Runs **N** independent 4-player bot games (seeds `seed`, `seed+1`, …) and writes **one CSV row per game** with aggregate outcome stats.
+
+### Command
+
+```powershell
+& "C:\Tools\Godot\godot.exe" --headless --path "C:\Users\joesa\Documents\Cursor\BoardGame\gods-and-wizards\godot_game" -s res://run_modes/run_batch_sim.gd -- --games 100 --seed 42 --max-turns 300 --output "logs\batch_balance.csv"
+```
+
+### Optional arguments
+
+| Flag | Default | Meaning |
+|---|---|---|
+| `--games` | `10` | Number of games to simulate |
+| `--seed` | `42` | First game seed (increments by 1 per game) |
+| `--max-turns` | `200` | Max completed player turns per game |
+| `--policy` | `heuristic` | Bot policy name |
+| `--output` | (auto) | CSV output path |
+
+### CSV columns (one row per game)
+
+`seed`, `turns_played`, `game_over`, `winner_id`, `outcome_reason`, `vp_p0`, `vp_p1`, `vp_p2`, `vp_p3`, `city_count`, `road_count`, `breach_count`, `demon_count`, `policy_name`
+
+---
+
 ## B. 3D wizard-world mode
 
 **Main scene:** `res://run_modes/wizard_world_mode.tscn`
