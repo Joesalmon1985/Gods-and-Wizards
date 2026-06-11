@@ -19,22 +19,27 @@
 
 | Phase | Status | Commit | Notes |
 |-------|--------|--------|-------|
-| M14 finish | pass | `3242cff` | Human turn shell committed on M14 branch |
-| Autonomous branch + tag | pass | tag only | `checkpoint/macro-foundation-baseline` |
-| Docs update | pending | | |
-| Macro training env | pending | | |
-| Batch balance runner | pending | | |
-| Balance config skeleton | pending | | |
-| Read-only 2D board | pending | | |
+| M14 finish | pass | `3242cff` | Human turn shell committed |
+| Autonomous branch + tag | pass | tag `checkpoint/macro-foundation-baseline` | Pushed @ `3242cff` |
+| Docs update | pass | `d25ba1a` | **Not yet pushed** (branch ahead 1) |
+| Macro training env | **blocked** | — | Plan mode blocked production edits |
+| Batch balance runner | **blocked** | — | Pending agent mode |
+| Balance config skeleton | **blocked** | — | Pending agent mode |
+| Read-only 2D board | **blocked** | — | Pending agent mode |
 
 ---
 
 ## Blockers / stashes
 
-*(Updated at session end)*
+- **2026-06-11:** Cursor plan mode blocked non-markdown production file writes after docs commit. User rejected agent mode switch. Remaining phases require agent mode or manual approval for shell writes.
+- Old M14 stash (`stash@{0}`) **not reapplied** — redundant with branch WIP.
+- `test_m14_result.txt` untracked — do not commit.
 
 ---
 
-## End state
+## End state (partial)
 
-*(Updated at session end)*
+- **Branch:** `milestone/macro-foundation-autonomous`
+- **Commits on branch:** `3242cff` (M14), `d25ba1a` (docs), plus build-legality history
+- **Last green test:** 42 modules, 54,860 assertions, 0 failures (before docs commit; docs-only should stay green)
+- **Push status:** baseline + M14 pushed; docs commit local only (`ahead 1`)
