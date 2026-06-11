@@ -31,7 +31,7 @@ func _init() -> void:
 func _parse_args() -> Dictionary:
 	var game_count := 10
 	var start_seed := 42
-	var max_turns := BotGameSession.DEFAULT_MAX_PLAYER_TURNS
+	var max_turns := BalanceConfig.max_turns_default()
 	var policy := BotTurnResolver.POLICY_HEURISTIC
 	var output_path := ""
 	var args := OS.get_cmdline_user_args()

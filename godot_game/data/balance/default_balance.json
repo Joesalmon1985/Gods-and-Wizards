@@ -1,0 +1,20 @@
+{
+  "vp_to_win": 21,
+  "breach_limit": 7,
+  "vp_per_city": 1,
+  "max_turns_default": 200,
+  "build_city": {
+    "wood": 2,
+    "brick": 1,
+    "wheat": 1,
+    "sheep": 0,
+    "ore": 0
+  },
+  "build_road": {
+    "wood": 1,
+    "brick": 1,
+    "wheat": 0,
+    "sheep": 0,
+    "ore": 0
+  }
+}
