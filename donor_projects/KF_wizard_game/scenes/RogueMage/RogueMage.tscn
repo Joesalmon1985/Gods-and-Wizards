@@ -1,0 +1,348 @@
+[gd_scene load_steps=17 format=3 uid="uid://bk4ymhp7fbalt"]
+
+[ext_resource type="Script" uid="uid://c3cc8eeopp621" path="res://scenes/RogueMage/rogue_mage.gd" id="1_7yjm3"]
+[ext_resource type="Script" uid="uid://cv3ub7rvkg0kj" path="res://scripts/combat/MagicCombatEncounter.gd" id="2_undba"]
+[ext_resource type="Script" uid="uid://uvm0aoityen8" path="res://scenes/RogueMage/roge_billboard_body.gd" id="3_vl4t2"]
+[ext_resource type="Script" uid="uid://b8y1v6it7d3ki" path="res://scenes/RogueMage/rogue_mesh.gd" id="4_e30rl"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_h2yge"]
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_0xm2m"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_w48qg"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ig7tw"]
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_h2yge"]
+
+[sub_resource type="QuadMesh" id="QuadMesh_d13ii"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_82xsv"]
+transparency = 1
+cull_mode = 2
+shading_mode = 0
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_cegan"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_1u8w0"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_d13ii"]
+depth_draw_mode = 2
+albedo_color = Color(1, 1, 1, 0.372549)
+
+[sub_resource type="SphereMesh" id="SphereMesh_0odxb"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_lswn8"]
+albedo_color = Color(1, 1, 1, 0.741176)
+
+[node name="Main" type="Node3D"]
+script = ExtResource("1_7yjm3")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+script = ExtResource("2_undba")
+
+[node name="Control" type="Control" parent="CanvasLayer"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="RestartButton" type="Button" parent="CanvasLayer/Control"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 20.862
+anchor_top = 11.4
+anchor_right = 20.862
+anchor_bottom = 11.4
+offset_left = -111.48
+offset_top = -87.0
+offset_right = 111.52
+offset_bottom = 87.0
+
+[node name="healthlabel" type="Label" parent="CanvasLayer/Control"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.263
+anchor_top = 0.67
+anchor_right = 0.263
+anchor_bottom = 0.67
+offset_left = 36.48
+offset_top = 701.2
+offset_right = 142.48
+offset_bottom = 742.2
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(2, 2)
+
+[node name="fireballlabel" type="Label" parent="CanvasLayer/Control"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.517
+anchor_top = 0.747
+anchor_right = 0.517
+anchor_bottom = 0.747
+offset_left = 536.32
+offset_top = 695.12
+offset_right = 621.32
+offset_bottom = 741.12
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(2, 2)
+
+[node name="shieldlabel" type="Label" parent="CanvasLayer/Control"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.782
+anchor_top = 0.672
+anchor_right = 0.782
+anchor_bottom = 0.672
+offset_left = 1150.72
+offset_top = 699.12
+offset_right = 1247.72
+offset_bottom = 748.12
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(2, 2)
+
+[node name="Deathlabel" type="Label" parent="CanvasLayer/Control"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.782
+anchor_top = 0.672
+anchor_right = 0.782
+anchor_bottom = 0.672
+offset_left = 664.72
+offset_top = 301.12
+offset_right = 761.72
+offset_bottom = 324.12
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(2, 2)
+
+[node name="Damage" type="Label" parent="CanvasLayer/Control"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 11.352
+anchor_top = 8.324
+anchor_right = 11.352
+anchor_bottom = 8.324
+offset_left = 282.92
+offset_top = -186.96
+offset_right = 379.92
+offset_bottom = -163.96
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(2, 2)
+
+[node name="Enemy Damage" type="Label" parent="CanvasLayer/Control"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 11.352
+anchor_top = 8.324
+anchor_right = 11.352
+anchor_bottom = 8.324
+offset_left = 282.92
+offset_top = -186.96
+offset_right = 379.92
+offset_bottom = -163.96
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(2, 2)
+
+[node name="CastingLabel" type="Label" parent="CanvasLayer/Control"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.782
+anchor_top = 0.672
+anchor_right = 0.782
+anchor_bottom = 0.672
+offset_left = 706.72
+offset_top = 604.12
+offset_right = 803.72
+offset_bottom = 627.12
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(2, 2)
+
+[node name="EnemyCastingLabel" type="Label" parent="CanvasLayer/Control"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.782
+anchor_top = 0.672
+anchor_right = 0.782
+anchor_bottom = 0.672
+offset_left = 703.72
+offset_top = 200.12
+offset_right = 800.72
+offset_bottom = 223.12
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(2, 2)
+
+[node name="TargetLabel" type="Label" parent="CanvasLayer/Control"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.782
+anchor_top = 0.672
+anchor_right = 0.782
+anchor_bottom = 0.672
+offset_left = 695.72
+offset_top = 31.12
+offset_right = 792.72
+offset_bottom = 54.12
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(2, 2)
+
+[node name="OmniLight3D" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 106.091)
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.707107, 0.707107, 0, -0.707107, 0.707107, 0, 11.6042, 0)
+
+[node name="DirectionalLight3D2" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.248605, 0.684907, -0.684907, 0, 0.707107, 0.707107, 0.968605, 0.17579, -0.17579, 0, 11.6042, -135.417)
+
+[node name="VideoStreamPlayer" type="VideoStreamPlayer" parent="."]
+visible = false
+offset_right = 1176.0
+offset_bottom = 784.0
+autoplay = true
+loop = true
+
+[node name="Floor" type="MeshInstance3D" parent="."]
+transform = Transform3D(50, 0, 0, 0, 50, 0, 0, 0, 60, 0, -0.0459231, 0)
+material_override = SubResource("StandardMaterial3D_h2yge")
+mesh = SubResource("PlaneMesh_0xm2m")
+surface_material_override/0 = SubResource("ShaderMaterial_w48qg")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Floor"]
+transform = Transform3D(0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1, 0, 0.00459231, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Floor/StaticBody3D"]
+transform = Transform3D(100, 0, 0, 0, 1, 0, 0, 0, 1000, 0, 0, 0)
+shape = SubResource("BoxShape3D_ig7tw")
+
+[node name="North" type="Sprite3D" parent="."]
+transform = Transform3D(12.0198, 0, -3.80941, 0, 10, 0, 4.95224, 0, 9.24599, -11.7458, 64.864, -149.439)
+
+[node name="Mountains" type="Sprite3D" parent="North"]
+transform = Transform3D(9.95722, 0, 2.25412, 0, 7.6924, 0, -5.33318, 0, 7.11239, -26.8556, 10.9836, -63.2645)
+
+[node name="Foreground2" type="Sprite3D" parent="North"]
+transform = Transform3D(2.29195, 0, 0.873005, 0, 2.2, 0, -1.22759, 0, 1.62993, -5.33446, 8.96687, -14.897)
+
+[node name="Castle" type="Sprite3D" parent="North"]
+transform = Transform3D(3.96683, 0, 1.96461, 0, 4.292, 0, -2.12467, 0, 3.668, -18.9339, 4.62735, -28.6592)
+
+[node name="Foreground" type="Sprite3D" parent="North"]
+transform = Transform3D(1.76304, 0, 0.457985, 0, 1, 0, -0.9443, 0, 0.855073, -0.366951, 1.70265, 0.503261)
+
+[node name="Trees" type="Sprite3D" parent="North"]
+transform = Transform3D(1.76304, 0, 0.817292, 0, 1.785, 0, -0.944301, 0, 1.52591, 1.62367, 0.97233, 4.36223)
+
+[node name="Rock" type="Sprite3D" parent="North"]
+transform = Transform3D(0.50302, 0, -0.864275, 0, 1, 0, 0.864275, 0, 0.50302, 0.544019, 2.22451, 8.46251)
+flip_h = true
+axis = 0
+
+[node name="Trees3" type="Sprite3D" parent="North"]
+transform = Transform3D(1.76304, 0, 0.824374, 0, 1.8, 0, -0.944301, 0, 1.53913, 0.796719, 1.60088, 4.51532)
+
+[node name="Clouds" type="MeshInstance3D" parent="North"]
+transform = Transform3D(142.246, 29.2417, -1.89713, 0, -6.47413, -99.7902, -76.1882, 92.2659, -5.98598, -24.7211, 88.4053, -81.0855)
+mesh = SubResource("PlaneMesh_h2yge")
+skeleton = NodePath("../..")
+
+[node name="Northeast" type="Sprite3D" parent="."]
+transform = Transform3D(200, 0, 0, 0, 76.924, 0, 0, 0, 76.924, 761.436, 275.027, -1109.16)
+
+[node name="Foreground3" type="Sprite3D" parent="Northeast"]
+transform = Transform3D(0.0401817, 0, -0.149811, 0, 0.8, 0, 0.79899, 0, 0.00753406, 1.4595, 0.679695, 26.1264)
+
+[node name="Castle 2" type="Sprite3D" parent="Northeast"]
+transform = Transform3D(0.0103765, 0, -0.171991, 0, 0.611, 0, 0.999946, 0, 0.00178475, -1.69467, -0.823587, 14.2947)
+
+[node name="Castle 3" type="Sprite3D" parent="Northeast"]
+transform = Transform3D(0.0103765, 0, -0.171991, 0, 0.611, 0, 0.999946, 0, 0.00178475, -1.67317, -0.823587, 14.2097)
+
+[node name="Clouds" type="Sprite3D" parent="Northeast"]
+transform = Transform3D(-0.00372528, 0, -0.171999, 0, 0.611, 0, 1.4, 0, -0.000457677, -0.856697, -1.10392, 15.3967)
+
+[node name="Rock" type="Sprite3D" parent="Northeast"]
+transform = Transform3D(0.000291601, 0, -0.034, 0, 0.122, 0, 0.2, 0, 4.95722e-05, -3.36094, -2.459, 15.3911)
+
+[node name="Foreground 2" type="Sprite3D" parent="Northeast"]
+transform = Transform3D(-0.00462375, 0, -0.120997, 0, 0.428, 0, 0.699985, 0, -0.000799248, -2.49321, -0.903288, 17.943)
+
+[node name="Foreground 3" type="Sprite3D" parent="Northeast"]
+transform = Transform3D(-0.00462375, 0, -0.120997, 0, 0.428, 0, 0.699985, 0, -0.000799248, -2.44247, -0.850757, 17.943)
+
+[node name="Clouds2" type="MeshInstance3D" parent="Northeast"]
+transform = Transform3D(0.0354299, -4.98948, 0.323705, -1.812e-08, -0.841627, -12.9726, 25.9995, 0.0459618, -0.00298189, 2.31559, 9.01501, 24.2901)
+mesh = SubResource("PlaneMesh_h2yge")
+skeleton = NodePath("../..")
+
+[node name="Trees3" type="Sprite3D" parent="Northeast"]
+transform = Transform3D(-0.0051707, 0, 0.0979918, 0, 0.234, 0, -0.399967, 0, -0.00126682, -3.2481, -2.54358, 15.252)
+
+[node name="Trees5" type="Sprite3D" parent="Northeast"]
+transform = Transform3D(-0.0051707, 0, 0.0979918, 0, 0.234, 0, -0.399967, 0, -0.00126682, -3.22023, -2.54358, 15.252)
+
+[node name="Trees4" type="Sprite3D" parent="Northeast"]
+transform = Transform3D(-0.00814385, 0, 0.154987, 0, 0.369, 0, -0.629947, 0, -0.00200364, -3.25852, -2.97938, 16.2863)
+
+[node name="Mountains2" type="Sprite3D" parent="Northeast"]
+transform = Transform3D(-0.043646, 0, 0.494948, 0, 2, 0, -2.99968, 0, -0.00720159, -1.01405, -1.99925, 8.31077)
+
+[node name="Mountains3" type="Sprite3D" parent="Northeast"]
+transform = Transform3D(-0.043646, 0, 0.494948, 0, 2, 0, -2.99968, 0, -0.00720159, -2.26389, -1.99925, 3.68583)
+
+[node name="Enemy" type="StaticBody3D" parent="." groups=["enemies"]]
+transform = Transform3D(0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 0, 3.2403, -26.6103)
+collision_layer = 2
+
+[node name="enemy" type="MeshInstance3D" parent="Enemy"]
+transform = Transform3D(18, 0, 0, 0, -1.53344, -17.9346, 0, 17.9346, -1.53344, -0.0812597, 2.07835, -4.67249)
+layers = 3
+mesh = SubResource("QuadMesh_d13ii")
+skeleton = NodePath("../..")
+surface_material_override/0 = SubResource("StandardMaterial3D_82xsv")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Enemy"]
+transform = Transform3D(15, 0, 0, 0, 15, 0, 0, 0, 15, -0.0812597, 0.85907, -4.51503)
+shape = SubResource("CapsuleShape3D_cegan")
+
+[node name="AITimer" type="Timer" parent="Enemy"]
+
+[node name="FireballCooldown" type="Timer" parent="Enemy"]
+
+[node name="FireballTimer" type="Timer" parent="Enemy"]
+
+[node name="ShieldCooldown" type="Timer" parent="Enemy"]
+
+[node name="ShieldTimer" type="Timer" parent="Enemy"]
+
+[node name="Shield" type="MeshInstance3D" parent="."]
+transform = Transform3D(1.5, 0, 0, 0, 0.0523231, -1.49909, 0, 1.49909, 0.0523231, 36.5665, 3.71586, -20.1884)
+mesh = SubResource("SphereMesh_1u8w0")
+surface_material_override/0 = SubResource("StandardMaterial3D_d13ii")
+
+[node name="Fireball" type="MeshInstance3D" parent="."]
+transform = Transform3D(1.5, 0, 0, 0, 0.0523231, -1.49909, 0, 1.49909, 0.0523231, 30.1877, 3.71586, -20.1884)
+mesh = SubResource("SphereMesh_0odxb")
+surface_material_override/0 = SubResource("StandardMaterial3D_lswn8")
+
+[node name="RogueMage" type="Node3D" parent="."]
+
+[node name="RogueBillboardBody" type="StaticBody3D" parent="RogueMage"]
+script = ExtResource("3_vl4t2")
+
+[node name="RogueMesh" type="MeshInstance3D" parent="RogueMage/RogueBillboardBody"]
+script = ExtResource("4_e30rl")
+
+[connection signal="timeout" from="Enemy/AITimer" to="Enemy" method="_on_ai_timer_timeout"]
+[connection signal="timeout" from="Enemy/FireballCooldown" to="Enemy" method="_on_fireball_cooldown_timeout"]
+[connection signal="timeout" from="Enemy/FireballTimer" to="Enemy" method="_on_shield_cooldown_timeout"]
+[connection signal="timeout" from="Enemy/ShieldCooldown" to="Enemy" method="_on_shield_cooldown_timeout"]
+[connection signal="timeout" from="Enemy/ShieldTimer" to="Enemy" method="_on_shield_cooldown_timeout"]

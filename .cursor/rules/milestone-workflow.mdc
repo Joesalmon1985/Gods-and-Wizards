@@ -1,0 +1,29 @@
+---
+description: Milestone workflow, test-first development, and commit discipline
+alwaysApply: true
+---
+
+# Milestone workflow
+
+This project should be developed milestone by milestone.
+
+For each milestone:
+
+1. Plan the milestone before coding.
+2. Write or update tests first.
+3. Confirm the new tests fail for the expected reason where practical.
+4. Implement the smallest amount of code needed to pass the tests.
+5. Run the full Godot test command.
+6. Fix errors until all tests pass.
+7. Summarise the tests that prove the milestone is complete.
+8. Stop and wait for human review before moving to the next milestone.
+
+Do not weaken or delete tests to make them pass.
+
+Do not implement future milestones early.
+
+The test command is:
+
+& "C:\Tools\Godot\godot.exe" --headless --path "C:\Users\joesa\Documents\Cursor\BoardGame\gods-and-wizards\godot_game" -s res://tests/test_runner.gd
+
+When a milestone passes, suggest a Git commit message.

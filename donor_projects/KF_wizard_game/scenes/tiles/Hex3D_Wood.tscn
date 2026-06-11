@@ -1,0 +1,27 @@
+[gd_scene load_steps=6 format=3 uid="uid://dagu6cgktcndv"]
+
+[ext_resource type="Script" uid="uid://bw25sa6b2i0au" path="res://scripts/view/HexTile3D_Base.gd" id="1"]
+[ext_resource type="Script" uid="uid://ramqaswp6vro" path="res://scripts/view/ImpassableSpriteFill.gd" id="2"]
+[ext_resource type="Texture2D" uid="uid://dw5myl7f7ab2l" path="res://resources/sprites/tree/Tree1.png" id="3_0e36d"]
+[ext_resource type="Texture2D" uid="uid://knjo73an0bcm" path="res://resources/sprites/tower/tower.png" id="3_wqneg"]
+[ext_resource type="Texture2D" uid="uid://o2xw823cpcu1" path="res://resources/sprites/tree/Tree4.png" id="6_66gb2"]
+
+[node name="Hex3D_Wood" type="Node3D"]
+script = ExtResource("1")
+resource = "WOOD"
+min_count = 0
+max_count = 0
+
+[node name="ForestInner" type="Node3D" parent="."]
+script = ExtResource("2")
+collider_radius_ratio = 0.68
+add_navigation_obstacle = true
+centerpiece_enabled = true
+centerpiece_texture = ExtResource("3_wqneg")
+centerpiece_offset_y = 2.0
+count_max = 28
+y_center = 4.2
+min_scale = 0.3
+max_scale = 0.7
+vertical_jitter = 0.0
+textures = Array[Texture2D]([ExtResource("3_0e36d"), ExtResource("6_66gb2")])

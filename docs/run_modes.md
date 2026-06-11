@@ -1,0 +1,112 @@
+# Run Modes
+
+This workspace has **exactly one active Godot project**: [`godot_game/project.godot`](../godot_game/project.godot).
+
+Donor folders under `donor_projects/` are **reference-only**. Their former `project.godot` files were renamed to `project.godot.donor.txt` so Godot does not treat them as openable projects.
+
+Both run modes below use the same authoritative core types:
+
+- `GameState`
+- rule functions (`ActionRules`, `ProductionRules`, etc.)
+- `BotGameSession` (shared 4-player bot simulation wrapper)
+
+There is **one** game state machine in `godot_game/core/`. The 3D wizard-world mode does not create a parallel board or wizard GameState.
+
+---
+
+## A. Headless bot simulation (CSV playthrough)
+
+**Script:** `res://run_modes/run_headless_bot_game.gd`
+
+Runs a deterministic **4-player** bot game from a seed until game over or a turn limit, then writes a CSV playthrough log.
+
+### Command
+
+```powershell
+& "C:\Tools\Godot\godot.exe" --headless --path "C:\Users\joesa\Documents\Cursor\BoardGame\gods-and-wizards\godot_game" -s res://run_modes/run_headless_bot_game.gd -- --seed 42 --max-turns 200
+```
+
+### Optional arguments
+
+| Flag | Default | Meaning |
+|---|---|---|
+| `--seed` | `42` | Game RNG seed |
+| `--max-turns` | `200` | Max completed player turns if game-over rules do not finish first |
+| `--output` | (auto) | Override CSV output path (`user://` or absolute) |
+
+### CSV output path
+
+Default:
+
+```
+user://playthrough_seed_<seed>.csv
+```
+
+On Windows this resolves under the Godot user data folder for the project, typically:
+
+```
+C:\Users\<you>\AppData\Roaming\Godot\app_userdata\GodsAndWizards\playthrough_seed_42.csv
+```
+
+The headless script prints the **globalized absolute path** when finished.
+
+### CSV columns
+
+`seed`, `turn_number`, `round_number`, `active_player_id`, `active_player_name`, `action_type`, `action_details`, `event_type`, `event_details`, `event_summary`, `player_resources`, `city_count`, `road_count`, `demon_breach_info`, `score`
+
+`event_summary` is a human-readable one-line description of each event. `event_details` still contains the full JSON payload.
+
+Columns are always present; unimplemented fields use blank or default values.
+
+---
+
+## B. 3D wizard-world mode
+
+**Main scene:** `res://run_modes/wizard_world_mode.tscn`
+
+Launch from the editor (F5) or:
+
+```powershell
+& "C:\Tools\Godot\godot.exe" --path "C:\Users\joesa\Documents\Cursor\BoardGame\gods-and-wizards\godot_game"
+```
+
+### What it shows
+
+- Initialises the same `BotGameSession` / `GameState` as headless mode
+- Renders a read-only 3D board from `BoardWorldMapper` / `BoardStateVisualizer`
+- Human-readable overlay via `GameStateSummary`, `TurnReport`, and `EventSummary` (no raw JSON spam)
+- Scoreboard with victory points, cities, roads, hero status, and resource totals per player
+- Recent-turn log with aggregated production summaries
+
+### Controls
+
+| Input | Action |
+|---|---|
+| **Enter** / **N** | Advance one bot player turn |
+| **Space** | Toggle autoplay |
+| **+** / **-** | Adjust autoplay speed |
+| **R** | Reset with the same seed |
+| **H** | Hide/show help overlay |
+| **WASD** | Move wizard marker (presentation only; does not mutate `GameState`) |
+
+---
+
+## Tests
+
+```powershell
+& "C:\Tools\Godot\godot.exe" --headless --path "C:\Users\joesa\Documents\Cursor\BoardGame\gods-and-wizards\godot_game" -s res://tests/test_runner.gd
+```
+
+Architecture tests verify:
+
+- core remains headless
+- core does not reference donor projects
+- workspace has only one active `project.godot`
+- headless run mode can produce CSV
+- wizard-world scripts do not bypass rule/action APIs
+
+---
+
+## Debug overlay (legacy)
+
+The earlier debug replay UI remains at `res://ui/debug/debug_game_overlay.tscn` for event-log inspection. It is not the default main scene.

@@ -1,0 +1,18 @@
+[gd_scene load_steps=4 format=3 uid="uid://ctmldn5r5d54o"]
+
+[ext_resource type="Script" uid="uid://cn1ql55qcf0rk" path="res://scripts/characters/Character3D.gd" id="1"]
+
+[sub_resource type="SphereShape3D" id="2"]
+
+[sub_resource type="SphereMesh" id="3"]
+
+[node name="Character3D" type="CharacterBody3D"]
+script = ExtResource("1")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("2")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("3")
+
+[node name="NavigationAgent3D" type="NavigationAgent3D" parent="."]

@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3 uid="uid://bpghjdjsmbrr2"]
+
+[ext_resource type="Script" uid="uid://bw25sa6b2i0au" path="res://scripts/view/HexTile3D_Base.gd" id="1"]
+
+[node name="Hex3D_Desert" type="Node3D"]
+script = ExtResource("1")
+min_count = 0
+max_count = 0
+fill = 0.6

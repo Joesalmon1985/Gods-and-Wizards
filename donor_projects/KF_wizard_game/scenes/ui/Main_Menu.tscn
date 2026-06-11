@@ -1,0 +1,22 @@
+[gd_scene load_steps=2 format=3 uid="uid://c1hfuhkrw45jl"]
+
+[ext_resource type="Script" uid="uid://cp2ew1j40knpt" path="res://scenes/ui/MainMenuBuilder.gd" id="1_abljk"]
+
+[node name="MainMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_abljk")
+
+[node name="Brick_Weight" type="Label" parent="."]
+layout_mode = 0
+
+[node name="BrickSpin" type="SpinBox" parent="Brick_Weight"]
+layout_mode = 0
+offset_left = -8.0
+offset_top = 45.0
+offset_right = 78.5625
+offset_bottom = 76.0

@@ -1,0 +1,149 @@
+extends Node3D
+class_name EncounterManager
+
+# Signals for encounter events
+signal encounter_started(characters: Array)
+signal encounter_ended
+signal proximity_alert(character: Node3D, distance: float)
+
+# Configuration
+@export var detection_radius: float = 5.0
+@export var min_encounter_cooldown: float = 10.0
+@export var human_player_path: NodePath
+
+# Tracking
+var characters_in_range: Array = []
+var last_encounter_time: float = 0.0
+var human_player: Node3D = null
+var is_encounter_active: bool = false
+
+func _ready():
+	# Get human player reference
+	if human_player_path:
+		human_player = get_node(human_player_path)
+	
+	# Configure detection area
+	var area = $DetectionArea
+	area.connect("body_entered", Callable(self, "_on_body_entered"))
+	area.connect("body_exited", Callable(self, "_on_body_exited"))
+	
+	# Set up collision shape
+	var collision_shape = $DetectionArea/CollisionShape3D
+	if collision_shape and collision_shape.shape is SphereShape3D:
+		collision_shape.shape.radius = detection_radius
+
+func _process(delta):
+	if not is_encounter_active and characters_in_range.size() > 1:
+		_check_for_encounter()
+
+func _on_body_entered(body: Node3D):
+	# Only track characters with the appropriate script or group
+	if body.is_in_group("characters") and not characters_in_range.has(body):
+		characters_in_range.append(body)
+		print("Character entered range: ", body.name)
+
+func _on_body_exited(body: Node3D):
+	if characters_in_range.has(body):
+		characters_in_range.erase(body)
+		print("Character exited range: ", body.name)
+
+func _check_for_encounter():
+	var current_time = Time.get_unix_time_from_system()
+	
+	# Check cooldown
+	if current_time - last_encounter_time < min_encounter_cooldown:
+		return
+	
+	# Check if we have at least 2 characters in range
+	if characters_in_range.size() < 2:
+		return
+	
+	# Check distances between characters
+	for i in range(characters_in_range.size()):
+		for j in range(i + 1, characters_in_range.size()):
+			var char1 = characters_in_range[i]
+			var char2 = characters_in_range[j]
+			
+			var distance = char1.global_position.distance_to(char2.global_position)
+			
+			if distance <= detection_radius:
+				# Emit proximity alert
+				proximity_alert.emit(char1, distance)
+				
+				# Start encounter if characters are close enough
+				if distance <= detection_radius * 0.7:  # Closer than detection radius
+					_start_encounter([char1, char2])
+				return
+
+func _start_encounter(participants: Array):
+	if is_encounter_active:
+		return
+		
+	is_encounter_active = true
+	last_encounter_time = Time.get_unix_time_from_system()
+	
+	print("Encounter started between: ")
+	for character in participants:
+		print(" - ", character.name)
+	
+	# Determine if human player is involved
+	var human_involved = false
+	if human_player and participants.has(human_player):
+		human_involved = true
+	
+	# Freeze character movements
+	for character in participants:
+		if character.has_method("set_movement_enabled"):
+			character.set_movement_enabled(false)
+	
+	# Signal the encounter start
+	encounter_started.emit(participants)
+	
+	# Begin encounter resolution
+	if human_involved:
+		_resolve_human_encounter(participants)
+	else:
+		_resolve_ai_encounter(participants)
+
+func _resolve_human_encounter(participants: Array):
+	# Show UI for human player decision
+	print("Human encounter - showing UI options")
+	
+	# For now, we'll just auto-resolve after a delay
+	await get_tree().create_timer(2.0).timeout
+	_complete_encounter(participants)
+
+func _resolve_ai_encounter(participants: Array):
+	# AI vs AI encounter logic
+	print("AI encounter - resolving automatically")
+	
+	# Simple resolution: random outcome after delay
+	await get_tree().create_timer(1.5).timeout
+	
+	# Determine outcome (simplified)
+	var winner = participants[randi() % participants.size()]
+	print("Encounter winner: ", winner.name)
+	
+	_complete_encounter(participants)
+
+func _complete_encounter(participants: Array):
+	# Resume character movements
+	for character in participants:
+		if character.has_method("set_movement_enabled"):
+			character.set_movement_enabled(true)
+	
+	is_encounter_active = false
+	encounter_ended.emit()
+	print("Encounter completed")
+
+# Utility function to adjust detection radius
+func set_detection_radius(radius: float):
+	detection_radius = radius
+	var collision_shape = $DetectionArea/CollisionShape3D
+	if collision_shape and collision_shape.shape is SphereShape3D:
+		collision_shape.shape.radius = detection_radius
+
+# Function to manually trigger an encounter (for testing)
+func trigger_test_encounter():
+	if characters_in_range.size() >= 2:
+		_start_encounter([characters_in_range[0], characters_in_range[1]])

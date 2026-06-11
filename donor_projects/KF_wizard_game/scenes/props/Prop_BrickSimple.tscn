@@ -1,0 +1,14 @@
+[gd_scene format=3]
+
+[sub_resource type="StandardMaterial3D" id=1]
+albedo_color = Color(0.75, 0.22, 0.18, 1)
+
+[sub_resource type="BoxMesh" id=2]
+size = Vector3(0.6, 0.25, 0.3)
+material = SubResource(1)
+
+[node name="Prop_BrickSimple" type="Node3D"]
+
+[node name="Brick" type="MeshInstance3D" parent="."]
+mesh = SubResource(2)
+transform = Transform3D(1,0,0, 0,1,0, 0,0,1, 0, 0.13, 0)

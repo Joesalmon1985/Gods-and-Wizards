@@ -1,0 +1,91 @@
+[gd_scene load_steps=11 format=4 uid="uid://dn64gmsw1efer"]
+
+[ext_resource type="Script" uid="uid://bw25sa6b2i0au" path="res://scripts/view/HexTile3D_Base.gd" id="1_gffh8"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_gffh8"]
+albedo_color = Color(0.75, 0.65, 0.45, 1)
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_xf3vk"]
+_surfaces = [{
+"aabb": AABB(-55.4256, 0, -64, 110.851, 0.4, 128),
+"format": 34359738375,
+"material": SubResource("StandardMaterial3D_gffh8"),
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 60,
+"vertex_data": PackedByteArray("17NdQs3MzD4AAABCADCNJ83MzD4AAIBC17Ndws3MzD4AAABC17NdQs3MzD4AAABC17Ndws3MzD4AAABC17Ndws3MzD4AAADC17NdQs3MzD4AAABC17Ndws3MzD4AAADCAMhTqM3MzD4AAIDC17NdQs3MzD4AAABCAMhTqM3MzD4AAIDC17NdQs3MzD4AAADC17NdQgAAAAAAAABC17NdwgAAAAAAAABCADCNJwAAAAAAAIBC17NdQgAAAAAAAABC17NdwgAAAAAAAADC17NdwgAAAAAAAABC17NdQgAAAAAAAABCAMhTqAAAAAAAAIDC17NdwgAAAAAAAADC17NdQgAAAAAAAABC17NdQgAAAAAAAADCAMhTqAAAAAAAAIDC17NdQs3MzD4AAABC17NdQgAAAAAAAABCADCNJ83MzD4AAIBCADCNJ83MzD4AAIBC17NdQgAAAAAAAABCADCNJwAAAAAAAIBCADCNJ83MzD4AAIBCADCNJwAAAAAAAIBC17Ndws3MzD4AAABC17Ndws3MzD4AAABCADCNJwAAAAAAAIBC17NdwgAAAAAAAABC17Ndws3MzD4AAABC17NdwgAAAAAAAABC17Ndws3MzD4AAADC17Ndws3MzD4AAADC17NdwgAAAAAAAABC17NdwgAAAAAAAADC17Ndws3MzD4AAADC17NdwgAAAAAAAADCAMhTqM3MzD4AAIDCAMhTqM3MzD4AAIDC17NdwgAAAAAAAADCAMhTqAAAAAAAAIDCAMhTqM3MzD4AAIDCAMhTqAAAAAAAAIDC17NdQs3MzD4AAADC17NdQs3MzD4AAADCAMhTqAAAAAAAAIDC17NdQgAAAAAAAADC17NdQs3MzD4AAADC17NdQgAAAAAAAADC17NdQs3MzD4AAABC17NdQs3MzD4AAABC17NdQgAAAAAAAADC17NdQgAAAAAAAABCcKuBxWBB8M+djzufLWbmnFZTqKxseyGicKuBxWBB8M9WU6isbHshorQvXMT6T5qpcKuBxWBB8M+0L1zE+k+aqTYycfMfN9iScKuBxWBB8M82MnHzHzfYkvLk5ckFt9S0G6HHPSoqTaVdREpQ2Gmm2WFww2AUpiaCG6HHPSoqTaWpLKksBEQDxF1ESlDYaabZG6HHPSoqTaXIzY0MQGrMoKksqSwERAPEG6HHPSoqTaWt4kpJ7oz1rcjNjQxAasygcKuBxWBB8M8bocc9KipNpZ2PO58tZuacnY87ny1m5pwbocc9KipNpWFww2AUpiaCnY87ny1m5pxhcMNgFKYmglZTqKxseyGiVlOorGx7IaJhcMNgFKYmgl1ESlDYaabZVlOorGx7IaJdREpQ2Gmm2bQvXMT6T5qptC9cxPpPmqldREpQ2Gmm2aksqSwERAPEtC9cxPpPmqmpLKksBEQDxDYycfMfN9iSNjJx8x832JKpLKksBEQDxMjNjQxAasygNjJx8x832JLIzY0MQGrMoPLk5ckFt9S08uTlyQW31LTIzY0MQGrMoK3iSknujPWt8uTlyQW31LSt4kpJ7oz1rXCrgcVgQfDPcKuBxWBB8M+t4kpJ7oz1rRuhxz0qKk2l")
+}]
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_cwe0i"]
+height = 0.4
+radius = 57.6
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_2dfmg"]
+top_radius = 0.1
+bottom_radius = 0.15
+height = 1.2
+
+[sub_resource type="SphereMesh" id="SphereMesh_ah7nc"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_s6oq6"]
+top_radius = 0.1
+bottom_radius = 0.15
+height = 1.2
+
+[sub_resource type="SphereMesh" id="SphereMesh_x1ofp"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_uoy5b"]
+top_radius = 0.1
+bottom_radius = 0.15
+height = 1.2
+
+[sub_resource type="SphereMesh" id="SphereMesh_k36fc"]
+
+[node name="Node3D" type="Node3D"]
+script = ExtResource("1_gffh8")
+
+[node name="Ground" type="MeshInstance3D" parent="."]
+mesh = SubResource("ArrayMesh_xf3vk")
+
+[node name="Collider" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2, 0)
+
+[node name="Shape" type="CollisionShape3D" parent="Collider"]
+shape = SubResource("CylinderShape3D_cwe0i")
+
+[node name="Props" type="Node3D" parent="."]
+
+[node name="@Node3D@21740" type="Node3D" parent="Props"]
+transform = Transform3D(-0.751024, 0, 0.753483, 0, 1.06385, 0, -0.753483, 0, -0.751024, -22.7756, 0.42, -22.2296)
+
+[node name="@MeshInstance3D@21738" type="MeshInstance3D" parent="Props/@Node3D@21740"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0)
+mesh = SubResource("CylinderMesh_2dfmg")
+
+[node name="@MeshInstance3D@21739" type="MeshInstance3D" parent="Props/@Node3D@21740"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, 0)
+mesh = SubResource("SphereMesh_ah7nc")
+
+[node name="@Node3D@21743" type="Node3D" parent="Props"]
+transform = Transform3D(0.798949, 0, 0.440774, 0, 0.91247, 0, -0.440774, 0, 0.798949, -1.50169, 0.42, 25.6444)
+
+[node name="@MeshInstance3D@21741" type="MeshInstance3D" parent="Props/@Node3D@21743"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0)
+mesh = SubResource("CylinderMesh_s6oq6")
+
+[node name="@MeshInstance3D@21742" type="MeshInstance3D" parent="Props/@Node3D@21743"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, 0)
+mesh = SubResource("SphereMesh_x1ofp")
+
+[node name="@Node3D@21746" type="Node3D" parent="Props"]
+transform = Transform3D(0.772362, 0, 0.482682, 0, 0.910783, 0, -0.482682, 0, 0.772362, 5.83679, 0.42, -6.07145)
+
+[node name="@MeshInstance3D@21744" type="MeshInstance3D" parent="Props/@Node3D@21746"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0)
+mesh = SubResource("CylinderMesh_uoy5b")
+
+[node name="@MeshInstance3D@21745" type="MeshInstance3D" parent="Props/@Node3D@21746"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, 0)
+mesh = SubResource("SphereMesh_k36fc")
+
+[node name="Outline" type="MeshInstance3D" parent="."]

@@ -1,0 +1,10 @@
+[gd_scene load_steps=2 format=3 uid="uid://dysye840kv6q0"]
+
+[ext_resource type="Script" uid="uid://cagojvs7xp8br" path="res://scripts/EncounterManager/EncounterManager.gd" id="1_gek2l"]
+
+[node name="EncounterManager" type="Node3D"]
+script = ExtResource("1_gek2l")
+
+[node name="DetectionArea" type="Area3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="DetectionArea"]

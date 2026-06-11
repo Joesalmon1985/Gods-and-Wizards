@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="CombatProfile" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/combat/CombatProfile.gd" id="1"]
+[ext_resource type="Resource" path="res://resources/combat/decks/warrior_deck.tres" id="2"]
+
+[resource]
+script = ExtResource("1")
+base_health = 10
+base_strength = 2
+base_skill = 2
+deck = ExtResource("2")

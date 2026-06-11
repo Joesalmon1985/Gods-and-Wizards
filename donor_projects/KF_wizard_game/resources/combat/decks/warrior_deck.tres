@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="DeckDefinition" load_steps=9 format=3 uid="uid://dd64hxdbbpmkp"]
+
+[ext_resource type="Script" uid="uid://dgidm6b72gbpw" path="res://scripts/combat/DeckDefinition.gd" id="1"]
+[ext_resource type="Script" uid="uid://vd6gi1s8qe5r" path="res://scripts/combat/DeckEntry.gd" id="2"]
+[ext_resource type="Resource" path="res://resources/combat/cards/thrust.tres" id="11"]
+[ext_resource type="Resource" path="res://resources/combat/cards/parry.tres" id="12"]
+[ext_resource type="Resource" path="res://resources/combat/cards/swing.tres" id="13"]
+
+[sub_resource type="Resource" id="101"]
+script = ExtResource("2")
+card = ExtResource("11")
+count = 34
+
+[sub_resource type="Resource" id="102"]
+script = ExtResource("2")
+card = ExtResource("12")
+count = 33
+
+[sub_resource type="Resource" id="103"]
+script = ExtResource("2")
+card = ExtResource("13")
+count = 33
+
+[resource]
+script = ExtResource("1")
+entries = Array[ExtResource("2")]([SubResource("101"), SubResource("102"), SubResource("103")])
+hand_size = 3
+max_hand_size = 5

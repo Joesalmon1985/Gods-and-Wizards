@@ -1,0 +1,148 @@
+# Project Architecture Rules
+
+This project combines two previous Godot projects into one clean game.
+
+The new project under `godot_game/` is authoritative.
+
+The donor projects are reference material only:
+
+* `donor_projects/board_game_M13/` contains the previous board-game prototype.
+* `donor_projects/KF_wizard_game/` contains the previous wizard/duel/embodied prototype.
+
+Do not copy donor projects wholesale.
+Inspect donor projects and migrate only useful, understood pieces.
+
+## Game identity
+
+The game is a hybrid of:
+
+* Catan-style economy;
+* Pandemic-style threat spread;
+* Seven Wonders-style city development;
+* optional embodied wizard/hero gameplay.
+
+The strategic board game is the source of truth.
+
+The embodied wizard game is an optional way to experience or resolve board events.
+
+## Core board model
+
+Hexes are resource producers.
+
+Catan corner spaces are `BoardNode`s.
+
+`BoardNode`s are also Pandemic-style locations.
+
+Edges connect `BoardNode`s.
+
+Roads are built on edges.
+
+Cities are built on `BoardNode`s.
+
+Heroes and demons exist on `BoardNode`s.
+
+Underworld/demon spread happens node-to-node along edges.
+
+Development cards are built into cities and may unlock board effects, embodied effects, or both.
+
+## Folder responsibilities
+
+`godot_game/core/`
+
+* Headless deterministic game engine.
+* Owns GameState, board state, rules, actions, events, bots, scoring, simulation, and seeded randomness.
+* Must not depend on UI, scenes, Node3D, input, physics, animation, rendering, or the live scene tree.
+
+`godot_game/embodied/`
+
+* 3D/player/wizard/hero gameplay.
+* May contain CharacterBody3D, Node3D, input, camera, movement, animations, and embodied encounter scenes.
+* Must not directly mutate authoritative game state.
+
+`godot_game/integration/`
+
+* Translates between core board state and embodied scenes.
+* Maps BoardNodes to world anchors.
+* Applies embodied encounter results back through core rules.
+
+`godot_game/ui/`
+
+* Debug UI, board UI, combat UI, menus, logs, and presentation.
+
+`godot_game/tests/`
+
+* Headless tests for core rules and deterministic simulation.
+* Integration tests where appropriate.
+
+## Determinism
+
+Same seed plus same action sequence must produce the same state and event log.
+
+All randomness in `core/` must go through a controlled RNG wrapper.
+
+Do not use global random functions directly in core rules.
+
+## Rule design
+
+Rules mutate `GameState` explicitly.
+
+Rules should return `GameEvent`s describing what happened.
+
+UI/embodied code may request actions but must not directly edit:
+
+* resources;
+* city ownership;
+* road ownership;
+* demon count;
+* hero location;
+* scores;
+* underworld deck;
+* win/loss state.
+
+## Testing
+
+Prefer tests before implementation.
+
+Do not delete, weaken, skip, or rewrite tests merely to make progress.
+
+Each milestone should include acceptance tests.
+
+Core tests must be runnable without opening gameplay scenes.
+
+## Cursor workflow
+
+Work milestone by milestone.
+
+Before coding a milestone:
+
+1. Restate the milestone goal.
+2. List expected files to change.
+3. List tests to add or update.
+4. State what is explicitly out of scope.
+
+After coding:
+
+1. Run the relevant tests.
+2. Summarise changed files.
+3. Summarise new/updated tests.
+4. Report test result.
+5. Note remaining risks.
+6. Suggest a Git commit message.
+
+Do not continue into the next milestone without review.
+
+## Do not do
+
+Do not merge both donor projects in one pass.
+
+Do not make KF economy/world code authoritative.
+
+Do not put UI, Node3D, CharacterBody3D, physics, input, or rendering code inside `core/`.
+
+Do not build embodied mode before the abstract board model supports nodes, edges, cities, roads, demons, and heroes.
+
+Do not build combat UI before a headless encounter contract exists.
+
+Do not add a large development-card system before basic city/hero/demon rules are stable.
+
+Do not create a second parallel GameState.

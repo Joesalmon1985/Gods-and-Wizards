@@ -1,0 +1,71 @@
+---
+description: Architecture rules for the board game project
+alwaysApply: true
+---
+
+# Board game architecture rules
+
+This is a Godot 4 turn-based board game.
+
+The game should be built as a headless rules engine first.
+
+## Core principle
+
+The UI is only a window into the game. The game itself is the state machine.
+
+## Architecture rules
+
+- Build the game as a headless rules engine first.
+- The core game must be playable without UI, scenes, buttons, mouse input, sprites, animation, or rendering.
+- Keep all core rules under `godot_game/core/` (or `res://core/` within the Godot project).
+- Keep visual/debug UI under `godot_game/ui/`.
+- Core code should be deterministic from a seed.
+- The same seed plus the same legal actions must always produce the same result.
+- Rules should mutate `GameState` only through explicit rule functions.
+- Rule functions should return events describing what happened.
+- The UI must only read state and events; it must not contain rules logic.
+- Always add or update tests for any rule change.
+- Prefer small, focused files over large monolithic scripts.
+- Do not invent extra game systems unless asked.
+- Do not build the full game in one pass.
+
+## Game concept
+
+This is a competitive civilisation-building board game on a hex map.
+
+It combines:
+
+- Settlers of Catan-style city-adjacent resource production.
+- Pandemic-style heroes moving around the board to contain a spreading demonic underworld.
+- Seven Wonders-style drafting of development cards, which are built into cities as special buildings.
+
+## Current design target
+
+The first milestone is not a complete game.
+
+The first milestone should only prove that the game can run headlessly.
+
+It should support:
+
+- Creating a seeded radius-3 hex board.
+- Creating players.
+- Placing initial cities.
+- Giving each hex a production chance from 0 to 9 for each resource.
+- Running start-of-turn production.
+- Giving resources to players with cities adjacent to producing hexes.
+- Returning event objects describing what happened.
+- Running the same simulation twice from the same seed and getting the same result.
+
+## Do not build yet
+
+Do not build these until specifically requested:
+
+- Drafting
+- Heroes
+- Underworld spread
+- Outbreaks
+- Full scoring
+- Neural network training
+- Finished UI
+- Animations
+- Art

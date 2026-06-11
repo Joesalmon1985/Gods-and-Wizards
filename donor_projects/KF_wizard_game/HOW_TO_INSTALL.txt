@@ -1,0 +1,34 @@
+Godot 4.4.1 patch — PlayerCharacter + DebugSpectator + non-blocking combat UI.
+
+1) Copy everything under res:// from this zip into your project, keeping folders:
+   autoload/, ui/, actors/, scenes/, scripts/, patches/
+
+2) Project > Project Settings > Autoload:
+   Add:  res://autoload/UIManager.gd  as  UIManager  (Enabled)
+
+3) Input Map (Project Settings > Input Map). Add if missing:
+   move_forward (W), move_backward (S), move_left (A), move_right (D),
+   sprint (Shift), ui_cancel (Esc),
+   move_up (E/Space), move_down (Q/C), crouch (Ctrl), toggle_hud (H)
+
+4) Scenes:
+   - Main game: open res://scenes/MainGame.tscn (spawns PlayerCharacter).
+   - Debug sandbox: open res://scenes/DebugSandbox.tscn (spawns free-fly spectator).
+
+5) Player spawn:
+   Place a Node3D/Marker3D named "PlayerSpawn" in your level (res://scenes/GameLevel.tscn)
+   or add a node to group "player_spawn". The spawner will place the player there.
+
+6) Combat UI:
+   When an Encounter turn belongs to a node in group "player", CardCombatEncounter will
+   call UIManager.begin_card_choice() to show the hand (no 'await' inside step()).
+
+7) Patching CardCombatEncounter:
+   Try the unified diff in patches/CardCombatEncounter_player_input.diff against your file.
+   If your path differs, copy encounters/CardCombatEncounter_with_player_input.gd and manually
+   merge the 'non-blocking player choice' parts into your script.
+
+Notes:
+  - All GDScript avoids the '? :' operator and uses 4.4.1-friendly constructs.
+  - If your Character3D isn't CharacterBody3D, move your FPS movement from FpsPlayer.gd into
+    PlayerCharacter.gd or compose it as a separate controller script.

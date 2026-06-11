@@ -1,0 +1,31 @@
+[gd_scene load_steps=6 format=3 uid="uid://bjvxy3jq3xsvw"]
+
+[ext_resource type="Script" uid="uid://bw25sa6b2i0au" path="res://scripts/view/HexTile3D_Base.gd" id="1"]
+[ext_resource type="Script" uid="uid://ramqaswp6vro" path="res://scripts/view/ImpassableSpriteFill.gd" id="2"]
+[ext_resource type="Texture2D" uid="uid://cebfkgcxt3ieq" path="res://resources/sprites/sheep/sheep1.png" id="3_4iq61"]
+[ext_resource type="Texture2D" uid="uid://dedsmhdfmnj8p" path="res://resources/sprites/sheep/sheep2.png" id="4_2oxpc"]
+[ext_resource type="Texture2D" uid="uid://d0fspgb5gojjj" path="res://resources/sprites/sheep/Sheep3.png" id="5_fqv17"]
+
+[node name="Hex3D_Sheep" type="Node3D"]
+script = ExtResource("1")
+resource = "SHEEP"
+min_count = 6
+max_count = 8
+min_scale = 0.3
+max_scale = 0.5
+fill = 0.78
+
+[node name="SheepFlock" type="Node3D" parent="."]
+transform = Transform3D(0.358091, 0, -0.933687, 0, 1, 0, 0.933687, 0, 0.358091, -0.519737, 0.600107, -3.68079)
+script = ExtResource("2")
+collider_radius_ratio = 0.5
+blocker_color = Color(0.75, 0.9, 0.75, 0.55)
+count_min = 13
+count_max = 20
+pixel_size = 0.05
+min_scale = 0.09
+max_scale = 0.2
+vertical_jitter = 0.08
+textures = Array[Texture2D]([ExtResource("3_4iq61"), ExtResource("4_2oxpc"), ExtResource("5_fqv17")])
+textures_dir = "res://resources/sprites/sheep"
+filename_contains = "sheep"

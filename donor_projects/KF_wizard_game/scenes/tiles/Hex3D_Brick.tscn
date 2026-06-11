@@ -1,0 +1,11 @@
+[gd_scene load_steps=3 format=3 uid="uid://bqt715yn34gw0"]
+
+[ext_resource type="Script" uid="uid://bw25sa6b2i0au" path="res://scripts/view/HexTile3D_Base.gd" id="1"]
+[ext_resource type="PackedScene" path="res://scenes/props/Prop_BrickSimple.tscn" id="2"]
+
+[node name="Hex3D_Brick" type="Node3D"]
+script = ExtResource("1")
+resource = "BRICK"
+prop_scenes = Array[PackedScene]([ExtResource("2")])
+max_count = 3
+fill = 0.68
