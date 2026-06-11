@@ -113,6 +113,8 @@ Core tests must be runnable without opening gameplay scenes.
 
 Work milestone by milestone.
 
+**Read first:** `docs/PROJECT_STATUS.md`, `docs/TESTING_AND_GIT_WORKFLOW.md`, `docs/NEXT_MILESTONES.md`.
+
 Before coding a milestone:
 
 1. Restate the milestone goal.
@@ -139,10 +141,10 @@ Do not make KF economy/world code authoritative.
 
 Do not put UI, Node3D, CharacterBody3D, physics, input, or rendering code inside `core/`.
 
-Do not build embodied mode before the abstract board model supports nodes, edges, cities, roads, demons, and heroes.
+Do not let UI, integration, embodied, or run-mode scripts directly mutate `GameState` (resources, cities, roads, demons, heroes, scores, win/loss).
 
-Do not build combat UI before a headless encounter contract exists.
+Do not build a full drafting/development-card system before human playable 2D/strategic interaction exists (unless explicitly requested).
 
-Do not add a large development-card system before basic city/hero/demon rules are stable.
+Do not wire embodied combat into the main loop before the headless encounter contract and human turn shell are stable.
 
 Do not create a second parallel GameState.

@@ -22,8 +22,12 @@ Do not weaken or delete tests to make them pass.
 
 Do not implement future milestones early.
 
+Use a milestone branch for code changes; see `docs/TESTING_AND_GIT_WORKFLOW.md`.
+
 The test command is:
 
 & "C:\Tools\Godot\godot.exe" --headless --path "C:\Users\joesa\Documents\Cursor\BoardGame\gods-and-wizards\godot_game" -s res://tests/test_runner.gd
 
 When a milestone passes, suggest a Git commit message.
+
+Do not push failing work to `main`. See `docs/TESTING_AND_GIT_WORKFLOW.md`.

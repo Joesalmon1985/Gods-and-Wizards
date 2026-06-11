@@ -39,33 +39,40 @@ It combines:
 - Pandemic-style heroes moving around the board to contain a spreading demonic underworld.
 - Seven Wonders-style drafting of development cards, which are built into cities as special buildings.
 
-## Current design target
+## Current project state (2026-06)
 
-The first milestone is not a complete game.
+The headless milestone is **complete and extended**. The active Godot project is `godot_game/`.
 
-The first milestone should only prove that the game can run headlessly.
+**Implemented in core (test-covered):**
 
-It should support:
+- Seeded radius-3 hex board, players, cities, production
+- Roads, heroes, demon spread, breach loss, victory-point win
+- Legal actions, bots, event log, deterministic simulation
+- Development build stub, headless card combat contract
+- `BotGameSession`, CSV export, reporting helpers
 
-- Creating a seeded radius-3 hex board.
-- Creating players.
-- Placing initial cities.
-- Giving each hex a production chance from 0 to 9 for each resource.
-- Running start-of-turn production.
-- Giving resources to players with cities adjacent to producing hexes.
-- Returning event objects describing what happened.
-- Running the same simulation twice from the same seed and getting the same result.
+**Implemented in presentation (read-only / bot-advance):**
+
+- Headless CSV bot run mode
+- 3D wizard-world board visualisation with human-readable overlay
+- Legacy debug event-log overlay
+
+**Not yet implemented:**
+
+- Human player action selection
+- 2D strategic board UI
+- Full drafting and development-card library
+- Full embodied wizard/combat gameplay loop
+
+See `docs/PROJECT_STATUS.md` and `docs/NEXT_MILESTONES.md` for handoff details.
 
 ## Do not build yet
 
 Do not build these until specifically requested:
 
-- Drafting
-- Heroes
-- Underworld spread
-- Outbreaks
-- Full scoring
+- Drafting (full Seven Wonders-style system)
+- Full development-card library beyond the current stub
 - Neural network training
-- Finished UI
-- Animations
-- Art
+- Finished art, animation, and polish
+- Multiplayer networking
+- A second parallel GameState or donor-project merge
