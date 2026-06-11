@@ -1,13 +1,16 @@
 # Full suite: godot --headless --path "<project>" -s res://tests/test_runner.gd
-# Optional filter: ... -s res://tests/test_runner.gd -- --suite=architecture
+# Optional filters: ... -- --suite=architecture  or  ... -- --module=TestHumanPlayerSession
 
 extends SceneTree
 
 
 func _init() -> void:
+	var module_filter := TestRegistry.resolve_module_filter()
 	var suite_filter := TestRegistry.resolve_suite_filter()
 	var modules := TestRegistry.all_modules()
-	if not suite_filter.is_empty():
+	if not module_filter.is_empty():
+		modules = TestRegistry.modules_for_name(module_filter)
+	elif not suite_filter.is_empty():
 		modules = TestRegistry.modules_for_category(suite_filter)
 
 	var test_assert := TestAssert.new()

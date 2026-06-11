@@ -64,6 +64,7 @@ static func all_modules() -> Array:
 		{"category": CATEGORY_INTEGRATION, "name": "TestBalanceConfig", "module": TestBalanceConfig},
 		{"category": CATEGORY_DEBUG, "name": "TestDebugController", "module": TestDebugController},
 		{"category": CATEGORY_DEBUG, "name": "TestDebugRunExport", "module": TestDebugRunExport},
+		{"category": CATEGORY_DEBUG, "name": "TestTestRunner", "module": TestTestRunner},
 	]
 
 
@@ -75,14 +76,42 @@ static func modules_for_category(category: String) -> Array:
 	return filtered
 
 
-static func resolve_suite_filter() -> String:
-	var args := OS.get_cmdline_user_args()
+static func modules_for_name(module_name: String) -> Array:
+	var filtered: Array = []
+	for entry in all_modules():
+		if entry["name"] == module_name:
+			filtered.append(entry)
+	return filtered
+
+
+static func parse_cmdline_filters(args: Array) -> Dictionary:
+	var result := {"suite": "", "module": ""}
 	var index := 0
 	while index < args.size():
 		var arg: String = args[index]
 		if arg == "--suite" and index + 1 < args.size():
-			return args[index + 1]
+			result["suite"] = args[index + 1]
+			index += 2
+			continue
 		if arg.begins_with("--suite="):
-			return arg.substr("--suite=".length())
+			result["suite"] = arg.substr("--suite=".length())
+			index += 1
+			continue
+		if arg == "--module" and index + 1 < args.size():
+			result["module"] = args[index + 1]
+			index += 2
+			continue
+		if arg.begins_with("--module="):
+			result["module"] = arg.substr("--module=".length())
+			index += 1
+			continue
 		index += 1
-	return ""
+	return result
+
+
+static func resolve_suite_filter() -> String:
+	return parse_cmdline_filters(OS.get_cmdline_user_args())["suite"]
+
+
+static func resolve_module_filter() -> String:
+	return parse_cmdline_filters(OS.get_cmdline_user_args())["module"]
