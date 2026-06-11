@@ -4,7 +4,16 @@ This workspace has **exactly one active Godot project**: [`godot_game/project.go
 
 Donor folders under `donor_projects/` are **reference-only**. Their former `project.godot` files were renamed to `project.godot.donor.txt` so Godot does not treat them as openable projects.
 
-Both run modes below use the same authoritative core types:
+---
+
+## Architecture constraints
+
+- **One authoritative `GameState`** — no second state machine.
+- **Core is headless** — `godot_game/core/` has no UI or input dependencies.
+- **Run modes submit, do not mutate** — `run_modes/`, `ui/`, `integration/`, and `embodied/` must not directly patch cities, roads, resources, demons, heroes, or scores; use `BotGameSession` and rule APIs.
+- **Donor projects are reference-only** — do not import active code from `donor_projects/`.
+
+Macro run modes (A, A2) and visual modes (B, C) use the same authoritative core types where applicable:
 
 - `GameState`
 - rule functions (`ActionRules`, `ProductionRules`, etc.)
@@ -23,8 +32,19 @@ Runs a deterministic **4-player** bot game from a seed until game over or a turn
 ### Command
 
 ```powershell
-& "C:\Tools\Godot\godot.exe" --headless --path "C:\Users\joesa\Documents\Cursor\BoardGame\gods-and-wizards\godot_game" -s res://run_modes/run_headless_bot_game.gd -- --seed 42 --max-turns 200
+& "C:\Tools\Godot\godot.exe" --headless --path "C:\Users\joesa\Documents\Cursor\BoardGame\gods-and-wizards\godot_game" -s res://run_modes/run_headless_bot_game.gd -- --seed 42 --max-turns 300
 ```
+
+### Command (write CSV under repo `logs/`)
+
+```powershell
+$ProjectRoot = "C:\Users\joesa\Documents\Cursor\BoardGame\gods-and-wizards"
+$Out = Join-Path $ProjectRoot "logs\playthrough_seed_42.csv"
+New-Item -ItemType Directory -Force (Split-Path $Out) | Out-Null
+& "C:\Tools\Godot\godot.exe" --headless --path (Join-Path $ProjectRoot "godot_game") -s res://run_modes/run_headless_bot_game.gd -- --seed 42 --max-turns 300 --output $Out
+```
+
+Do not commit files under `logs/` (gitignored).
 
 ### Optional arguments
 
@@ -69,7 +89,10 @@ Runs **N** independent 4-player bot games (seeds `seed`, `seed+1`, …) and writ
 ### Command
 
 ```powershell
-& "C:\Tools\Godot\godot.exe" --headless --path "C:\Users\joesa\Documents\Cursor\BoardGame\gods-and-wizards\godot_game" -s res://run_modes/run_batch_sim.gd -- --games 100 --seed 42 --max-turns 300 --output "logs\batch_balance.csv"
+$ProjectRoot = "C:\Users\joesa\Documents\Cursor\BoardGame\gods-and-wizards"
+$Out = Join-Path $ProjectRoot "logs\batch_balance.csv"
+New-Item -ItemType Directory -Force (Split-Path $Out) | Out-Null
+& "C:\Tools\Godot\godot.exe" --headless --path (Join-Path $ProjectRoot "godot_game") -s res://run_modes/run_batch_sim.gd -- --games 100 --seed 42 --max-turns 300 --output $Out
 ```
 
 ### Optional arguments
@@ -128,6 +151,34 @@ Read-only 2D hex board driven by `BoardWorldMapper` snapshots and `BotGameSessio
 ```powershell
 & "C:\Tools\Godot\godot.exe" --path "C:\Users\joesa\Documents\Cursor\BoardGame\gods-and-wizards\godot_game" res://run_modes/strategic_2d_mode.tscn
 ```
+
+---
+
+## D. Headless micro-duel runner — **not implemented (proposed M21)**
+
+**Status:** No `run_headless_duel.gd` or similar exists under `run_modes/`.
+
+**Existing headless combat (tests only):**
+
+- `core/combat/` — `CombatResolver`, `CombatRules`, deck runtime
+- Tests: `TestCombatRules`, `TestDeckRuntime`, `TestEncounterResolver`, `TestIntegrationBridge`
+
+**Proposed M21:**
+
+- Script: `res://run_modes/run_headless_duel.gd`
+- Args: `--seed`, `--output` (CSV or JSON)
+- Single call to `CombatResolver.resolve_encounter()` — no `GameState`, no 3D
+- Optional: `core/export/duel_log_exporter.gd` for round-by-round columns
+- Tests: `test_headless_duel_runner.gd` — same seed → identical export
+
+See [NEXT_MILESTONES.md](NEXT_MILESTONES.md#m21--headless-micro-duel-smoke-runner-proposed-not-implemented).
+
+---
+
+## Known CSV quirks (playthrough mode A)
+
+- **`road_count`** — uses final session state on all rows; **`city_count`** is replayed per step.
+- **`production_check` rows** — `event_summary` is often empty.
 
 ---
 
