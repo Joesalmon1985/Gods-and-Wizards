@@ -177,8 +177,9 @@ See [NEXT_MILESTONES.md](NEXT_MILESTONES.md#m21--headless-micro-duel-smoke-runne
 
 ## Known CSV quirks (playthrough mode A)
 
-- **`road_count`** — uses final session state on all rows; **`city_count`** is replayed per step.
-- **`production_check` rows** — `event_summary` is often empty.
+- **`production_check` rows** — now include human-readable `event_summary` (roll, hex, hit/miss).
+- **`road_count` and `city_count`** — both replayed per log step via `EventLogReplay`.
+- **Batch sim turn-limit stalls** — many games may hit `--max-turns` without VP finish; see batch CSV `outcome_reason`.
 
 ---
 

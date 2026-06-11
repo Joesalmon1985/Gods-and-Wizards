@@ -10,6 +10,7 @@ static func run(test_assert: TestAssert) -> void:
 	_test_step_zero_baseline(test_assert, baseline, log)
 	_test_city_built_replay(test_assert, baseline, log, final_state)
 	_test_resource_gained_replay(test_assert, baseline, log)
+	_test_road_built_replay(test_assert, baseline, log, final_state)
 	_test_controller_uses_replay(test_assert, result)
 
 
@@ -81,6 +82,30 @@ static func _test_resource_gained_replay(test_assert: TestAssert, baseline: Dict
 				expected_totals[player_id].get(resource_key, 0),
 				"replayed resources should match cumulative gains"
 			)
+
+
+static func _test_road_built_replay(
+	test_assert: TestAssert,
+	baseline: Dictionary,
+	log: EventLog,
+	final_state: GameState
+) -> void:
+	var build_step := -1
+	for i in range(log.entries.size()):
+		if log.entries[i]["type"] == "road_built":
+			build_step = i + 1
+			break
+
+	if build_step <= 0:
+		return
+
+	var before := EventLogReplay.build_view_at_step(baseline, log, build_step - 1)
+	var after := EventLogReplay.build_view_at_step(baseline, log, build_step)
+	test_assert.eq(
+		after["roads"].size(),
+		before["roads"].size() + 1,
+		"replaying road_built should increase displayed road count"
+	)
 
 
 static func _test_controller_uses_replay(test_assert: TestAssert, result: Dictionary) -> void:

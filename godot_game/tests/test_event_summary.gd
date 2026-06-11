@@ -52,10 +52,19 @@ static func _test_unknown_event_degrades(test_assert: TestAssert) -> void:
 static func _test_log_entry_summaries(test_assert: TestAssert) -> void:
 	var state := TestScenario.build_standard_game(3)
 	var line := EventSummary.summarize_log_entry(
-		{"type": "production_check", "payload": {"hex": "ignored"}},
+		{
+			"type": "production_check",
+			"payload": {
+				"hex": {"q": 0, "r": 0},
+				"resource": "wood",
+				"roll": 4,
+				"produced": true,
+			},
+		},
 		state
 	)
-	test_assert.eq(line, "", "production_check log entries should not produce noisy summaries")
+	test_assert.check("Production check:" in line, "production_check log entries should be readable")
+	test_assert.check("Wood" in line, "production_check summary should name the resource")
 
 	var gain_line := EventSummary.summarize_log_entry(
 		{

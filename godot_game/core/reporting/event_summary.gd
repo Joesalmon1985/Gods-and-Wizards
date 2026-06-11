@@ -28,7 +28,9 @@ static func summarize_events(events: Array, state: GameState) -> Array[String]:
 
 static func summarize_event_entry(entry_type: String, payload: Dictionary, state: GameState) -> String:
 	match entry_type:
-		"production_check", "action_mask_recorded":
+		"production_check":
+			return _production_check_line(payload)
+		"action_mask_recorded":
 			return ""
 		"resource_gained":
 			return _resource_gained_line(payload, state)
@@ -153,6 +155,18 @@ static func _resource_label_from_key(key: String) -> String:
 			return "Ore"
 		_:
 			return key.capitalize()
+
+
+static func _production_check_line(payload: Dictionary) -> String:
+	var resource_key := str(payload.get("resource", ""))
+	var resource_label := _resource_label_from_key(resource_key)
+	var hex_data: Dictionary = payload.get("hex", {})
+	var hex_ref := "%d,%d" % [hex_data.get("q", 0), hex_data.get("r", 0)]
+	var roll := int(payload.get("roll", -1))
+	var produced: bool = payload.get("produced", false)
+	if produced:
+		return "Production check: %s on hex %s — roll %d, produced." % [resource_label, hex_ref, roll]
+	return "Production check: %s on hex %s — roll %d, no production." % [resource_label, hex_ref, roll]
 
 
 static func _short_node_ref(node_data) -> String:

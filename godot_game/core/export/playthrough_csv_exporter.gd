@@ -50,7 +50,7 @@ static func build_rows(session: BotGameSession) -> Array:
 		row["event_details"] = JSON.stringify(payload)
 		row["event_summary"] = EventSummary.summarize_event_entry(entry_type, payload, state)
 		row["city_count"] = str(replayed.get("cities", []).size())
-		row["road_count"] = str(state.roads.size())
+		row["road_count"] = str(replayed.get("roads", []).size())
 		row["demon_breach_info"] = _demon_breach_info(state)
 		row["score"] = _scores_summary(replayed)
 		row["player_resources"] = _resources_summary(replayed)

@@ -11,6 +11,7 @@ static func capture_baseline(state: GameState) -> Dictionary:
 		"active_player_index": state.active_player_index,
 		"players": _players_data(state),
 		"cities": _cities_data(state),
+		"roads": _roads_data(state),
 	}
 
 
@@ -56,6 +57,16 @@ static func _cities_data(state: GameState) -> Array:
 	return cities_data
 
 
+static func _roads_data(state: GameState) -> Array:
+	var roads_data: Array = []
+	for road in state.roads:
+		roads_data.append({
+			"player_id": road.player_id,
+			"edge_key": road.edge.to_key(),
+		})
+	return roads_data
+
+
 static func _duplicate_baseline(baseline: Dictionary) -> Dictionary:
 	var players_copy: Array = []
 	for player in baseline["players"]:
@@ -70,12 +81,17 @@ static func _duplicate_baseline(baseline: Dictionary) -> Dictionary:
 	for city in baseline["cities"]:
 		cities_copy.append(city.duplicate())
 
+	var roads_copy: Array = []
+	for road in baseline.get("roads", []):
+		roads_copy.append(road.duplicate())
+
 	return {
 		"schema_version": baseline.get("schema_version", SCHEMA_VERSION),
 		"round_number": baseline["round_number"],
 		"active_player_index": baseline["active_player_index"],
 		"players": players_copy,
 		"cities": cities_copy,
+		"roads": roads_copy,
 	}
 
 
@@ -113,6 +129,11 @@ static func _apply_city_built(view: Dictionary, payload: Dictionary) -> void:
 static func _apply_road_built(view: Dictionary, payload: Dictionary) -> void:
 	var player_id: int = payload.get("player_id", -1)
 	_deduct_cost(view, player_id, BuildCosts.BUILD_ROAD)
+	var edge := EdgeCoord.from_dict(payload.get("edge", {}))
+	view["roads"].append({
+		"player_id": player_id,
+		"edge_key": edge.to_key(),
+	})
 
 
 static func _apply_resource_gained(view: Dictionary, payload: Dictionary) -> void:
