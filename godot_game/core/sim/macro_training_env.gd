@@ -46,6 +46,28 @@ func get_observation(player_id: int) -> Dictionary:
 	}
 
 
+func get_legal_action_view(player_id: int) -> LegalActionView:
+	if session == null:
+		return LegalActionView.new(ActionSpace.new())
+	if player_id != session.get_active_player_id():
+		var empty_space := session.state.action_space if session.state != null else ActionSpace.new()
+		return LegalActionView.new(empty_space)
+	return LegalActionQuery.get_view(session.state)
+
+
+func choose_policy_action() -> GameAction:
+	if session == null:
+		return null
+	return BotTurnResolver.choose_action(session.state, session.policy_name)
+
+
+func step_policy_action() -> Dictionary:
+	var action := choose_policy_action()
+	if action == null:
+		return _step_result([])
+	return step(action)
+
+
 func get_legal_actions(player_id: int) -> Array[GameAction]:
 	if session == null:
 		return []

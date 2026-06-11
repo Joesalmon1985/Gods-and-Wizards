@@ -38,3 +38,7 @@ static func _choose_action(state: GameState, policy_name: String) -> GameAction:
 	if policy_name == POLICY_RANDOM:
 		return RandomBotPolicy.choose_action(state)
 	return HeuristicBotPolicy.choose_action(state)
+
+
+static func choose_action(state: GameState, policy_name: String = POLICY_HEURISTIC) -> GameAction:
+	return _choose_action(state, policy_name)
