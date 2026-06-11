@@ -3,3 +3,6 @@
 /android/
 
 logs/
+
+# Local design workbooks (source material; encode to JSON in godot_game/data/spells/)
+data/design/*.xlsx

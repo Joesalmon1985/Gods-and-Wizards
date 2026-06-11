@@ -72,17 +72,17 @@ See [NEXT_MILESTONES.md](NEXT_MILESTONES.md) for proposed next work.
 ## Full test command
 
 ```powershell
-& "C:\Tools\Godot\godot.exe" --headless --path "C:\Users\joesa\Documents\Cursor\BoardGame\gods-and-wizards\godot_game" -s res://tests/test_runner.gd
+& "C:\Users\joesa\Documents\Cursor\BoardGame\gods-and-wizards\scripts\Invoke-GodotHeadless.ps1" -ArgumentList @("--headless", "--path", "C:\Users\joesa\Documents\Cursor\BoardGame\gods-and-wizards\godot_game", "-s", "res://tests/test_runner.gd")
 ```
 
 ### Optional filters
 
 ```powershell
 # Architecture-only (fast-ish scan of constraints)
-& "C:\Tools\Godot\godot.exe" --headless --path "...\godot_game" -s res://tests/test_runner.gd -- --suite=architecture
+& "C:\Tools\Godot\godot.exe.exe" --headless --path "...\godot_game" -s res://tests/test_runner.gd -- --suite=architecture
 
 # Integration rules tests
-& "C:\Tools\Godot\godot.exe" --headless --path "...\godot_game" -s res://tests/test_runner.gd -- --suite=integration
+& "C:\Tools\Godot\godot.exe.exe" --headless --path "...\godot_game" -s res://tests/test_runner.gd -- --suite=integration
 ```
 
 ### After adding new global classes
@@ -90,7 +90,7 @@ See [NEXT_MILESTONES.md](NEXT_MILESTONES.md) for proposed next work.
 If tests fail with “Identifier X not declared”, run import once:
 
 ```powershell
-& "C:\Tools\Godot\godot.exe" --headless --path "...\godot_game" --import
+& "C:\Tools\Godot\godot.exe.exe" --headless --path "...\godot_game" --import
 ```
 
 ---
@@ -124,7 +124,7 @@ git diff
 git add docs/ godot_game/
 git commit -m "M14: add human player action selection shell"
 
-& "C:\Tools\Godot\godot.exe" --headless --path "...\godot_game" -s res://tests/test_runner.gd
+& "C:\Tools\Godot\godot.exe.exe" --headless --path "...\godot_game" -s res://tests/test_runner.gd
 
 git push -u origin milestone/human-player-mode
 ```

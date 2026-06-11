@@ -1,9 +1,11 @@
 # Local Verification Guide (Windows PowerShell)
 
-Use this on branch `milestone/macro-product-autonomous-run` before opening or merging a PR.
+Use this on your milestone branch before opening or merging a PR.
 
 **Local Godot executable:** `C:\Tools\Godot\godot.exe.exe`  
 (The path `C:\Tools\Godot\godot.exe` is documented elsewhere but may not exist on your machine.)
+
+**Preferred invocation:** `scripts/Invoke-GodotHeadless.ps1` — waits for Godot to exit and propagates the exit code. Direct `& $Godot ...` can leave stale processes or return unreliable exit codes in some shells.
 
 ---
 
@@ -14,6 +16,9 @@ $ProjectRoot = "C:\Users\joesa\Documents\Cursor\BoardGame\gods-and-wizards"
 $GodotProject = Join-Path $ProjectRoot "godot_game"
 $Godot = "C:\Tools\Godot\godot.exe.exe"
 $Logs = Join-Path $ProjectRoot "logs"
+$InvokeGodot = Join-Path $ProjectRoot "scripts\Invoke-GodotHeadless.ps1"
+$GetGodotCount = Join-Path $ProjectRoot "scripts\Get-ProjectGodotProcessCount.ps1"
+$StopStaleGodot = Join-Path $ProjectRoot "scripts\Stop-StaleGodotProcesses.ps1"
 
 Set-Location $ProjectRoot
 ```
@@ -44,9 +49,9 @@ git status --short --branch
 
 **Success:**
 
-- Branch is `milestone/macro-product-autonomous-run`
-- After `git fetch`, local HEAD matches `origin/milestone/macro-product-autonomous-run` (no unexpected ahead/behind)
-- Recent commits include: CSV fix, M21 duel, M24 underworld, M23 dev catalog, M25 2D lens, handoff docs
+- Branch is your intended milestone branch (not `main` unless explicitly merging)
+- After `git fetch`, local HEAD matches its upstream (no unexpected ahead/behind)
+- Working tree is clean or only contains intentional milestone edits
 
 **List untracked / generated (review only):**
 
@@ -98,16 +103,39 @@ git status --short
 
 ---
 
-## 3. Full Godot test suite
+## 2b. Stale Godot process check and cleanup
 
-**Option A — direct invoke:**
+**Count project-scoped Godot processes (expect 0 before and after headless runs):**
 
 ```powershell
-& $Godot --headless --path $GodotProject -s res://tests/test_runner.gd
-echo "Exit code: $LASTEXITCODE"
+& $GetGodotCount
 ```
 
-**Option B — if Option A returns immediately or exit code is wrong:**
+**If count > 0, list and clean (review with `-WhatIf` first):**
+
+```powershell
+Get-CimInstance Win32_Process -Filter "Name LIKE 'Godot%'" -ErrorAction SilentlyContinue |
+  Where-Object { $_.CommandLine -like "*$GodotProject*" } |
+  Select-Object ProcessId, CommandLine
+
+& $StopStaleGodot -WhatIf
+& $StopStaleGodot
+& $GetGodotCount
+```
+
+**Success:** count returns `0` after cleanup. Only processes whose command line references this repo’s `godot_game` path are stopped.
+
+---
+
+## 3. Full Godot test suite
+
+**Preferred — wrapper (waits for completion):**
+
+```powershell
+& $InvokeGodot -ArgumentList @("--headless", "--path", $GodotProject, "-s", "res://tests/test_runner.gd")
+```
+
+**Fallback — direct Start-Process:**
 
 ```powershell
 $testProc = Start-Process `
@@ -116,12 +144,13 @@ $testProc = Start-Process `
   -Wait -PassThru -NoNewWindow
 
 $testProc.ExitCode
+& $GetGodotCount
 ```
 
 **If new global classes fail to resolve ("Identifier X not declared"):**
 
 ```powershell
-& $Godot --headless --path $GodotProject --import
+& $InvokeGodot -ArgumentList @("--headless", "--path", $GodotProject, "--import")
 ```
 
 Then re-run the test suite.
@@ -148,45 +177,69 @@ $PressureCsv    = Join-Path $Logs "underworld_pressure.csv"
 **Macro playthrough (seed 42):**
 
 ```powershell
-& $Godot --headless --path $GodotProject -s res://run_modes/run_headless_bot_game.gd -- `
-  --seed 42 --max-turns 300 --output $PlaythroughCsv
-echo "Playthrough exit: $LASTEXITCODE"
+& $InvokeGodot -ArgumentList @(
+  "--headless", "--path", $GodotProject,
+  "-s", "res://run_modes/run_headless_bot_game.gd",
+  "--", "--seed", "42", "--max-turns", "300", "--output", $PlaythroughCsv
+)
 ```
 
 **100-game batch (seeds 42–141):**
 
 ```powershell
-& $Godot --headless --path $GodotProject -s res://run_modes/run_batch_sim.gd -- `
-  --games 100 --seed 42 --max-turns 300 --output $BatchCsv
-echo "Batch exit: $LASTEXITCODE"
+& $InvokeGodot -ArgumentList @(
+  "--headless", "--path", $GodotProject,
+  "-s", "res://run_modes/run_batch_sim.gd",
+  "--", "--games", "100", "--seed", "42", "--max-turns", "300", "--output", $BatchCsv
+)
 ```
 
 **Micro duel (seed 123):**
 
 ```powershell
-& $Godot --headless --path $GodotProject -s res://run_modes/run_headless_duel.gd -- `
-  --seed 123 --output $DuelCsv
-echo "Duel exit: $LASTEXITCODE"
+& $InvokeGodot -ArgumentList @(
+  "--headless", "--path", $GodotProject,
+  "-s", "res://run_modes/run_headless_duel.gd",
+  "--", "--seed", "123", "--output", $DuelCsv
+)
 ```
 
 **Underworld pressure (20 games, seeds 42–61):**
 
 ```powershell
-& $Godot --headless --path $GodotProject -s res://run_modes/run_underworld_pressure.gd -- `
-  --games 20 --seed 42 --max-turns 120 --output $PressureCsv
-echo "Pressure exit: $LASTEXITCODE"
+& $InvokeGodot -ArgumentList @(
+  "--headless", "--path", $GodotProject,
+  "-s", "res://run_modes/run_underworld_pressure.gd",
+  "--", "--games", "20", "--seed", "42", "--max-turns", "120", "--output", $PressureCsv
+)
 ```
 
-**Start-Process variant (example — repeat pattern for other runners if needed):**
+**Macro training telemetry (seed 42, after M27):**
 
 ```powershell
-$proc = Start-Process -FilePath $Godot -Wait -PassThru -NoNewWindow `
-  -ArgumentList @(
-    "--headless", "--path", $GodotProject,
-    "-s", "res://run_modes/run_headless_bot_game.gd",
-    "--", "--seed", "42", "--max-turns", "300", "--output", $PlaythroughCsv
-  )
-$proc.ExitCode
+$MacroTrainingCsv = Join-Path $Logs "macro_training_seed_42.csv"
+& $InvokeGodot -ArgumentList @(
+  "--headless", "--path", $GodotProject,
+  "-s", "res://run_modes/run_macro_training_export.gd",
+  "--", "--seed", "42", "--max-steps", "50", "--output", $MacroTrainingCsv
+)
+```
+
+**Micro combat telemetry (seed 123, after M29):**
+
+```powershell
+$MicroCombatCsv = Join-Path $Logs "micro_combat_seed_123.csv"
+& $InvokeGodot -ArgumentList @(
+  "--headless", "--path", $GodotProject,
+  "-s", "res://run_modes/run_micro_combat_export.gd",
+  "--", "--seed", "123", "--output", $MicroCombatCsv
+)
+```
+
+After each smoke batch:
+
+```powershell
+& $GetGodotCount   # expect 0
 ```
 
 **Success:**
@@ -354,10 +407,11 @@ Start-Process -FilePath $Godot -ArgumentList @("--path", $GodotProject, "res://r
 
 | Check | Go | No-go |
 |-------|----|-------|
-| Branch | `milestone/macro-product-autonomous-run` | On `main` or wrong branch |
+| Branch | Intended milestone branch | Unintended branch or dirty WIP |
 | Remote sync | Matches origin after fetch | Unexpected unpushed/pulled divergence |
 | Working tree | Clean or intentional edits only | Staged `logs/`, `.godot/`, or accidental source changes |
-| Tests | 50 modules, **0** failures | Any failure |
+| Orphan Godot | `Get-ProjectGodotProcessCount` = 0 after runs | Stale Godot processes remain |
+| Tests | All modules, **0** failures | Any failure |
 | Playthrough CSV | Generated; production summaries readable; road_count replays | Empty, missing summaries, flat road_count |
 | Batch CSV | 100 games + header | Wrong row count or empty |
 | Duel CSV | Summary + round rows | Script/parse errors |
@@ -379,11 +433,12 @@ Start-Process -FilePath $Godot -ArgumentList @("--path", $GodotProject, "res://r
 Set-Location $ProjectRoot
 New-Item -ItemType Directory -Force -Path $Logs | Out-Null
 
-& $Godot --headless --path $GodotProject -s res://run_modes/run_headless_bot_game.gd -- --seed 42 --max-turns 300 --output (Join-Path $Logs "playthrough_seed_42.csv")
-& $Godot --headless --path $GodotProject -s res://run_modes/run_batch_sim.gd -- --games 100 --seed 42 --max-turns 300 --output (Join-Path $Logs "batch_balance.csv")
-& $Godot --headless --path $GodotProject -s res://run_modes/run_headless_duel.gd -- --seed 123 --output (Join-Path $Logs "duel_seed_123.csv")
-& $Godot --headless --path $GodotProject -s res://run_modes/run_underworld_pressure.gd -- --games 20 --seed 42 --max-turns 120 --output (Join-Path $Logs "underworld_pressure.csv")
+& $InvokeGodot -ArgumentList @("--headless", "--path", $GodotProject, "-s", "res://run_modes/run_headless_bot_game.gd", "--", "--seed", "42", "--max-turns", "300", "--output", (Join-Path $Logs "playthrough_seed_42.csv"))
+& $InvokeGodot -ArgumentList @("--headless", "--path", $GodotProject, "-s", "res://run_modes/run_batch_sim.gd", "--", "--games", "100", "--seed", "42", "--max-turns", "300", "--output", (Join-Path $Logs "batch_balance.csv"))
+& $InvokeGodot -ArgumentList @("--headless", "--path", $GodotProject, "-s", "res://run_modes/run_headless_duel.gd", "--", "--seed", "123", "--output", (Join-Path $Logs "duel_seed_123.csv"))
+& $InvokeGodot -ArgumentList @("--headless", "--path", $GodotProject, "-s", "res://run_modes/run_underworld_pressure.gd", "--", "--games", "20", "--seed", "42", "--max-turns", "120", "--output", (Join-Path $Logs "underworld_pressure.csv"))
 
+& $GetGodotCount
 Get-ChildItem $Logs -Filter "*.csv" | Sort-Object LastWriteTime -Descending | Select-Object Name, Length, LastWriteTime
 ```
 
