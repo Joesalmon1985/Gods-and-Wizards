@@ -24,8 +24,8 @@ static func _test_illegal_action_rejected(test_assert: TestAssert) -> void:
 
 static func _test_build_city(test_assert: TestAssert) -> void:
 	var state := TestScenario.build_bot_ready_game(42)
-	var build_action := _first_legal_build(state)
-	test_assert.check(build_action != null, "scenario should expose a legal build")
+	var build_action := TestScenario.prepare_first_legal_city_build(state)
+	test_assert.check(build_action != null, "scenario should expose a legal connected build")
 	var wood_before := TurnRules.get_active_player(state).get_resource(ResourceType.Type.WOOD)
 	var city_count_before := state.cities.size()
 

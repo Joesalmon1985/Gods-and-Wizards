@@ -86,6 +86,8 @@ static func _apply_entry(view: Dictionary, entry: Dictionary) -> void:
 	match entry_type:
 		"city_built":
 			_apply_city_built(view, payload)
+		"road_built":
+			_apply_road_built(view, payload)
 		"resource_gained":
 			_apply_resource_gained(view, payload)
 		"turn_ended":
@@ -106,6 +108,11 @@ static func _apply_city_built(view: Dictionary, payload: Dictionary) -> void:
 		"player_id": player_id,
 		"vertex_key": vertex.to_key(),
 	})
+
+
+static func _apply_road_built(view: Dictionary, payload: Dictionary) -> void:
+	var player_id: int = payload.get("player_id", -1)
+	_deduct_cost(view, player_id, BuildCosts.BUILD_ROAD)
 
 
 static func _apply_resource_gained(view: Dictionary, payload: Dictionary) -> void:
@@ -162,6 +169,8 @@ static func summarize_entry(entry: Dictionary) -> String:
 				payload.get("player_id", -1),
 				_vertex_summary(payload.get("vertex", {})),
 			]
+		"road_built":
+			return "P%d built road" % payload.get("player_id", -1)
 		"resource_gained":
 			return "P%d +%d %s" % [
 				payload.get("player_id", -1),

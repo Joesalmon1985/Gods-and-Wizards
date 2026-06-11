@@ -30,11 +30,9 @@ static func _is_legal(state: GameState, active_player: Player, action: GameActio
 		ActionKind.Kind.BUILD_CITY:
 			if action.vertex == null:
 				return false
-			if not state.board.has_vertex(action.vertex):
+			if not BuildCosts.can_afford(active_player, BuildCosts.BUILD_CITY):
 				return false
-			if state.cities_by_vertex.has(action.vertex.to_key()):
-				return false
-			return BuildCosts.can_afford(active_player, BuildCosts.BUILD_CITY)
+			return BuildRules.can_build_city(state, active_player.id, action.vertex)
 		ActionKind.Kind.BUILD_ROAD:
 			if action.edge == null:
 				return false

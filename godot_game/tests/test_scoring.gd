@@ -5,8 +5,8 @@ static func run(test_assert: TestAssert) -> void:
 	var state := ScenarioBuilder.build_bot_ready_game(42)
 	test_assert.eq(state.players[0].victory_points, 0, "players should start at 0 VP")
 
-	var build_action := _first_legal_build(state)
-	test_assert.check(build_action != null, "scenario should expose a legal build action")
+	var build_action := TestScenario.prepare_first_legal_city_build(state)
+	test_assert.check(build_action != null, "scenario should expose a legal connected build action")
 	var applied := ActionRules.apply(state, build_action)
 	test_assert.check(not applied.is_empty(), "legal build should apply")
 	test_assert.eq(state.players[0].victory_points, 1, "building a city should award 1 VP")

@@ -68,6 +68,8 @@ static func _test_resource_gained_replay(test_assert: TestAssert, baseline: Dict
 			)
 		elif entry_type == "city_built":
 			_deduct_expected(expected_totals, payload.get("player_id", -1), BuildCosts.BUILD_CITY)
+		elif entry_type == "road_built":
+			_deduct_expected(expected_totals, payload.get("player_id", -1), BuildCosts.BUILD_ROAD)
 
 		if entry_type == "resource_gained":
 			var view := EventLogReplay.build_view_at_step(baseline, log, i + 1)

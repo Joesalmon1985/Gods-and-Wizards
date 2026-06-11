@@ -39,14 +39,31 @@ static func _test_build_city_rules(test_assert: TestAssert, state: GameState) ->
 			legal_build_count += 1
 			test_assert.check(not occupied, "legal BUILD_CITY vertex should be empty")
 			test_assert.check(
+				BuildRules.can_build_city(state, TurnRules.get_active_player(state).id, action.vertex),
+				"legal BUILD_CITY should satisfy BuildRules.can_build_city"
+			)
+			test_assert.check(
 				BuildCosts.can_afford(TurnRules.get_active_player(state), BuildCosts.BUILD_CITY),
 				"legal BUILD_CITY requires affordable cost"
 			)
 		elif occupied:
 			illegal_occupied_found = true
 
-	test_assert.check(legal_build_count > 0, "bot-ready game should have at least one legal BUILD_CITY")
+	test_assert.eq(
+		legal_build_count,
+		0,
+		"bot-ready game should have no legal BUILD_CITY before any roads are built"
+	)
 	test_assert.check(illegal_occupied_found, "occupied vertices should appear as illegal BUILD_CITY slots")
+
+	var road_action := _first_legal_road(state)
+	test_assert.check(road_action != null, "bot-ready game should expose a legal BUILD_ROAD from the starting city")
+
+	var build_action := TestScenario.prepare_first_legal_city_build(state)
+	test_assert.check(
+		build_action != null,
+		"bot-ready game should expose legal BUILD_CITY sites after roads connect the network"
+	)
 
 
 static func _test_deterministic_mask(test_assert: TestAssert, state: GameState) -> void:
@@ -79,3 +96,10 @@ static func _test_standard_has_no_build(test_assert: TestAssert, state: GameStat
 		if action.kind == ActionKind.Kind.BUILD_CITY and view.legal_mask[action.action_id]:
 			test_assert.check(false, "standard scenario without grant should have no legal BUILD_CITY")
 			return
+
+
+static func _first_legal_road(state: GameState) -> GameAction:
+	for action in LegalActionQuery.get_legal_actions_sorted(state):
+		if action.kind == ActionKind.Kind.BUILD_ROAD:
+			return action
+	return null

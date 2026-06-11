@@ -5,8 +5,11 @@ static func choose_action(state: GameState) -> GameAction:
 	var legal := LegalActionQuery.get_legal_actions_sorted(state)
 	var best_build: GameAction = null
 	var best_score := -1
+	var first_road: GameAction = null
 
 	for action in legal:
+		if action.kind == ActionKind.Kind.BUILD_ROAD and first_road == null:
+			first_road = action
 		if action.kind != ActionKind.Kind.BUILD_CITY:
 			continue
 		var score := _vertex_production_score(state, action.vertex)
@@ -16,6 +19,8 @@ static func choose_action(state: GameState) -> GameAction:
 
 	if best_build != null:
 		return best_build
+	if first_road != null:
+		return first_road
 	return state.action_space.get_action(0)
 
 

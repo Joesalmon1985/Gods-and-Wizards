@@ -13,14 +13,13 @@ static func run(test_assert: TestAssert) -> void:
 
 static func _test_prefers_build_over_pass(test_assert: TestAssert, state: GameState) -> void:
 	var choice := BotPolicy.choose_action(state)
-	test_assert.check(choice.kind != ActionKind.Kind.END_TURN, "bot should prefer BUILD_CITY when available")
+	test_assert.check(choice.kind != ActionKind.Kind.END_TURN, "bot should prefer a build action when available")
 
 
 static func _test_pass_when_only_option(test_assert: TestAssert) -> void:
 	var state := TestScenario.build_bot_ready_game(42)
-	for action in LegalActionQuery.get_legal_actions_sorted(state):
-		if action.kind == ActionKind.Kind.BUILD_CITY:
-			ActionRules.apply(state, action)
+	while _apply_one_non_pass_action(state):
+		pass
 
 	var choice := BotPolicy.choose_action(state)
 	test_assert.eq(choice.kind, ActionKind.Kind.END_TURN, "bot should END_TURN when no build remains")
@@ -45,17 +44,23 @@ static func _test_turn_resolver_builds_before_pass(test_assert: TestAssert) -> v
 	var city_count_before := state.cities.size()
 	var events := BotTurnResolver.resolve_player_turn(state)
 
-	var built := false
+	var built_city := false
+	var built_road := false
 	var ended := false
 	for event in events:
 		if event is CityBuiltEvent:
-			built = true
+			built_city = true
+		if event is RoadBuiltEvent:
+			built_road = true
 		if event is TurnEndedEvent:
 			ended = true
 
-	test_assert.check(built, "bot turn should build at least once before ending")
+	test_assert.check(built_city or built_road, "bot turn should build at least one road or city before ending")
 	test_assert.check(ended, "bot turn should end with END_TURN")
-	test_assert.check(state.cities.size() > city_count_before, "bot turn should increase city count")
+	test_assert.check(
+		state.cities.size() >= city_count_before,
+		"bot turn should not remove cities"
+	)
 
 
 static func _collect_bot_choice_sequence(game_seed: int, max_choices: int) -> Array[int]:
@@ -68,3 +73,12 @@ static func _collect_bot_choice_sequence(game_seed: int, max_choices: int) -> Ar
 			break
 		ActionRules.apply(state, choice)
 	return ids
+
+
+static func _apply_one_non_pass_action(state: GameState) -> bool:
+	for action in LegalActionQuery.get_legal_actions_sorted(state):
+		if action.kind == ActionKind.Kind.END_TURN:
+			continue
+		ActionRules.apply(state, action)
+		return true
+	return false

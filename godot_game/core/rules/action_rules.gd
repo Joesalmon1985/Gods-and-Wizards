@@ -23,8 +23,14 @@ static func apply(state: GameState, action: GameAction) -> Array:
 
 static func _apply_build_city(state: GameState, action: GameAction) -> Array:
 	var player := TurnRules.get_active_player(state)
-	player.pay_cost(BuildCosts.BUILD_CITY)
+	if player == null or action.vertex == null:
+		return []
+	if not BuildRules.can_build_city(state, player.id, action.vertex):
+		return []
+	if not BuildCosts.can_afford(player, BuildCosts.BUILD_CITY):
+		return []
 
+	player.pay_cost(BuildCosts.BUILD_CITY)
 	var city := SetupRules.place_city(state, player.id, action.vertex)
 	if city == null:
 		return []
@@ -36,6 +42,13 @@ static func _apply_build_city(state: GameState, action: GameAction) -> Array:
 
 static func _apply_build_road(state: GameState, action: GameAction) -> Array:
 	var player := TurnRules.get_active_player(state)
+	if player == null or action.edge == null:
+		return []
+	if not BuildRules.can_build_road(state, player.id, action.edge):
+		return []
+	if not BuildCosts.can_afford(player, BuildCosts.BUILD_ROAD):
+		return []
+
 	player.pay_cost(BuildCosts.BUILD_ROAD)
 	var road := SetupRules.place_road(state, player.id, action.edge)
 	if road == null:
