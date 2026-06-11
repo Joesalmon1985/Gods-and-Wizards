@@ -15,8 +15,8 @@ func _init() -> void:
 	var written_path := DuelLogExporter.write_result(
 		game_seed,
 		result,
-		attacker.id,
-		defender.id,
+		"hero",
+		"demon",
 		output_path
 	)
 	if written_path == "":

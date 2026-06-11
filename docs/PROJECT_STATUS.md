@@ -9,9 +9,9 @@
 
 | Item | Value |
 |---|---|
-| Active development branch | `milestone/macro-foundation-autonomous` |
+| Active development branch | `milestone/macro-product-autonomous-run` |
 | Latest commit | See `git log -1` on branch (handoff docs commit after this update) |
-| Baseline tag | `checkpoint/macro-foundation-baseline` @ `3242cff` |
+| Parent branch | `milestone/macro-foundation-autonomous` @ `bb4c29a` |
 | `origin/main` | `e1b94c7` — **not merged**; milestone branch ahead |
 | Remote | `origin` → https://github.com/Joesalmon1985/Gods-and-Wizards.git |
 | Push status | Check `git status --short --branch` after handoff commit |
@@ -20,12 +20,11 @@
 
 | Commit | Summary |
 |---|---|
-| `8cfa8d9` | Docs: finalize autonomous session log |
-| `772a1c9` | M18: read-only 2D strategic board mode |
-| `d9a8e73` | M17: balance configuration skeleton |
-| `8d9c353` | M16: headless batch balance runner |
-| `5c3ab90` | M15: training-ready macro environment skeleton |
-| `3242cff` | M14: human player turn shell |
+| `9c1df90` | M25: read-only 2D strategic board improvements |
+| `053b57e` | M23: small development-card catalog foundation |
+| `d0a7667` | M24: underworld pressure smoke + telemetry |
+| `1996120` | M21: headless micro-duel smoke runner |
+| `9b46681` | Fix: playthrough CSV road replay + production summaries |
 
 Build legality (`BuildRules.can_build_city`, CSV duplicate-log fix) is on this branch from earlier work.
 
@@ -43,9 +42,9 @@ Build legality (`BuildRules.can_build_city`, CSV duplicate-log fix) is on this b
 
 | Metric | Value |
 |---|---|
-| Modules run | **46** |
-| Assertions | **62,491** |
-| Passed | **62,491** |
+| Modules run | **50** |
+| Assertions | **69,197** |
+| Passed | **69,197** |
 | Failed | **0** |
 
 Optional suite filter: `--suite=architecture`, `--suite=integration`, etc. (see `tests/test_registry.gd`).
@@ -83,8 +82,9 @@ See [run_modes.md](run_modes.md) for full commands. Summary:
 | Headless CSV playthrough | `run_headless_bot_game.gd` | One 4-player bot game → event CSV |
 | Headless batch sim | `run_batch_sim.gd` | N games → one summary row per game |
 | 3D wizard-world (F5) | `wizard_world_mode.tscn` | Read-only 3D + overlay; bot advance |
+| Headless micro-duel | `run_headless_duel.gd` | One seeded combat encounter → CSV |
+| Underworld pressure telemetry | `run_underworld_pressure.gd` | N pressure-scenario games → CSV |
 | 2D strategic (read-only) | `strategic_2d_mode.tscn` | Read-only 2D hex board; bot advance |
-| **Headless micro-duel** | **Does not exist** | Proposed M21 — see [NEXT_MILESTONES.md](NEXT_MILESTONES.md) |
 
 ### Macro playthrough CSV (repo `logs/` path)
 
@@ -144,21 +144,23 @@ Do not commit files under `logs/` (gitignored).
 
 | System | Notes |
 |---|---|
-| Development cards | Stub build exists; no drafting, deck, or card library |
+| Development cards | Catalog foundation (watchtower, granary, shrine); no drafting; action space still one BUILD_DEVELOPMENT per vertex |
 | Embodied wizard | Placeholder scripts only; wizard marker in 3D mode does not affect `GameState` |
 | Combat UI | `ui/combat/combat_presenter.gd` — presentation layer, not wired into main run mode |
 | Integration bridge | `encounter_bridge.gd`, `sync_controller.gd` — contract exists; not full embodied loop |
 | Phase model | Overlay shows generic “Player turn”; no fine-grained phase enum in `GameState` |
 | Human player UI | M14 session API complete; no clickable 2D/3D action selection yet |
 | Balance config wiring | JSON skeleton loaded; gameplay constants not yet driven from config |
-| Headless micro-duel runner | Combat core tested; no CLI export runner |
+| Headless micro-duel runner | `run_headless_duel.gd`, `DuelLogExporter`, `TestHeadlessDuelRunner` |
+| Underworld pressure runner | `run_underworld_pressure.gd`, `UnderworldPressureRunner` |
+| Playthrough CSV telemetry | Replay `road_count`; `production_check` summaries |
 
 ### Planned / not yet implemented
 
 | System | Notes |
 |---|---|
-| **M21 headless micro-duel smoke runner** | Single `CombatResolver.resolve_encounter`, CSV export |
-| **M22 2D human click-to-build** | Wire M14 to 2D view |
+| **M22 2D human click-to-build** | Wire M14 to 2D view — **next** |
+| **M26 divine instruction offers** | Future headless bridge — documented only |
 | Unified run mode entry (2D primary) | After M22 |
 | Drafting (Seven Wonders-style) | Explicitly out of scope until requested |
 | Full development card system | Beyond current stub |
@@ -221,11 +223,10 @@ See [AUTONOMOUS_SESSION_LOG.md](AUTONOMOUS_SESSION_LOG.md) for agent resume deta
 
 ## Next recommended task
 
-1. **Human review + PR** — `milestone/macro-foundation-autonomous` → `main`.
-2. **M21** — headless micro-duel smoke runner (see [NEXT_MILESTONES.md](NEXT_MILESTONES.md)).
-3. **M22** — 2D human click-to-build wired to M14 session API.
+1. **Human review + PR** — `milestone/macro-product-autonomous-run` → `main`.
+2. **M22** — 2D human click-to-build wired to M14 session API.
 
-**Resume branch:** `milestone/macro-foundation-autonomous`
+**Resume branch:** `milestone/macro-product-autonomous-run`
 
 ---
 
