@@ -1,6 +1,8 @@
 class_name MicroCombatTelemetryExporter
 extends RefCounted
 
+const RULES_VERSION := "run_g_v2"
+
 
 static func run_episode(
 	game_seed: int,
@@ -12,22 +14,40 @@ static func run_episode(
 	env.reset(game_seed, loadout_a_id, loadout_b_id)
 	var rows: Array = []
 	var step_index := 0
+	var episode_id := "micro_ep_%d" % game_seed
+	var encounter_id := "enc_%s_vs_%s_%d" % [loadout_a_id, loadout_b_id, game_seed]
 
 	while not env.is_done() and step_index < max_steps:
-		var obs := env.session.observe()
+		var pre_obs := env.session.observe()
+		pre_obs["legal_spell_count"] = env.get_legal_spell_ids().size()
 		var legal := env.get_legal_spell_ids()
 		var mask := env.build_legal_mask()
 		var result := env.step_policy()
+		var post_obs := env.session.observe()
+		post_obs["legal_spell_count"] = env.get_legal_spell_ids().size()
+		var actor_id: String = str(pre_obs.get("active_combatant_id", ""))
+		var components := MicroCombatTrainingReward.compute_components(
+			actor_id,
+			result.get("events", []),
+			env.session
+		)
 		rows.append(build_step_row(
 			game_seed,
 			step_index,
-			obs,
+			episode_id,
+			encounter_id,
+			loadout_a_id,
+			loadout_b_id,
+			pre_obs,
+			post_obs,
 			legal,
 			mask,
 			str(result.get("selected_spell_id", "")),
-			float(result.get("reward", 0.0)),
+			MicroCombatTrainingReward.total_from_components(components),
+			components,
 			bool(result.get("done", false)),
-			_summarize_events(result.get("events", []))
+			str(env.session.winner_id if bool(result.get("done", false)) else pre_obs.get("winner_id", "")),
+			result.get("events", [])
 		))
 		step_index += 1
 
@@ -37,34 +57,51 @@ static func run_episode(
 static func build_step_row(
 	game_seed: int,
 	step_index: int,
-	observation: Dictionary,
+	episode_id: String,
+	encounter_id: String,
+	loadout_a_id: String,
+	loadout_b_id: String,
+	pre_observation: Dictionary,
+	post_observation: Dictionary,
 	legal_spell_ids: Array[String],
 	legal_mask: Array[int],
-	selected_spell_id: String,
+	selected_action: String,
 	reward: float,
+	reward_components: Dictionary,
 	terminal: bool,
-	timeline_summary: String
+	winner_id: String,
+	events: Array
 ) -> Dictionary:
 	return {
 		"telemetry_schema_version": MicroCombatTelemetrySchema.SCHEMA_VERSION,
+		"episode_id": episode_id,
+		"encounter_id": encounter_id,
+		"combat_step_index": str(step_index),
 		"seed": str(game_seed),
 		"step_index": str(step_index),
-		"sim_time": str(observation.get("sim_time", 0.0)),
-		"active_combatant_id": str(observation.get("active_combatant_id", "")),
-		"combatant_id": str(observation.get("combatant_id", "")),
-		"health": str(observation.get("health", 0.0)),
-		"mana": str(observation.get("mana", 0.0)),
-		"opponent_id": str(observation.get("opponent_id", "")),
-		"opponent_health": str(observation.get("opponent_health", 0.0)),
-		"opponent_mana": str(observation.get("opponent_mana", 0.0)),
-		"loadout_spell_ids_json": JSON.stringify(observation.get("loadout_spell_ids", [])),
+		"spell_catalog_version": MicroCombatTelemetrySchema.SPELL_CATALOG_VERSION,
+		"loadout_a_id": loadout_a_id,
+		"loadout_b_id": loadout_b_id,
+		"sim_time": str(pre_observation.get("sim_time", 0.0)),
+		"active_combatant_id": str(pre_observation.get("active_combatant_id", "")),
+		"combatant_id": str(pre_observation.get("combatant_id", "")),
+		"actor_id": str(pre_observation.get("active_combatant_id", "")),
+		"health": str(pre_observation.get("health", 0.0)),
+		"mana": str(pre_observation.get("mana", 0.0)),
+		"opponent_id": str(pre_observation.get("opponent_id", "")),
+		"opponent_health": str(pre_observation.get("opponent_health", 0.0)),
+		"opponent_mana": str(pre_observation.get("opponent_mana", 0.0)),
+		"loadout_spell_ids_json": JSON.stringify(pre_observation.get("loadout_spell_ids", [])),
 		"legal_spell_ids_json": JSON.stringify(legal_spell_ids),
 		"legal_mask_json": JSON.stringify(legal_mask),
-		"selected_spell_id": selected_spell_id,
+		"selected_action": selected_action,
+		"pre_observation_json": JSON.stringify(pre_observation),
+		"post_observation_json": JSON.stringify(post_observation),
 		"reward": str(reward),
+		"reward_components_json": JSON.stringify(reward_components),
 		"terminal": str(terminal).to_lower(),
-		"winner_id": str(observation.get("winner_id", "")),
-		"timeline_event_summary": timeline_summary,
+		"winner_id": winner_id,
+		"timeline_events_json": JSON.stringify(events),
 	}
 
 
@@ -96,13 +133,6 @@ static func write_episode(
 
 static func default_output_path(game_seed: int) -> String:
 	return "user://micro_combat_seed_%d.csv" % game_seed
-
-
-static func _summarize_events(events: Array) -> String:
-	var parts: PackedStringArray = []
-	for event in events:
-		parts.append("%s:%s" % [str(event.get("type", "")), JSON.stringify(event)])
-	return "; ".join(parts)
 
 
 static func _row_to_csv(row: Dictionary, columns: Array[String]) -> String:

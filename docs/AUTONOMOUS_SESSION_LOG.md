@@ -1,7 +1,34 @@
 # Autonomous Session Log
 
-**Last updated:** 2026-06-12 (Run F rules-contract audit complete)  
+**Last updated:** 2026-06-12 (Run G game completion + training suites complete)  
 **Purpose:** Resume point for Cursor agents after context reset.
+
+---
+
+## Run G — game completion gate + training suites (2026-06-12)
+
+**Branch:** `milestone/run-g-game-completion-training-suites`  
+**Gate decision:** `GO_FOR_TRAINING` ([TRAINING_READINESS_GATE.md](TRAINING_READINESS_GATE.md))
+
+**Part 1 — game completion audits:**
+
+- [MACRO_GAME_COMPLETION_AUDIT.md](MACRO_GAME_COMPLETION_AUDIT.md) — 35/40 rules Complete; 5 documented Partial/Design ambiguity
+- [CARD_ECONOMY_COMPLETION_AUDIT.md](CARD_ECONOMY_COMPLETION_AUDIT.md) — 96-card economy + draft loop; trade/wizard/draft bonus stubs documented
+- [MICRO_COMBAT_COMPLETION_AUDIT.md](MICRO_COMBAT_COMPLETION_AUDIT.md) — headless deterministic combat; export v2 `winner_id` fix
+
+**Part 2 — training suites:**
+
+- Env contracts: [MACRO_TRAINING_ENV_CONTRACT.md](MACRO_TRAINING_ENV_CONTRACT.md), [MICRO_SPELL_COMBAT_TRAINING_ENV_CONTRACT.md](MICRO_SPELL_COMBAT_TRAINING_ENV_CONTRACT.md)
+- Baselines + eval: `TrainingEvaluationHarness`, `MacroBaselinePolicies`, `MicroBaselinePolicies`
+- NN prototype: `TinyNeuralNetwork`, `MacroNeuralTrainer`, `MicroNeuralTrainer` (behavioural cloning)
+- Export schema v2: `macro_training_v2`, `micro_combat_v2` with pre/post obs + reward components
+- Scripts: `Invoke-MacroBaselineEval.ps1`, `Invoke-MicroBaselineEval.ps1`, `Invoke-MacroNeuralTrain.ps1`, `Invoke-MicroNeuralTrain.ps1`
+- Design: [NEURAL_TRAINING_SUITE_DESIGN.md](NEURAL_TRAINING_SUITE_DESIGN.md), [DONOR_TRAINING_CODE_REVIEW.md](DONOR_TRAINING_CODE_REVIEW.md)
+
+**Baseline (G0):** 100 modules, 129,471 assertions  
+**After Run G:** 104 modules, 141,726 assertions, exit 0
+
+**Remaining before production RL:** full global macro observation featurizer; card trade/wizard effect wiring; full spell catalogue combat fidelity; Python hybrid training path for scale.
 
 ---
 

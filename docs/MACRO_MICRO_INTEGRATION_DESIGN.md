@@ -1,7 +1,7 @@
 # Macro–Micro Integration Design
 
-**Last updated:** 2026-06-12 (post–Run C design clarification)  
-**Purpose:** Describe how the headless macro economic game and tactical spell combat relate today, and how their **training datasets** should eventually connect. **Do not integrate tactical combat into the macro loop yet.**
+**Last updated:** 2026-06-12 (Run G training suites)  
+**Purpose:** Describe how the headless macro economic game and tactical spell combat relate today, and how their **training datasets** should eventually connect. **Do not integrate tactical combat into the macro loop yet.** Run G added isolated training envs and export v2 for both domains; datasets remain independent until 3D encounter bridge exists.
 
 ---
 

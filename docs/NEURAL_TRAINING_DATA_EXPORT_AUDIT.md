@@ -1,9 +1,9 @@
 # Neural Training Data Export Audit
 
-**Last updated:** 2026-06-12 (post–Run C design clarification)  
-**Purpose:** Run C audit of whether headless macro economic and tactical spell combat exports produce clean, deterministic, structured data suitable for future neural-network training pipelines. This document does **not** implement training; it assesses readiness and gaps.
+**Last updated:** 2026-06-12 (Run G export v2 + training suites)  
+**Purpose:** Run C audit of whether headless macro economic and tactical spell combat exports produce clean, deterministic, structured data suitable for future neural-network training pipelines. Run G implemented schema v2 columns and prototype trainers; see [TRAINING_READINESS_GATE.md](TRAINING_READINESS_GATE.md).
 
-**Design direction (macro RL):** Training target is reinforcement learning with **full global state** observation (every hex, node, roads/cities by owner, hero/demon positions, developments, all player resources, legal mask, phase/turn context, previous action/event). Current macro export is **partial/prototyping only** — dataset v2 required before serious RL training. Do **not** implement neural network training in Godot; export deterministic, structured, versioned telemetry only.
+**Design direction (macro RL):** Training target is reinforcement learning with **full global state** observation (every hex, node, roads/cities by owner, hero/demon positions, developments, all player resources, legal mask, phase/turn context, previous action/event). Run G added `pre_observation_json`, `post_observation_json`, `reward_components_json`, and `episode_id` to macro export — still **aggregate scalars inside JSON**, not full board featurizer. Do **not** treat as production RL dataset without external featurizer/ETL.
 
 ---
 
@@ -11,8 +11,8 @@
 
 | Export | Classification | Honest verdict |
 |---|---|---|
-| **Macro economic** (`macro_training_v1`) | **Partial** | Useful step-level telemetry and weak imitation/RL prototyping; **not** production RL-ready. Observation is too sparse, transitions are incomplete, and provenance/episode keys are missing. |
-| **Tactical spell combat** (`micro_combat_v1`) | **Mostly Ready** (fixed loadouts) / **Partial** (general) | `SpellCombatSession` telemetry; usable for isolated tactical RL/IL prototyping; **not** coupled to macro loop or production pipelines without schema v2. |
+| **Macro economic** (`macro_training_v2`) | **Partial / prototyping** | Run G: episode IDs, pre/post obs JSON, reward components, action layout key. Still not full global board featurizer. |
+| **Tactical spell combat** (`micro_combat_v2`) | **Mostly Ready** (fixed loadouts) | Run G: post-step `winner_id`, loadout IDs, encounter/episode IDs, timeline JSON. Variable loadouts still need global action index. |
 | **Playthrough CSV** | **Debug Only** | Event-log replay for humans; wrong grain and no legal masks. |
 | **Duel log CSV** (`CombatResolver`) | **Debug Only / Legacy** | Card-duel model; not aligned with `SpellCombatSession`; not macro contact resolution. |
 

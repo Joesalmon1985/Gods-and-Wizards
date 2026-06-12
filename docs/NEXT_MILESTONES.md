@@ -1,8 +1,22 @@
 # Next Milestones (Proposed)
 
-**Last updated:** 2026-06-12 (post–Run E card economy vertical slice)
+**Last updated:** 2026-06-12 (post–Run G game completion + training suites)
 
 **Strategic direction:** Macro-first, trainable mythic civilisation simulation. One authoritative `GameState`. Headless core and `BotGameSession` are source of truth. **Near-term dev default:** 2D strategic playable/debug. **Long-term product default:** 3D wizard spectator/RPG. See [GAME_DESIGN_BRIEF.md](GAME_DESIGN_BRIEF.md) and [RULEBOOK.md](RULEBOOK.md).
+
+---
+
+## Run G complete (game completion gate + training suites)
+
+Run G on branch `milestone/run-g-game-completion-training-suites`:
+
+- G1–G3 completion audits (macro, card economy, micro combat)
+- G4 training-readiness gate: **`GO_FOR_TRAINING`**
+- G5–G6 training env contracts + tests
+- G8 baseline evaluation harness; G9–G11 NN prototypes (`TinyNeuralNetwork`, BC trainers)
+- G12 export schema v2; G13 PowerShell scripts
+
+See [RUN_G_PLAN.md](RUN_G_PLAN.md), [AUTONOMOUS_SESSION_LOG.md](AUTONOMOUS_SESSION_LOG.md).
 
 **Architecture constraints (all milestones):**
 

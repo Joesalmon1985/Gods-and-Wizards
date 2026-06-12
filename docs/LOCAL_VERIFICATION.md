@@ -256,7 +256,22 @@ After each smoke batch:
 
 ---
 
-## 5. Inspect CSVs in PowerShell
+## 5. Run G training/evaluation (headless)
+
+```powershell
+& (Join-Path $ProjectRoot "scripts\Invoke-MacroBaselineEval.ps1")
+& (Join-Path $ProjectRoot "scripts\Invoke-MicroBaselineEval.ps1")
+& (Join-Path $ProjectRoot "scripts\Invoke-MacroNeuralTrain.ps1")
+& (Join-Path $ProjectRoot "scripts\Invoke-MicroNeuralTrain.ps1")
+```
+
+Outputs under `logs/` (gitignored): `macro_baseline_eval.csv`, `micro_baseline_eval.csv`, `macro_neural_train_metrics.csv`, `micro_neural_train_metrics.csv`.
+
+**Success:** each script exit code `0`; CSV files non-empty.
+
+---
+
+## 6. Inspect CSVs in PowerShell
 
 ### Row counts
 

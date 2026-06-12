@@ -45,6 +45,8 @@ static func _test_step_row_fields(test_assert: TestAssert) -> void:
 	test_assert.check(row.has("episode_id"), "v2 row should include episode_id")
 	test_assert.check(row.has("draft_age"), "v2 row should include draft_age")
 	test_assert.check(row.has("development_hand_json"), "v2 row should include development_hand_json")
+	test_assert.check(row.has("pre_observation_json"), "v2 row should include pre_observation_json")
+	test_assert.check(row.has("reward_components_json"), "v2 row should include reward_components_json")
 
 
 static func _test_fixed_seed_row_count(test_assert: TestAssert) -> void:
