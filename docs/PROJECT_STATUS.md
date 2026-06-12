@@ -1,6 +1,6 @@
 # Project Status — Gods and Wizards
 
-**Last updated:** 2026-06-12 (post–Run D v1 macro implementation)  
+**Last updated:** 2026-06-12 (post–Run E card economy vertical slice)  
 **Purpose:** Human-readable handoff for reviewers and Cursor agents before the next milestone.
 
 **Design docs (authoritative intent):** [RULEBOOK.md](RULEBOOK.md), [TURN_TIMING_AND_PHASE_MODEL.md](TURN_TIMING_AND_PHASE_MODEL.md), [RULES_ENGINE_AUDIT.md](RULES_ENGINE_AUDIT.md).

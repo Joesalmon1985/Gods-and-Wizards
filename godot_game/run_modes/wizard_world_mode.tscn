@@ -67,6 +67,13 @@ text = "Scoreboard:"
 autowrap_mode = 3
 text = "Recent turns:"
 
+[node name="EncounterLabel" type="Label" parent="UI/Panel/MarginContainer/VBox"]
+autowrap_mode = 3
+text = ""
+
+[node name="CameraToggleButton" type="Button" parent="UI/Panel/MarginContainer/VBox"]
+text = "Camera: Board"
+
 [node name="HelpLabel" type="Label" parent="UI/Panel/MarginContainer/VBox"]
 autowrap_mode = 3
 text = "Controls..."

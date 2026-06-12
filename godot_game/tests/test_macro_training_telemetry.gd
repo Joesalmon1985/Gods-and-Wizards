@@ -15,8 +15,12 @@ static func _test_schema_columns(test_assert: TestAssert) -> void:
 		test_assert.check(column != "", "schema should define non-empty column names")
 	test_assert.eq(
 		MacroTrainingTelemetrySchema.SCHEMA_VERSION,
-		"macro_training_v1",
-		"schema version should be macro_training_v1"
+		"macro_training_v2",
+		"schema version should be macro_training_v2"
+	)
+	test_assert.check(
+		MacroTrainingTelemetrySchema.STEP_COLUMNS.size() > MacroTrainingTelemetrySchema.LEGACY_V1_COLUMN_COUNT,
+		"v2 schema should add columns beyond v1"
 	)
 
 
@@ -38,6 +42,9 @@ static func _test_step_row_fields(test_assert: TestAssert) -> void:
 		test_assert.check(row.has(column), "step row should include column %s" % column)
 	test_assert.check(str(row["legal_mask_json"]).begins_with("["), "legal mask should be JSON array")
 	test_assert.check(str(row["selected_action_id"]) != "", "selected action id should be recorded")
+	test_assert.check(row.has("episode_id"), "v2 row should include episode_id")
+	test_assert.check(row.has("draft_age"), "v2 row should include draft_age")
+	test_assert.check(row.has("development_hand_json"), "v2 row should include development_hand_json")
 
 
 static func _test_fixed_seed_row_count(test_assert: TestAssert) -> void:

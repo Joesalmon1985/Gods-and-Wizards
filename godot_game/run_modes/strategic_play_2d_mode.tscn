@@ -38,6 +38,14 @@ text = "Scoreboard:"
 autowrap_mode = 3
 text = "Status"
 
+[node name="DraftLabel" type="Label" parent="UI/Panel/MarginContainer/VBox"]
+autowrap_mode = 3
+text = "Draft"
+
+[node name="DevelopmentLabel" type="Label" parent="UI/Panel/MarginContainer/VBox"]
+autowrap_mode = 3
+text = "Developments"
+
 [node name="LegalLabel" type="Label" parent="UI/Panel/MarginContainer/VBox"]
 autowrap_mode = 3
 text = "Legal actions:"

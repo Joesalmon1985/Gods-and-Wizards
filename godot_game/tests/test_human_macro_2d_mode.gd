@@ -21,6 +21,8 @@ static func run(test_assert: TestAssert) -> void:
 	_test_bot_advance_until_human(test_assert)
 	_test_bank_trade_selectable_when_legal(test_assert)
 	_test_full_game_human_end_turn_only_to_finish(test_assert)
+	_test_controller_submits_draft_pick(test_assert)
+	_test_play_mode_references_draft_view_model(test_assert)
 	_test_play_scene_instantiates(test_assert)
 
 
@@ -97,6 +99,27 @@ static func _test_full_game_human_end_turn_only_to_finish(test_assert: TestAsser
 			session.submit_human_action(chosen)
 		turns += 1
 	test_assert.check(session.finished or turns < 400, "game should finish or stay within turn budget")
+
+
+static func _test_controller_submits_draft_pick(test_assert: TestAssert) -> void:
+	var session := BotGameSession.start_one_human_three_bots(42, 0)
+	while not session.finished and not session.waiting_for_draft:
+		if session.is_waiting_for_human() and not session.waiting_for_draft:
+			session.submit_human_action(session.get_legal_human_actions()[0])
+		else:
+			session.advance_one_player_turn()
+	if not session.waiting_for_draft:
+		return
+	var options := StrategicActionPicker.build_options(session.get_legal_human_actions())
+	test_assert.check(not options.is_empty(), "draft waiting should expose picker options")
+	var events := StrategicPlayController.submit_option(session, options, 0)
+	test_assert.check(not events.is_empty() or not session.waiting_for_draft, "draft pick should progress session")
+
+
+static func _test_play_mode_references_draft_view_model(test_assert: TestAssert) -> void:
+	var text := FileAccess.get_file_as_string(PLAY_RUN_MODE)
+	test_assert.check("StrategicDraftViewModel" in text, "play mode should reference draft view model")
+	test_assert.check("StrategicDevelopmentViewModel" in text, "play mode should reference development view model")
 
 
 static func _test_play_scene_instantiates(test_assert: TestAssert) -> void:

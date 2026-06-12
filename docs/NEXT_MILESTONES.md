@@ -1,6 +1,6 @@
 # Next Milestones (Proposed)
 
-**Last updated:** 2026-06-12 (post–Run D v1 macro implementation)
+**Last updated:** 2026-06-12 (post–Run E card economy vertical slice)
 
 **Strategic direction:** Macro-first, trainable mythic civilisation simulation. One authoritative `GameState`. Headless core and `BotGameSession` are source of truth. **Near-term dev default:** 2D strategic playable/debug. **Long-term product default:** 3D wizard spectator/RPG. See [GAME_DESIGN_BRIEF.md](GAME_DESIGN_BRIEF.md) and [RULEBOOK.md](RULEBOOK.md).
 
@@ -31,13 +31,26 @@ See [RULES_ENGINE_AUDIT.md](RULES_ENGINE_AUDIT.md) for status.
 
 ---
 
-## Priority follow-ups (post–Run D)
+## Run E complete (card economy vertical slice)
+
+Run E on branch `milestone/run-e-card-economy` implemented:
+
+- 96-card JSON catalogue + validator + generic effect engine
+- Full Seven Wonders drafting (`DRAFT_PICK`, bot/human session flow)
+- 2D play draft/hand/slot view models + board slot indicators
+- 3D wizard slice: WASD, Q/E yaw, board/wizard camera toggle, encounter proximity prompt
+- `SpellEncounterBridge` macro → tactical → macro prototype
+- `TinyPolicy` + `MacroRlTrainer` headless RL prototype
+- Telemetry schema `macro_training_v2` (additive columns)
+- Windows export prototype docs/script
+
+## Priority follow-ups (post–Run E)
 
 | Priority | Work item | Why |
 |---|---|---|
 | 1 | **M22 hex click-to-build** | Keyboard play exists; hex selection is next UX step |
-| 2 | **Dataset v2 + board featurizer** | Before serious macro RL |
-| 3 | **Drafting human pick** | Replace auto-pick skeleton |
+| 2 | **Board featurizer for RL** | v2 telemetry exists; featurizer still needed |
+| 3 | **Integrate encounter bridge in 3D play** | Bridge is core-tested; embodied submit path deferred |
 | 4 | **M26 divine instruction offers** | 3D/macro bridge when ready |
 | 5 | **Legacy cleanup** | Deprecate `EncounterRules` / `PlayerTradeRules` paths |
 

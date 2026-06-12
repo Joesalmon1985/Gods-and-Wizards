@@ -1,7 +1,8 @@
 class_name MacroTrainingTelemetrySchema
 extends RefCounted
 
-const SCHEMA_VERSION := "macro_training_v1"
+const SCHEMA_VERSION := "macro_training_v2"
+const LEGACY_V1_COLUMN_COUNT := 23
 
 const STEP_COLUMNS: Array[String] = [
 	"telemetry_schema_version",
@@ -27,4 +28,13 @@ const STEP_COLUMNS: Array[String] = [
 	"terminal",
 	"event_summaries",
 	"phase",
+	"episode_id",
+	"rules_version",
+	"draft_age",
+	"infection_rate",
+	"development_hand_json",
+	"draft_pack_size",
+	"waiting_for_draft",
+	"action_params_json",
+	"structured_events_json",
 ]

@@ -9,8 +9,12 @@ var _header_label: Label
 var _scoreboard_label: Label
 var _log_label: Label
 var _help_label: Label
+var _encounter_label: Label
+var _camera_button: Button
 var _wizard_marker: Node3D
+var _camera: Camera3D
 var _board_visualizer: BoardStateVisualizer
+var _controller := WizardWorldController.new()
 var _autoplay := false
 var _autoplay_interval := 1.0
 var _autoplay_timer := 0.0
@@ -23,8 +27,13 @@ func _ready() -> void:
 	_scoreboard_label = $UI/Panel/MarginContainer/VBox/ScoreboardLabel
 	_log_label = $UI/Panel/MarginContainer/VBox/LogLabel
 	_help_label = $UI/Panel/MarginContainer/VBox/HelpLabel
+	_encounter_label = $UI/Panel/MarginContainer/VBox/EncounterLabel
+	_camera_button = $UI/Panel/MarginContainer/VBox/CameraToggleButton
 	_wizard_marker = $WizardMarker
+	_camera = $Camera3D
 	_board_visualizer = $BoardVisuals
+	if _camera_button != null:
+		_camera_button.pressed.connect(_on_camera_toggle_pressed)
 	_refresh_view()
 
 
@@ -52,20 +61,29 @@ func _unhandled_input(event: InputEvent) -> void:
 		KEY_H:
 			_show_help = not _show_help
 			_refresh_view()
+		KEY_C:
+			_on_camera_toggle_pressed()
 
 
 func _process(delta: float) -> void:
-	var move := Vector3.ZERO
-	if Input.is_key_pressed(KEY_W):
-		move.z -= 1.0
-	if Input.is_key_pressed(KEY_S):
-		move.z += 1.0
-	if Input.is_key_pressed(KEY_A):
-		move.x -= 1.0
-	if Input.is_key_pressed(KEY_D):
-		move.x += 1.0
-	if move != Vector3.ZERO:
-		_wizard_marker.translate(move.normalized() * 3.0 * delta)
+	var keys := WizardMovementInput.keys_from_pressed(
+		Input.is_key_pressed(KEY_W),
+		Input.is_key_pressed(KEY_A),
+		Input.is_key_pressed(KEY_S),
+		Input.is_key_pressed(KEY_D),
+		Input.is_key_pressed(KEY_Q),
+		Input.is_key_pressed(KEY_E)
+	)
+	_controller.apply_movement(keys, delta)
+	_wizard_marker.position = _controller.marker_position
+	_wizard_marker.rotation.y = _controller.marker_yaw_rad
+	_apply_camera_transform()
+
+	if _session != null:
+		var snapshot := BoardWorldMapper.build_snapshot(_session.state, _session.events)
+		_controller.update_encounter_prompt(snapshot)
+		if _encounter_label != null:
+			_encounter_label.text = _controller.encounter_prompt
 
 	if _autoplay and _session != null and not _session.finished:
 		_autoplay_timer += delta
@@ -74,8 +92,26 @@ func _process(delta: float) -> void:
 			_advance_simulation_step()
 
 
+func _on_camera_toggle_pressed() -> void:
+	_controller.toggle_camera()
+	_apply_camera_transform()
+	_refresh_view()
+
+
+func _apply_camera_transform() -> void:
+	if _camera == null:
+		return
+	var transform_data := _controller.get_camera_transform()
+	_camera.global_position = transform_data.get("position", _camera.global_position)
+	var look_at: Vector3 = transform_data.get("look_at", Vector3.ZERO)
+	if look_at != Vector3.ZERO:
+		_camera.look_at(look_at, Vector3.UP)
+
+
 func _start_session() -> void:
 	_session = BotGameSession.start_four_player(game_seed)
+	_controller.marker_position = _wizard_marker.position if _wizard_marker != null else Vector3.ZERO
+	_controller.marker_yaw_rad = _wizard_marker.rotation.y if _wizard_marker != null else 0.0
 
 
 func _reset_session() -> void:
@@ -96,6 +132,9 @@ func _advance_simulation_step() -> void:
 func _refresh_view() -> void:
 	if _board_visualizer != null:
 		_board_visualizer.sync_from_session(_session)
+	var snapshot := BoardWorldMapper.build_snapshot(_session.state, _session.events)
+	_controller.sync_board_bounds(snapshot)
+	_apply_camera_transform()
 	_update_overlay()
 
 
@@ -109,6 +148,8 @@ func _update_overlay() -> void:
 		_scoreboard_label.text = GameStateSummary.format_scoreboard(summary)
 	if _log_label != null:
 		_log_label.text = TurnReport.format_recent_log(_session, 5)
+	if _camera_button != null:
+		_camera_button.text = "Camera: %s" % WizardCameraRig.mode_label(_controller.camera_mode)
 	if _help_label != null:
 		_help_label.visible = _show_help
 		if _show_help:
@@ -117,6 +158,10 @@ func _update_overlay() -> void:
 
 func _help_text() -> String:
 	return (
-		"Enter/N: advance turn | Space: autoplay (%s) | +/-: speed %.1fs | R: reset | H: hide help | WASD: wizard marker"
-		% ["ON" if _autoplay else "OFF", _autoplay_interval]
+		"Enter/N: advance turn | Space: autoplay (%s) | +/-: speed %.1fs | R: reset | H: hide help | WASD: move | Q/E: turn | C/button: camera (%s)"
+		% [
+			"ON" if _autoplay else "OFF",
+			_autoplay_interval,
+			WizardCameraRig.mode_label(_controller.camera_mode),
+		]
 	)

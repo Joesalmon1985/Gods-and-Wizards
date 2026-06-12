@@ -12,6 +12,8 @@ var _scoreboard_label: Label
 var _legal_label: Label
 var _status_label: Label
 var _help_label: Label
+var _draft_label: Label
+var _development_label: Label
 var _action_options: Array = []
 var _selected_index := 0
 
@@ -24,6 +26,8 @@ func _ready() -> void:
 	_legal_label = $UI/Panel/MarginContainer/VBox/LegalLabel
 	_status_label = $UI/Panel/MarginContainer/VBox/StatusLabel
 	_help_label = $UI/Panel/MarginContainer/VBox/HelpLabel
+	_draft_label = $UI/Panel/MarginContainer/VBox/DraftLabel
+	_development_label = $UI/Panel/MarginContainer/VBox/DevelopmentLabel
 	StrategicPlayController.advance_until_human_or_stopped(_session)
 	_refresh_view()
 
@@ -84,6 +88,18 @@ func _refresh_view() -> void:
 			]
 		else:
 			_status_label.text = "Bots playing..."
+	var draft_model := StrategicDraftViewModel.build(_session, human_player_id)
+	var development_model := StrategicDevelopmentViewModel.build(_session, human_player_id)
+	if _draft_label != null:
+		_draft_label.text = "%s\n%s" % [
+			StrategicDraftViewModel.format_pack_summary(draft_model),
+			StrategicDraftViewModel.format_hand_summary(draft_model),
+		]
+	if _development_label != null:
+		_development_label.text = "%s\n%s" % [
+			StrategicDevelopmentViewModel.format_city_slots(development_model),
+			StrategicDevelopmentViewModel.format_hand_rules(development_model),
+		]
 	if _help_label != null:
 		_help_label.text = "Up/Down: select legal action | Enter/Space: submit | Read-only board lens"
 

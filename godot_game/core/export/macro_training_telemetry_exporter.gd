@@ -1,6 +1,8 @@
 class_name MacroTrainingTelemetryExporter
 extends RefCounted
 
+const RULES_VERSION := "run_e_v2"
+
 
 static func run_episode(
 	game_seed: int,
@@ -29,7 +31,9 @@ static func run_episode(
 			action,
 			reward,
 			bool(result.get("done", false)),
-			_summarize_events(result.get("events", []), env.session.state)
+			_summarize_events(result.get("events", []), env.session.state),
+			result.get("events", []),
+			"ep_%d" % game_seed
 		))
 		step_index += 1
 
@@ -45,7 +49,9 @@ static func build_step_row(
 	action: GameAction,
 	reward: float,
 	terminal: bool,
-	event_summaries: String
+	event_summaries: String,
+	structured_events: Array = [],
+	episode_id: String = ""
 ) -> Dictionary:
 	var legal_ids: Array = []
 	var legal_mask_bits: Array = []
@@ -77,6 +83,15 @@ static func build_step_row(
 		"terminal": str(terminal).to_lower(),
 		"event_summaries": event_summaries,
 		"phase": str(observation.get("phase", "")),
+		"episode_id": episode_id,
+		"rules_version": RULES_VERSION,
+		"draft_age": str(observation.get("draft_age", 1)),
+		"infection_rate": str(observation.get("infection_rate", 0)),
+		"development_hand_json": str(observation.get("development_hand_json", "[]")),
+		"draft_pack_size": str(observation.get("draft_pack_size", 0)),
+		"waiting_for_draft": str(observation.get("waiting_for_draft", false)).to_lower(),
+		"action_params_json": _action_params_json(action),
+		"structured_events_json": JSON.stringify(_structured_events(structured_events)),
 	}
 
 
@@ -119,6 +134,27 @@ static func _row_to_csv(row: Dictionary, columns: Array[String]) -> String:
 	for column in columns:
 		values.append(_escape_csv_field(str(row.get(column, ""))))
 	return ",".join(values)
+
+
+static func _action_params_json(action: GameAction) -> String:
+	if action == null:
+		return "{}"
+	return JSON.stringify({
+		"kind": ActionKind.to_key(action.kind),
+		"draft_player_id": action.draft_player_id,
+		"development_id": action.development_id,
+		"hero_id": action.hero_id,
+	})
+
+
+static func _structured_events(events: Array) -> Array:
+	var rows: Array = []
+	for event in events:
+		if event == null:
+			continue
+		if event.has_method("to_dict"):
+			rows.append(event.to_dict())
+	return rows
 
 
 static func _escape_csv_field(value: String) -> String:

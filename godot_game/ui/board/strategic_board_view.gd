@@ -56,9 +56,16 @@ func _draw_cities(cities: Array) -> void:
 			continue
 		var player_id: int = entry.get("player_id", -1)
 		draw_circle(center, 6.0, BoardWorldMapper.player_color(player_id))
-		var development_id: String = entry.get("development_id", "")
-		if development_id != "":
-			draw_circle(center + Vector2(5, -5), 3.0, Color(0.95, 0.85, 0.25))
+		var slot_count: int = int(entry.get("development_count", 0))
+		if slot_count <= 0 and entry.get("development_id", "") != "":
+			slot_count = 1
+		for slot_index in range(slot_count):
+			var offset := Vector2(5 + slot_index * 4, -5 - slot_index * 2)
+			draw_circle(center + offset, 3.0, Color(0.95, 0.85, 0.25))
+		var max_slots: int = int(entry.get("max_development_slots", DevelopmentRules.MAX_DEVELOPMENTS_PER_CITY))
+		for free_index in range(slot_count, max_slots):
+			var ghost_offset := Vector2(5 + free_index * 4, -5 - free_index * 2)
+			draw_arc(center + ghost_offset, 2.5, 0.0, TAU, 12, Color(0.95, 0.85, 0.25, 0.35), 1.0)
 
 
 func _hex_fill_for_resource(resource_key: String, chance: int) -> Color:

@@ -11,6 +11,8 @@ static func build(session: BotGameSession) -> Dictionary:
 	summary["title"] = MODE_TITLE
 	var legal_labels := LegalActionReport.legal_action_labels(session.state)
 	var report := TurnReport.from_session(session, 3)
+	var draft_model := StrategicDraftViewModel.build(session)
+	var development_model := StrategicDevelopmentViewModel.build(session)
 	return {
 		"title": MODE_TITLE,
 		"header_text": GameStateSummary.format_header(summary),
@@ -27,6 +29,13 @@ static func build(session: BotGameSession) -> Dictionary:
 		"hero_actions_remaining": summary.get("hero_actions_remaining", {}),
 		"finished": session.finished,
 		"waiting_for_human": session.waiting_for_human,
+		"waiting_for_draft": session.waiting_for_draft,
+		"draft_pack_summary": StrategicDraftViewModel.format_pack_summary(draft_model),
+		"draft_hand_summary": StrategicDraftViewModel.format_hand_summary(draft_model),
+		"development_slots_summary": StrategicDevelopmentViewModel.format_city_slots(development_model),
+		"development_rules_summary": StrategicDevelopmentViewModel.format_hand_rules(development_model),
+		"draft_model": draft_model,
+		"development_model": development_model,
 	}
 
 

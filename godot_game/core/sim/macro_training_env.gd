@@ -34,6 +34,7 @@ func get_observation(player_id: int) -> Dictionary:
 		"active_player_id": session.get_active_player_id(),
 		"is_active_player": player_id == session.get_active_player_id(),
 		"waiting_for_human": session.is_waiting_for_human(),
+		"waiting_for_draft": session.waiting_for_draft,
 		"victory_points": player.victory_points,
 		"resources": _resource_dict(player),
 		"city_count": _count_for_player(state.cities, player_id),
@@ -44,6 +45,10 @@ func get_observation(player_id: int) -> Dictionary:
 		"winner_id": state.winner_id,
 		"policy_name": session.policy_name,
 		"phase": TurnPhase.to_key(state.current_phase),
+		"draft_age": state.draft_age,
+		"infection_rate": state.infection_rate,
+		"development_hand_json": JSON.stringify(player.development_hand),
+		"draft_pack_size": int(state.draft_packs_by_player.get(player_id, []).size()),
 	}
 
 

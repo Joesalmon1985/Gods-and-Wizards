@@ -109,6 +109,9 @@ static func _map_cities(state: GameState) -> Array:
 			"node_id": city.vertex.to_key(),
 			"player_id": city.player_id,
 			"development_id": city.development_id,
+			"development_count": city.developments.size(),
+			"development_ids": city.developments.duplicate(),
+			"max_development_slots": DevelopmentRules.MAX_DEVELOPMENTS_PER_CITY,
 		})
 	return cities
 
