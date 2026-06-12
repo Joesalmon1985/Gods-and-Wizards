@@ -27,8 +27,9 @@ static func _test_watchtower_build_unchanged(test_assert: TestAssert) -> void:
 		ResourceType.Type.ORE: 2,
 	})
 
+	player.development_hand.append(DevelopmentCatalog.WATCHTOWER_ID)
 	var city_vertex := state.cities[0].vertex
-	var events := DevelopmentRules.apply(state, player.id, city_vertex)
+	var events := DevelopmentRules.apply(state, player.id, city_vertex, DevelopmentCatalog.WATCHTOWER_ID)
 	test_assert.check(events[0] is DevelopmentBuiltEvent, "watchtower build should emit DevelopmentBuiltEvent")
 	var city: City = state.cities_by_vertex[city_vertex.to_key()]
 	test_assert.eq(city.development_id, DevelopmentCatalog.WATCHTOWER_ID, "default build should remain watchtower")
@@ -46,6 +47,7 @@ static func _test_shrine_grants_victory_point(test_assert: TestAssert) -> void:
 		ResourceType.Type.ORE: 2,
 	})
 	var starting_vp := player.victory_points
+	player.development_hand.append(DevelopmentCatalog.SHRINE_ID)
 	var city_vertex := state.cities[0].vertex
 	var events := DevelopmentRules.apply(state, player.id, city_vertex, DevelopmentCatalog.SHRINE_ID)
 

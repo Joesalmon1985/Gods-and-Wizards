@@ -41,6 +41,8 @@ static func _resolve_production(state: GameState, event_turn: int) -> Array:
 					continue
 
 				var city: City = state.cities_by_vertex[vertex_key]
+				if CityOccupationRules.is_city_suppressed(state, vertex):
+					continue
 				var player := _get_player(state, city.player_id)
 				if player == null:
 					continue

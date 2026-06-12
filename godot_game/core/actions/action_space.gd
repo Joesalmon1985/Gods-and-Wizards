@@ -23,13 +23,9 @@ static func from_board(board: HexBoard) -> ActionSpace:
 		space._register(road_action)
 		next_id += 1
 
-	for node in board.get_all_nodes_sorted():
-		var dev_action := GameAction.new(next_id, ActionKind.Kind.BUILD_DEVELOPMENT, node)
-		space._register(dev_action)
-		next_id += 1
-
 	_register_bank_trades(space)
-	_register_player_trades(space, 4)
+	_register_trade_offers(space, 4)
+	_register_trade_responses(space)
 	return space
 
 
@@ -51,24 +47,38 @@ static func _register_bank_trades(space: ActionSpace) -> void:
 			space._register(trade_action)
 
 
-static func _register_player_trades(space: ActionSpace, player_count: int) -> void:
+static func _register_trade_offers(space: ActionSpace, player_count: int) -> void:
 	for partner_id in player_count:
 		for give_resource in ResourceType.all():
 			for receive_resource in ResourceType.all():
 				if give_resource == receive_resource:
 					continue
-				var trade_action := GameAction.new(
-					space.size(),
-					ActionKind.Kind.PLAYER_TRADE,
-					null,
-					null,
-					-1,
-					null,
-					give_resource,
-					receive_resource,
-					partner_id
-				)
-				space._register(trade_action)
+				for give_amount in range(TradeOfferRules.MIN_AMOUNT, TradeOfferRules.MAX_AMOUNT + 1):
+					for request_amount in range(TradeOfferRules.MIN_AMOUNT, TradeOfferRules.MAX_AMOUNT + 1):
+						var trade_action := GameAction.new(
+							space.size(),
+							ActionKind.Kind.TRADE_OFFER,
+							null,
+							null,
+							-1,
+							null,
+							give_resource,
+							receive_resource,
+							partner_id
+						)
+						trade_action.give_amount = give_amount
+						trade_action.request_amount = request_amount
+						space._register(trade_action)
+
+
+static func _register_trade_responses(space: ActionSpace) -> void:
+	for offer_slot in range(1, TradeOfferRules.MAX_OFFER_SLOTS + 1):
+		var accept_action := GameAction.new(space.size(), ActionKind.Kind.TRADE_ACCEPT)
+		accept_action.trade_offer_id = offer_slot
+		space._register(accept_action)
+		var reject_action := GameAction.new(space.size(), ActionKind.Kind.TRADE_REJECT)
+		reject_action.trade_offer_id = offer_slot
+		space._register(reject_action)
 
 
 static func from_state(state: GameState) -> ActionSpace:
@@ -86,7 +96,19 @@ static func from_state(state: GameState) -> ActionSpace:
 			)
 			space._register(move_action)
 
+	_register_development_plays(space, state)
 	return space
+
+
+static func _register_development_plays(space: ActionSpace, state: GameState) -> void:
+	var active := TurnRules.get_active_player(state)
+	if active == null:
+		return
+	for card_id in active.development_hand:
+		for node in state.board.get_all_nodes_sorted():
+			var dev_action := GameAction.new(space.size(), ActionKind.Kind.BUILD_DEVELOPMENT, node)
+			dev_action.development_id = card_id
+			space._register(dev_action)
 
 
 func size() -> int:
@@ -131,12 +153,20 @@ static func _action_layout_part(action: GameAction) -> String:
 				ResourceType.to_key(action.give_resource),
 				ResourceType.to_key(action.receive_resource),
 			]
-		ActionKind.Kind.PLAYER_TRADE:
-			return "%d:%s:p%d:%s->%s" % [
+		ActionKind.Kind.TRADE_OFFER:
+			return "%d:%s:p%d:%s:%d->%s:%d" % [
 				action.action_id,
 				ActionKind.to_key(action.kind),
 				action.partner_player_id,
 				ResourceType.to_key(action.give_resource),
+				action.give_amount,
 				ResourceType.to_key(action.receive_resource),
+				action.request_amount,
+			]
+		ActionKind.Kind.TRADE_ACCEPT, ActionKind.Kind.TRADE_REJECT:
+			return "%d:%s:offer%d" % [
+				action.action_id,
+				ActionKind.to_key(action.kind),
+				action.trade_offer_id,
 			]
 	return "%d:%s" % [action.action_id, ActionKind.to_key(action.kind)]

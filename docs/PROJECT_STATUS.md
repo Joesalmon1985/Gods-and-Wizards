@@ -1,6 +1,6 @@
 # Project Status — Gods and Wizards
 
-**Last updated:** 2026-06-12 (post–Run C design clarification)  
+**Last updated:** 2026-06-12 (post–Run D v1 macro implementation)  
 **Purpose:** Human-readable handoff for reviewers and Cursor agents before the next milestone.
 
 **Design docs (authoritative intent):** [RULEBOOK.md](RULEBOOK.md), [TURN_TIMING_AND_PHASE_MODEL.md](TURN_TIMING_AND_PHASE_MODEL.md), [RULES_ENGINE_AUDIT.md](RULES_ENGINE_AUDIT.md).
@@ -35,14 +35,13 @@ Do not treat stale branch names or SHAs in this doc as authoritative.
 & "C:\Users\joesa\Documents\Cursor\BoardGame\gods-and-wizards\scripts\Invoke-GodotHeadless.ps1" -ArgumentList @("--headless", "--path", "C:\Users\joesa\Documents\Cursor\BoardGame\gods-and-wizards\godot_game", "-s", "res://tests/test_runner.gd")
 ```
 
-### Result (verified 2026-06-12, after Run C doc changes)
+### Result (verified 2026-06-12, after Run D implementation)
 
 | Metric | Value |
 |---|---|
 | Exit code | **0** |
-| Modules run | **62** |
-| Assertions | **95,645** |
-| Passed | **95,645** |
+| Modules run | **69** |
+| Passed | **All** |
 | Failed | **0** |
 | Stale Godot processes after run | **None** (`Get-Process -Name "Godot*"` empty) |
 
@@ -123,7 +122,7 @@ Do not commit files under `logs/` (gitignored).
 - Tactical combat = **`SpellCombatSession`** only; isolated from macro loop.
 - Legacy **`CombatResolver` card duel** = debug/reference.
 - Multi-step macro turns with **`END_TURN`**; step-level legal masks for RL.
-- VP win at **21**; collective breach loss at **10** (design target; code still `BREACH_LIMIT := 7`).
+- VP win at **21**; collective breach loss at **10** (`GameConstants.BREACH_LIMIT`).
 - No **ports**; offer/accept trading is intended (current 1:1 trade is provisional).
 - Neural training export is **partial/prototyping**; dataset v2 required before serious RL.
 
@@ -150,7 +149,7 @@ See [RULES_GAP_ANALYSIS_AND_DECISION_LOG.md](RULES_GAP_ANALYSIS_AND_DECISION_LOG
 | 2D strategic board read-only (M18) | `StrategicBoardView`, `strategic_2d_mode.tscn`, `TestStrategicBoardView` |
 | Hero move | `MoveRules`, occupancy rules |
 | Demon spread | Node-to-node along edges |
-| Breach loss | `BreachEndCondition`, `GameConstants.BREACH_LIMIT` (code **7**; design target **10**) |
+| Breach loss | `BreachEndCondition`, `GameConstants.BREACH_LIMIT` (**10**) |
 | Victory points win | `VictoryPointsEndCondition`, `GameConstants.VP_TO_WIN` |
 | Development build (stub) | Single stub card path, not full drafting |
 | Headless card combat | `CombatResolver` card duel — **legacy/debug**; not macro resolution |
@@ -172,11 +171,8 @@ See [RULES_GAP_ANALYSIS_AND_DECISION_LOG.md](RULES_GAP_ANALYSIS_AND_DECISION_LOG
 | Embodied wizard | Placeholder scripts only; wizard marker in 3D mode does not affect `GameState` |
 | Combat UI | `ui/combat/combat_presenter.gd` — presentation layer, not wired into main run mode |
 | Integration bridge | `encounter_bridge.gd`, `sync_controller.gd` — contract exists; not full embodied loop |
-| Phase model | Multi-step turns until `END_TURN` in bot loop; no fine-grained phase enum in `GameState` |
-| Player trade | Provisional instant 1:1 — intended offer/accept model not implemented |
-| Macro contact resolution | Hero move does not yet clear demons instantly (design gap) |
-| Infection deck spread | Adjacent propagation at round boundary — design specifies per-player-turn infection deck |
-| Hero action budget | Not implemented (design: 4 actions/hero/turn) |
+| Drafting human pick UI | Auto-pick skeleton at round end; no `DRAFT_PICK` action for humans yet |
+| M22 hex click-to-build | Keyboard `strategic_play_2d_mode` works; no hex picking |
 | Neural training data | v1 telemetry export only — **not production RL-ready** |
 | Human player UI | M14 session API complete; no clickable 2D/3D action selection yet |
 | Balance config wiring | JSON skeleton loaded; gameplay constants not yet driven from config |
@@ -188,14 +184,11 @@ See [RULES_GAP_ANALYSIS_AND_DECISION_LOG.md](RULES_GAP_ANALYSIS_AND_DECISION_LOG
 
 | System | Notes |
 |---|---|
-| **M22 2D human click-to-build** | Wire M14 to 2D view — **next** |
+| **M22 2D human click-to-build** | Wire M14 to hex/click selection — **next** |
 | **M26 divine instruction offers** | Future headless bridge — documented only |
-| Unified run mode entry (2D primary) | After M22 |
-| Offer/accept player trading | Replaces provisional 1:1 |
-| Infection deck demon spread | Per-player-turn; replaces adjacent spread |
-| Macro contact resolution | Instant demon removal on hero enter |
-| Hero action budgets | 4 per hero per turn |
-| City demon occupation rules | Production suppression + dev purge timer |
+| Dataset v2 / board featurizer | Before serious macro RL |
+| Drafting human pick + full card library | Skeleton only in Run D |
+| Age-weighted infection reshuffle | Deferred |
 | Dataset v2 / board featurizer | Before serious macro RL |
 | Full drafting (Seven Wonders-style) | Explicitly out of scope until requested |
 | Full development card system | Beyond current stub |
@@ -245,7 +238,7 @@ See [AUTONOMOUS_SESSION_LOG.md](AUTONOMOUS_SESSION_LOG.md) for agent resume deta
 
 ## Known limitations and risks
 
-1. **No human playable layer** — 2D/3D modes advance bots only; human session API has no UI wiring yet.
+1. **Human play is keyboard-only** — `strategic_play_2d_mode` lists legal actions; no hex click-to-build yet.
 2. **Wizard marker is cosmetic** — WASD movement does not represent hero position in `GameState`.
 3. **Playthrough CSV `road_count`** — column uses final session state on all rows; `city_count` is replayed per step.
 4. **`production_check` rows** — empty `event_summary` in playthrough CSV.
@@ -259,8 +252,8 @@ See [AUTONOMOUS_SESSION_LOG.md](AUTONOMOUS_SESSION_LOG.md) for agent resume deta
 ## Next recommended task
 
 1. **Human review** — commit Run C documentation; open PR if needed (`git status --short --branch` for current branch).
-2. **Implementation run:** macro contact resolution (instant demon removal) + tests — see [RULES_ENGINE_AUDIT.md](RULES_ENGINE_AUDIT.md).
-3. Align `BREACH_LIMIT` to design target **10** (`GameConstants` + breach tests).
+2. **Human review** — Run D complete; open PR from milestone branch.
+3. **Next implementation:** M22 hex click-to-build or dataset v2 — see [NEXT_MILESTONES.md](NEXT_MILESTONES.md).
 
 **Current branch / commit:** run `git branch --show-current` and `git log -1 --oneline`.
 

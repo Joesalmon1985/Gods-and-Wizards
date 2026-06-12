@@ -5,6 +5,7 @@ var id: int
 var display_name: String
 var resources: Dictionary = {}
 var victory_points: int = 0
+var development_hand: Array[String] = []
 
 
 func _init(p_id: int, p_display_name: String) -> void:

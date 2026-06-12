@@ -1,6 +1,6 @@
 # Rules Enforcement Test Matrix
 
-**Last updated:** 2026-06-12 (post–Run C design clarification)  
+**Last updated:** 2026-06-12 (post–Run D v1 macro implementation)  
 **Purpose:** Map game rules and export contracts to test modules. Used for Run C training-data audit and ongoing milestone verification.
 
 Design intent: [RULEBOOK.md](RULEBOOK.md). Implementation gaps: [RULES_ENGINE_AUDIT.md](RULES_ENGINE_AUDIT.md).
@@ -36,7 +36,7 @@ Integration tests for training exports are registered in [`godot_game/tests/test
 | Action application | Illegal actions rejected | `TestActionRules`, domain tests | Enforced | |
 | Multi-step turn | Bot loops until `END_TURN` | `TestBotPolicy`, bot integration | Enforced | Each step = one legal action |
 | Bot policy | Same seed → same heuristic choices | `TestHeuristicBot`, `TestBotPolicy` | Enforced | Macro export policy source |
-| Game over | VP win (21) and breach loss (design target **10**; code **7**) | `TestGameOver`, `TestBreachLoss` | Enforced | Breach limit value may lag design until `GameConstants` updated |
+| Game over | VP win (21) and breach loss at **10** | `TestGameOver`, `TestBreachEnd` | Enforced | |
 | Determinism | Same seed + actions → same state | Multiple integration tests | Enforced | Project-wide contract |
 
 ---
@@ -45,12 +45,14 @@ Integration tests for training exports are registered in [`godot_game/tests/test
 
 | Area | Rule / contract | Test module | Status | Notes |
 |---|---|---|---|---|
-| Macro contact resolution | Hero entering demon node removes **all** demons instantly | — | **Not enforced** | GD-002; no spell combat in macro |
-| Demon cap | Max 3 demons per node; 4th → breach, not placed | Partial breach tests | **Partial** | Current spread semantics differ |
-| Infection deck spread | Draw `infection_rate` nodes per player turn end | — | **Not enforced** | Adjacent spread at round boundary today |
-| Hero action budget | 4 actions per hero per turn | — | **Not enforced** | GD-005 |
-| City demon occupation | Demon > 0 → 0 production; full round → purge dev cards | — | **Not enforced** | GD-004 |
-| Offer/accept trading | Asymmetric offer/accept; no ports | — | **Not enforced** | Provisional 1:1 `PlayerTradeRules` exists |
+| Macro contact resolution | Hero entering demon node removes **all** demons instantly | `TestMacroContactResolution` | **Enforced** | |
+| Demon cap | Max 3 demons per node; 4th → breach, not placed | `TestDemonSpread`, `TestInfectionDeckSpread` | **Enforced** | |
+| Infection deck spread | Draw `infection_rate` nodes per player turn end | `TestInfectionDeckSpread` | **Enforced** | |
+| Hero action budget | 4 actions per hero per turn | `TestHeroActionBudget` | **Enforced** | |
+| City demon occupation | Demon > 0 → 0 production; full round → purge dev cards | `TestCityDemonOccupation` | **Enforced** | |
+| Offer/accept trading | Asymmetric offer/accept; no ports | `TestTradeOfferAccept` | **Enforced** | `PLAYER_TRADE` deprecated |
+| Turn lifecycle / phase | `TurnPhase`, per-turn counters | `TestTurnLifecycle` | **Enforced** | |
+| Drafting skeleton | Pack pass, hand, city slots | `TestDraftSession` | **Partial** | Auto-pick; no human draft action |
 | No tactical combat in macro | Macro loop never invokes `SpellCombatSession` | Architecture implicit | **Enforced by omission** | GD-001 |
 | Legacy card duel | `CombatResolver` / `EncounterRules` not v1 macro path | `TestCombatRules` | **Legacy** | Debug/reference only |
 
@@ -75,7 +77,8 @@ Integration tests for training exports are registered in [`godot_game/tests/test
 | Macro headless export | Exporter does not call `ActionRules.apply` directly | `TestMacroTrainingTelemetry` | Enforced | Architecture guard |
 | Macro headless export | No `Node2D` / `Node3D` in exporter | `TestMacroTrainingTelemetry` | Enforced | |
 | **Gap:** macro reward semantics | Terminal bonus on correct step; VP delta values | — | **Not enforced** | See [NEURAL_TRAINING_DATA_EXPORT_AUDIT.md](NEURAL_TRAINING_DATA_EXPORT_AUDIT.md) |
-| **Gap:** macro mask correctness | Each mask bit matches `LegalActionQuery` for that step | — | **Not enforced** | |
+| Macro mask spot-check | Step 0 mask bits match `LegalActionQuery` | `TestMacroTrainingTelemetry` | **Partial** | Step 0 only |
+| Macro export `phase` column | Present on every row | `TestMacroTrainingTelemetry` | **Enforced** | Additive v1 column |
 | **Gap:** macro terminal fields | Post-step `winner_id` / `game_finished` in CSV | — | **Not enforced** | Pre-step obs exported today |
 | **Gap:** macro file I/O | `write_episode` round-trip equals `render_csv` | — | **Not enforced** | |
 | **Gap:** macro provenance | Rules version, commit SHA in export | — | **Not enforced** | |

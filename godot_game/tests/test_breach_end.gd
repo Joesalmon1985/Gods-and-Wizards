@@ -8,3 +8,8 @@ static func run(test_assert: TestAssert) -> void:
 	test_assert.check(game_over != null, "breach limit should trigger game over")
 	test_assert.eq(game_over.reason, "breach", "breach end should use breach reason")
 	test_assert.eq(game_over.winner_id, -1, "breach loss should have no winner")
+	test_assert.eq(
+		BalanceConfig.breach_limit(),
+		GameConstants.BREACH_LIMIT,
+		"BreachEndCondition and BalanceConfig should agree on breach limit"
+	)

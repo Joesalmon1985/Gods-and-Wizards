@@ -79,7 +79,10 @@ static func place_hero(state: GameState, player_id: int, node: BoardNode, health
 
 
 static func set_demon_count(state: GameState, node: BoardNode, count: int) -> void:
-	state.demon_counts_by_node[node.to_key()] = maxi(0, count)
+	var old_count := get_demon_count(state, node)
+	var new_count := maxi(0, count)
+	state.demon_counts_by_node[node.to_key()] = new_count
+	CityOccupationRules.on_demon_count_changed(state, node, old_count, new_count)
 
 
 static func get_demon_count(state: GameState, node: BoardNode) -> int:

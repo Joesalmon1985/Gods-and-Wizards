@@ -10,6 +10,10 @@ var target_node: BoardNode = null
 var give_resource: ResourceType.Type = ResourceType.Type.WOOD
 var receive_resource: ResourceType.Type = ResourceType.Type.WOOD
 var partner_player_id: int = -1
+var give_amount: int = 1
+var request_amount: int = 1
+var trade_offer_id: int = -1
+var development_id: String = ""
 
 
 func _init(
@@ -40,10 +44,14 @@ func equals(other: GameAction) -> bool:
 	if action_id != other.action_id or kind != other.kind:
 		return false
 	match kind:
-		ActionKind.Kind.BUILD_CITY, ActionKind.Kind.BUILD_DEVELOPMENT:
+		ActionKind.Kind.BUILD_CITY:
 			if vertex == null or other.vertex == null:
 				return false
 			return vertex.equals(other.vertex)
+		ActionKind.Kind.BUILD_DEVELOPMENT:
+			if vertex == null or other.vertex == null:
+				return false
+			return vertex.equals(other.vertex) and development_id == other.development_id
 		ActionKind.Kind.BUILD_ROAD:
 			if edge == null or other.edge == null:
 				return false

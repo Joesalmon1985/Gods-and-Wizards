@@ -2,40 +2,71 @@ class_name TestDemonSpread
 extends RefCounted
 
 static func run(test_assert: TestAssert) -> void:
-	var state := ScenarioBuilder.build_bot_ready_game(42)
-	var source := state.cities[0].vertex
-	SetupRules.set_demon_count(state, source, 2)
+	_test_infection_draw_adds_demons(test_assert)
+	_test_cap_three_fourth_causes_breach(test_assert)
+	_test_deterministic_draw_sequence(test_assert)
+	_test_no_adjacent_propagation(test_assert)
 
-	var events := SpreadRules.resolve_spread(state)
-	test_assert.check(events.size() >= 1, "demons should spread from occupied node")
 
-	var spread_events := 0
+static func _test_infection_draw_adds_demons(test_assert: TestAssert) -> void:
+	var state := _infection_ready_state(42)
+	var before := _total_demons(state)
+	var events := SpreadRules.resolve_player_turn_end(state)
+	test_assert.check(events.size() >= 1, "infection draw should emit spread events")
+	test_assert.check(_total_demons(state) > before, "infection draw should add demons")
+
+
+static func _test_cap_three_fourth_causes_breach(test_assert: TestAssert) -> void:
+	var state := _infection_ready_state(99)
+	var node := state.board.get_all_nodes_sorted()[0]
+	SetupRules.set_demon_count(state, node, 3)
+	state.breach_count = 0
+	var events := SpreadRules.try_add_demon(state, node)
+	test_assert.eq(SetupRules.get_demon_count(state, node), 3, "fourth demon should not be placed")
+	test_assert.eq(state.breach_count, 1, "fourth demon attempt should increment breach")
+	var breach_found := false
 	for event in events:
-		if event is DemonSpreadEvent:
-			spread_events += 1
-	test_assert.check(spread_events >= 1, "spread should emit DemonSpreadEvent")
-
-	var first := _spread_signature(_fresh_demon_state())
-	var second := _spread_signature(_fresh_demon_state())
-	test_assert.eq(first, second, "spread should be deterministic with fixed setup")
+		if event is BreachEvent:
+			breach_found = true
+	test_assert.check(breach_found, "cap breach should emit BreachEvent")
 
 
-static func _fresh_demon_state() -> GameState:
-	var state := ScenarioBuilder.build_bot_ready_game(99)
-	state.rng.seed(99)
-	var source := state.cities[0].vertex
-	SetupRules.set_demon_count(state, source, 2)
+static func _test_deterministic_draw_sequence(test_assert: TestAssert) -> void:
+	var first := _infection_signature(_infection_ready_state(77))
+	var second := _infection_signature(_infection_ready_state(77))
+	test_assert.eq(first, second, "infection spread should be deterministic with fixed seed")
+
+
+static func _test_no_adjacent_propagation(test_assert: TestAssert) -> void:
+	var spread_source := FileAccess.get_file_as_string("res://core/rules/spread_rules.gd")
+	test_assert.check(
+		"get_adjacent_nodes" not in spread_source,
+		"infection spread should not use adjacent propagation"
+	)
+
+
+static func _infection_ready_state(seed: int) -> GameState:
+	var state := ScenarioBuilder.build_bot_ready_game(seed)
+	state.rng.seed(seed)
+	SpreadRules.initialize_deck(state)
 	return state
 
 
-static func _spread_signature(state: GameState) -> String:
-	var events := SpreadRules.resolve_spread(state)
+static func _infection_signature(state: GameState) -> String:
+	var events := SpreadRules.resolve_player_turn_end(state)
 	var parts: Array[String] = []
 	for event in events:
 		if event is DemonSpreadEvent:
 			var spread: DemonSpreadEvent = event
-			parts.append("%s->%s:%d" % [spread.from_node.to_key(), spread.to_node.to_key(), spread.amount])
+			parts.append("%s:%d" % [spread.to_node.to_key(), spread.amount])
 		elif event is BreachEvent:
 			var breach: BreachEvent = event
 			parts.append("breach:%d" % breach.breach_count)
 	return "|".join(parts)
+
+
+static func _total_demons(state: GameState) -> int:
+	var total := 0
+	for key in state.demon_counts_by_node.keys():
+		total += int(state.demon_counts_by_node[key])
+	return total

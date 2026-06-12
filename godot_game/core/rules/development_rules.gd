@@ -2,6 +2,7 @@ class_name DevelopmentRules
 extends RefCounted
 
 const DEFAULT_DEVELOPMENT_ID := DevelopmentCatalog.WATCHTOWER_ID
+const MAX_DEVELOPMENTS_PER_CITY := 3
 
 
 static func can_build(
@@ -15,12 +16,17 @@ static func can_build(
 		return false
 	if city.player_id != player_id:
 		return false
-	if city.development_id != "":
+	if city.developments.size() >= MAX_DEVELOPMENTS_PER_CITY:
+		return false
+	if CityOccupationRules.is_city_suppressed(state, vertex):
 		return false
 	var resolved_id := DevelopmentCatalog.resolve_build_id(development_id)
 	if not DevelopmentCatalog.has_id(resolved_id):
 		return false
-	return BuildCosts.can_afford(_player(state, player_id), BuildCosts.BUILD_DEVELOPMENT)
+	var player := _player(state, player_id)
+	if player == null or resolved_id not in player.development_hand:
+		return false
+	return BuildCosts.can_afford(player, BuildCosts.BUILD_DEVELOPMENT)
 
 
 static func apply(
@@ -31,9 +37,12 @@ static func apply(
 ) -> Array:
 	var player := _player(state, player_id)
 	var resolved_id := DevelopmentCatalog.resolve_build_id(development_id)
+	if not can_build(state, player_id, vertex, resolved_id):
+		return []
 	player.pay_cost(BuildCosts.BUILD_DEVELOPMENT)
+	player.development_hand.erase(resolved_id)
 	var city: City = state.cities_by_vertex[vertex.to_key()]
-	city.development_id = resolved_id
+	city.developments.append(resolved_id)
 
 	var events: Array = [
 		DevelopmentBuiltEvent.new(state.round_number, player_id, vertex, resolved_id),

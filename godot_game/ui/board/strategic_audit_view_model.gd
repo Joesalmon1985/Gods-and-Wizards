@@ -21,6 +21,10 @@ static func build(session: BotGameSession) -> Dictionary:
 		"recent_turn_text": str(report.get("text", "")),
 		"breach_count": int(snapshot.get("breach_count", 0)),
 		"total_demons": int(snapshot.get("total_demons", 0)),
+		"phase": summary.get("phase", ""),
+		"infection_rate": summary.get("infection_rate", 0),
+		"draft_age": summary.get("draft_age", 1),
+		"hero_actions_remaining": summary.get("hero_actions_remaining", {}),
 		"finished": session.finished,
 		"waiting_for_human": session.waiting_for_human,
 	}
