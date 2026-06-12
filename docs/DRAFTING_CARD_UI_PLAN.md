@@ -38,7 +38,7 @@
 
 Current 2D play: draft picks appear in keyboard action list — replace with card grid in Impl I4.
 
-**3D wizard-world (Run J):** read-only draft pack + hand display via `StrategicDraftViewModel` (Phase 5 of [RUN_J_PLANNING_DARK_FANTASY_REUSE.md](RUN_J_PLANNING_DARK_FANTASY_REUSE.md)); no 3D pick submission in Run J.
+**3D wizard-world (Run J):** no draft pack or hand UI — drafting is AI/bot gods only in wizard mode. Phase 5 of [RUN_J_PLANNING_DARK_FANTASY_REUSE.md](RUN_J_PLANNING_DARK_FANTASY_REUSE.md) covers read-only built-development indicators on city vertices via `StrategicDevelopmentViewModel` (e.g. granary, mine once built). Human draft UX remains 2D (Impl I4).
 
 ---
 

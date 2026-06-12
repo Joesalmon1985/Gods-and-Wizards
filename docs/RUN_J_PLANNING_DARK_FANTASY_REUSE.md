@@ -69,7 +69,7 @@ flowchart LR
 | Controller | `godot_game/integration/wizard_world_controller.gd` |
 | Movement / camera | `godot_game/embodied/player/wizard_movement_input.gd`, `wizard_camera_rig.gd` |
 | Board mapping / visuals | `godot_game/integration/board_node_anchors.gd`, `board_world_mapper.gd`, `board_state_visualizer.gd` |
-| Card view models | `godot_game/ui/board/strategic_draft_view_model.gd`, `strategic_development_view_model.gd`, `strategic_card_display_presenter.gd` |
+| Development view models | `godot_game/ui/board/strategic_development_view_model.gd`, `strategic_card_display_presenter.gd` (`strategic_draft_view_model.gd` — 2D/M22 only, not wizard 3D) |
 | Tests | `test_wizard_movement_input.gd`, `test_wizard_camera_rig.gd`, `test_wizard_world_controller.gd`, `test_strategic_draft_view_model.gd` |
 
 ### What Run J should implement
@@ -78,7 +78,7 @@ flowchart LR
 - Yaw-relative WASD aligned with camera convention
 - Centralised world scale + walk speed calibration (5 hex / 180 s)
 - Manifest-driven billboards from dark_fantasy shortlist (see §4)
-- Read-only 3D draft/card display from existing view models (drafting confirmed)
+- Read-only built-development indicators on city vertices (from `StrategicDevelopmentViewModel` / `city.developments`)
 - Documentation + manual smoke checklist
 
 ### What Run J must deliberately avoid
@@ -86,7 +86,7 @@ flowchart LR
 - Rewriting or replacing `SpellCombatSession` / Run H combat rules
 - Importing `DuelSim`, `MageSim`, or donor AI into `godot_game/core/`
 - Bulk unstructured asset imports (use manifest + target folders)
-- Mutating `GameState` from wizard movement or card display
+- Mutating `GameState` from wizard movement or development display
 - Merging donor scripts into core
 - Human `DRAFT_PICK` submit UI (defer to M22 / Impl I4)
 - Integrating tactical combat into macro loop
@@ -181,9 +181,10 @@ Align Run J visuals with Run I **Impl I2 / I6** ([IMPLEMENTATION_PLAN_3D_UI.md](
 
 **What Run J should do:**
 
-- Plan **read-only** 3D card display (Phase 5): billboards or HUD panel fed by `StrategicDraftViewModel` + `StrategicCardDisplayPresenter`
-- Do **not** implement human draft pick in 3D (separate M22 / Impl I4 work)
-- Do **not** block Run J on drafting — it is already implemented in core
+- **No drafting UI in wizard-world mode** — draft picks are AI/bot gods only; human draft UX stays in 2D (M22 / Impl I4)
+- Plan **read-only built-development visibility on cities** (Phase 5): visual indicators at city vertices for cards in `city.developments` (e.g. granary, mine icons via `StrategicDevelopmentViewModel` + `DevelopmentCatalog` / manifest art)
+- Do **not** show draft pack, hand, or `waiting_for_draft` state in 3D
+- Do **not** block Run J on drafting core — it is already implemented; wizard mode only reflects **built** state on the board
 
 ---
 
@@ -237,17 +238,17 @@ Align Run J visuals with Run I **Impl I2 / I6** ([IMPLEMENTATION_PLAN_3D_UI.md](
 | **Risks** | Large PNG memory; import settings |
 | **Rollback** | Procedural fallback if manifest missing |
 
-### Phase 5 — 3D draft/card display (read-only)
+### Phase 5 — Built development visibility on cities (read-only)
 
 | | |
 |---|---|
-| **Purpose** | Show draft pack + hand in wizard-world when `waiting_for_draft` |
-| **Files** | New `wizard_world_draft_presenter.gd` (presentation only), wire in `wizard_world_mode.gd` |
+| **Purpose** | Show built development cards on city vertices (e.g. granary, mine) once played onto cities |
+| **Files** | Extend `board_state_visualizer.gd` and/or new `wizard_world_development_presenter.gd`; wire via `wizard_world_controller.gd` |
 | **Tests first** | 16–20 |
-| **Notes** | Read `StrategicDraftViewModel`; no `GameState` mutation |
-| **Manual** | Advance to draft round; cards visible |
-| **Risks** | UI clutter in 3D |
-| **Rollback** | Hide panel; 2D mode unchanged |
+| **Notes** | Read `StrategicDevelopmentViewModel.city_slots` / `city.developments`; map card ids to manifest icons via `DevelopmentCatalog`; no `GameState` mutation; no draft pack or hand UI |
+| **Manual** | After bots build developments, city vertices show correct per-card indicators; draft rounds show no draft UI |
+| **Risks** | Icon mapping gaps for 96-card catalogue; clutter at dense cities (max 3 slots) |
+| **Rollback** | Hide development markers; city meshes unchanged |
 
 ### Phase 6 — Documentation and smoke tests
 
@@ -298,13 +299,13 @@ Align Run J visuals with Run I **Impl I2 / I6** ([IMPLEMENTATION_PLAN_3D_UI.md](
 14. 180 s simulated W movement ≈ five hex centres (tolerance band)  
 15. Camera overview derives from board/world scale  
 
-**Card display**
+**Built development visibility**
 
-16. Card display model built from draft/development view model  
-17. Card display does not mutate `GameState`  
-18. Empty / no-draft state handled  
-19. Active draft pack handled  
-20. Current player hand / developments handled  
+16. Built-development display model derived from `StrategicDevelopmentViewModel` / `city.developments`  
+17. Built-development display does not mutate `GameState`  
+18. City with no built developments shows no indicators (or empty slot state)  
+19. City with one or more built developments shows correct per-card indicators  
+20. Demon-occupied city still shows existing built developments until rules purge (read-only)  
 
 **Asset reuse**
 
@@ -436,7 +437,7 @@ First tests to write:
 | Terrain/hex texture | Adapt | `World/Art/floors/` | `assets/terrain/` | Review | Needs scale validation |
 | Tree/grass sprites | Use directly | Cairn T1/T2 PNGs (×4) | `assets/billboards/props/` | Yes | Forest hex dressing |
 | Spell icons | Use directly | 8 icons (§4) | `assets/billboards/ui_status/` | Yes | Cards + combat UI art |
-| Card icons | Use directly | Same spell icons + dev catalog mapping | `assets/billboards/ui_status/` | Yes | Draft display Phase 5 |
+| Development / card icons | Use directly | Spell icons + `DevelopmentCatalog` id mapping | `assets/billboards/ui_status/` or `props/` | Yes | City built-development indicators Phase 5 |
 | Billboard rendering code | Adapt | Run I pipeline + new manifest loader | `integration/` or `ui/` | Yes | Impl I6 |
 | World/hex rendering code | Adapt | `board_state_visualizer.gd` only | `integration/` | Yes | No donor script import |
 | Combat simulation code | Reject | `DuelSim.gd`, `MageSim.gd` | — | No | Conflicts with SpellCombatSession |
@@ -447,7 +448,7 @@ First tests to write:
 
 ## 9. Planning conclusions
 
-Run J is a **3D wizard-world presentation milestone** with strict boundaries: fix input/movement/scale, import a **small manifest-backed asset set** from dark_fantasy, add read-only 3D draft display, and **do not** migrate combat sim or training code.
+Run J is a **3D wizard-world presentation milestone** with strict boundaries: fix input/movement/scale, import a **small manifest-backed asset set** from dark_fantasy, add read-only built-development indicators on cities, and **do not** migrate combat sim or training code. Wizard mode has **no** draft pack or hand UI.
 
 Micro combat and AI training adaptation is a **parallel deferred track** (Run J2/K + experimental sandbox) documented in §7.
 
@@ -473,7 +474,7 @@ Micro combat and AI training adaptation is a **parallel deferred track** (Run J2
 2. Camera toggle: Space vs C vs both (after `ui_accept` fix)  
 3. Autoplay key: P (recommended) vs other  
 4. Final sprite picks from CSV shortlist  
-5. 3D card display: floating billboards vs HUD overlay vs table prop  
+5. Built-development indicators: per-card billboard vs generic slot marker vs hybrid  
 6. Combat adapter timing: Run J2 vs Run K vs experimental sandbox  
 7. Prototype donor DTO adapter before any mechanics merge (recommended: yes)  
 8. Evo training: reference-only vs future sandbox port  
@@ -485,7 +486,7 @@ Micro combat and AI training adaptation is a **parallel deferred track** (Run J2
 Copy-paste ready for the implementation agent after human approval of this planning doc.
 
 ```markdown
-# Run J Implementation — 3D wizard world, scale, visual language, cards
+# Run J Implementation — 3D wizard world, scale, visual language, built developments
 
 ## Context
 
@@ -505,7 +506,8 @@ This is implementation, not planning. Follow tests-first and milestone workflow.
    walk_speed = 5 * sqrt(3) * HEX_SIZE / 180.
 4. Import Run J asset shortlist via manifest.json under godot_game/assets/billboards/
    (Wizard, Apostate, Cleric, 4 Cairn trees, 8 spell icons). Record donor paths.
-5. Read-only 3D draft/card display from StrategicDraftViewModel + StrategicCardDisplayPresenter.
+5. Read-only built-development indicators on city vertices from StrategicDevelopmentViewModel
+   + DevelopmentCatalog/manifest icons. No draft pack, hand, or waiting_for_draft UI in wizard mode.
 6. Update docs/run_modes.md + manual smoke checklist.
 
 ### Explicitly out of scope
@@ -513,8 +515,9 @@ This is implementation, not planning. Follow tests-first and milestone workflow.
 - No SpellCombatSession / Run H rule changes
 - No DuelSim, MageSim, EvoEngine imports into core
 - No bulk asset imports outside manifest
-- No GameState mutation from movement or card display
-- No human DRAFT_PICK 3D UI
+- No GameState mutation from movement or development display
+- No draft pack, hand, or waiting_for_draft UI in wizard-world mode (drafting is AI-only there)
+- No human DRAFT_PICK UI in 3D (2D M22 / Impl I4 only)
 - No macro/tactical combat integration
 
 ### Deferred follow-up track (Run J2 / Run K — do NOT implement in Run J)
@@ -544,7 +547,8 @@ Run full suite before merge:
 - [ ] WASD moves relative to Q/E facing
 - [ ] ~180 s walk crosses ~5 hex centres
 - [ ] Board sprites visible; no pink missing textures
-- [ ] Draft pack visible when waiting_for_draft (read-only)
+- [ ] Built developments visible on city vertices after bots build cards (read-only)
+- [ ] No draft pack or hand UI during waiting_for_draft in wizard mode
 - [ ] Wizard movement does not change demon counts / VP
 - [ ] Spell combat replay / isolated modes still work unchanged
 
