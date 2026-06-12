@@ -1,6 +1,6 @@
 # Rules Enforcement Test Matrix
 
-**Last updated:** 2026-06-12 (post–Run D v1 macro implementation)  
+**Last updated:** 2026-06-12 (Run F rules-contract audit)  
 **Purpose:** Map game rules and export contracts to test modules. Used for Run C training-data audit and ongoing milestone verification.
 
 Design intent: [RULEBOOK.md](RULEBOOK.md). Implementation gaps: [RULES_ENGINE_AUDIT.md](RULES_ENGINE_AUDIT.md).
@@ -41,19 +41,21 @@ Integration tests for training exports are registered in [`godot_game/tests/test
 
 ---
 
-## Intended v1 macro rules (design — mostly not enforced yet)
+## Intended v1 macro rules (design — enforced via rule contract tests)
 
 | Area | Rule / contract | Test module | Status | Notes |
 |---|---|---|---|---|
 | Macro contact resolution | Hero entering demon node removes **all** demons instantly | `TestMacroContactResolution` | **Enforced** | |
-| Demon cap | Max 3 demons per node; 4th → breach, not placed | `TestDemonSpread`, `TestInfectionDeckSpread` | **Enforced** | |
-| Infection deck spread | Draw `infection_rate` nodes per player turn end | `TestInfectionDeckSpread` | **Enforced** | |
+| Demon cap / breach | Max 3 demons; 4th → breach; loss at 10; reporting | `TestDemonSpread`, `TestForcedBreachScenario`, `TestRuleContractBreach` | **Enforced** | Run F ladder + multi-draw + session/CSV |
+| Infection deck spread | Draw `infection_rate` nodes per player turn end | `TestInfectionDeckSpread`, `TestRuleContractInfection` | **Enforced** | Per-player END_TURN, reshuffle |
 | Hero action budget | 4 actions per hero per turn | `TestHeroActionBudget` | **Enforced** | |
 | City demon occupation | Demon > 0 → 0 production; full round → purge dev cards | `TestCityDemonOccupation` | **Enforced** | |
-| Offer/accept trading | Asymmetric offer/accept; no ports | `TestTradeOfferAccept` | **Enforced** | `PLAYER_TRADE` deprecated |
+| Offer/accept trading | Active player offers only; target accepts on their turn | `TestTradeOfferAccept`, `TestRuleContractTrading` | **Enforced** | `PLAYER_TRADE` deprecated |
 | Turn lifecycle / phase | `TurnPhase`, per-turn counters | `TestTurnLifecycle` | **Enforced** | |
-| Drafting skeleton | Pack pass, hand, city slots | `TestDraftSession` | **Partial** | Auto-pick; no human draft action |
-| No tactical combat in macro | Macro loop never invokes `SpellCombatSession` | Architecture implicit | **Enforced by omission** | GD-001 |
+| Drafting | Pack pass, hand, city slots, 96-card catalog | `TestDraftSession`, `TestDevelopmentCatalog`, etc. | **Partial** | Human pick UI deferred |
+| UI / view-model boundary | Breach, infection, occupation, draft display | `TestRuleContractUiBoundary`, `TestHumanMacro2DMode` | **Enforced** | Read-only lens |
+| Export / reporting | Playthrough breach/trade/dev rows; mask spot-check | `TestRuleContractExport`, `TestForcedBreachScenario` | **Enforced** | Draft row via round sim optional |
+| No tactical combat in macro | Macro loop never invokes `SpellCombatSession` | `TestMacroContactResolution` | **Enforced by omission** | GD-001 |
 | Legacy card duel | `CombatResolver` / `EncounterRules` not v1 macro path | `TestCombatRules` | **Legacy** | Debug/reference only |
 
 ---
@@ -122,25 +124,11 @@ Integration tests for training exports are registered in [`godot_game/tests/test
 
 ---
 
-## Recommended future test additions (Run C — not implemented)
+## Recommended future test additions (Run F — addressed)
 
-### Macro rules (priority)
+Run F added `TestRuleContractBreach`, `TestRuleContractInfection`, `TestRuleContractTrading`, `TestRuleContractUiBoundary`, and `TestRuleContractExport`. See [RULE_CONTRACT_TEST_INVENTORY.md](RULE_CONTRACT_TEST_INVENTORY.md).
 
-1. Hero move onto demon node → all demons removed; hero remains.
-2. Demon spread/spawn onto hero node → demon removed immediately.
-3. Demon cap at 3: 4th placement attempt increments breach, does not add demon.
-4. Hero action budget: 5th move in same turn illegal for same hero.
-5. City with demon count > 0 produces 0 resources.
-6. City demon occupied full round → development cards removed.
-
-### Export / telemetry
-
-7. `TestMacroTrainingTelemetry`: assert terminal row `reward` includes +10 when `terminal=true` and game has winner.
-8. `TestMacroTrainingTelemetry`: spot-check mask bits against `LegalActionQuery.get_view` for fixed seed step 0.
-9. `TestMicroCombatTelemetry`: assert final row `terminal=true` implies `combat_end` in timeline summary with `winner_id`.
-10. `TestMicroCombatTelemetry`: compare step count and selected spells to direct `SpellCombatSession` replay.
-11. `TestMicroCombatTelemetry`: episode with pass-only step when mana exhausted.
-12. Shared fixture: document composite episode key `(seed, policy, step_index)` and `(seed, loadout_a, loadout_b, step_index)` for merge tests.
+Remaining export gaps (macro/micro terminal fields, reward semantics) unchanged — see [NEURAL_TRAINING_DATA_EXPORT_AUDIT.md](NEURAL_TRAINING_DATA_EXPORT_AUDIT.md).
 
 ---
 

@@ -10,13 +10,16 @@ This project should be developed milestone by milestone.
 For each milestone:
 
 1. Plan the milestone before coding.
-2. Write or update tests first.
-3. Confirm the new tests fail for the expected reason where practical.
-4. Implement the smallest amount of code needed to pass the tests.
-5. Run the full Godot test command.
-6. Fix errors until all tests pass.
-7. Summarise the tests that prove the milestone is complete.
-8. Stop and wait for human review before moving to the next milestone.
+2. Read `docs/RULEBOOK.md` (and turn doc) for any rule change.
+3. Write or update tests first; map rules in `docs/RULE_CONTRACT_TEST_INVENTORY.md`.
+4. Confirm the new tests fail for the expected reason where practical.
+5. Implement the smallest amount of code needed to pass the tests.
+6. Run the full Godot test command.
+7. Fix errors until all tests pass.
+8. Summarise the tests that prove the milestone is complete.
+9. Stop and wait for human review before moving to the next milestone.
+
+If a **rule-contract** test fails during a rules audit run: write `docs/RULE_CONTRACT_FAILURE_ANALYSIS.md` and stop — do not fix implementation without human approval.
 
 Do not weaken or delete tests to make them pass.
 

@@ -1,7 +1,33 @@
 # Autonomous Session Log
 
-**Last updated:** 2026-06-12 (Run C design clarification complete)  
+**Last updated:** 2026-06-12 (Run F rules-contract audit complete)  
 **Purpose:** Resume point for Cursor agents after context reset.
+
+---
+
+## Run F — rules contract audit (2026-06-12)
+
+**Branch:** `milestone/run-f-rules-contract-tests`  
+**Scope:** Test-first rules verification; no gameplay code changes.
+
+**Delivered:**
+
+- `.cursor/rules/rules-contract-testing.mdc` — TDD + failure-analysis stop conditions
+- [RULE_CONTRACT_TEST_INVENTORY.md](RULE_CONTRACT_TEST_INVENTORY.md) — rulebook → test map (areas A–J)
+- New test modules: `TestRuleContractBreach`, `TestRuleContractInfection`, `TestRuleContractTrading`, `TestRuleContractUiBoundary`, `TestRuleContractExport`
+- Shared fixture: `rule_contract_fixtures.gd`
+- Updated: `RULES_ENFORCEMENT_TEST_MATRIX.md`, `RULES_ENGINE_AUDIT.md`, `PROJECT_STATUS.md`
+
+**Baseline (pre-Run F):** 95 modules, 126,283 assertions, exit 0  
+**After Run F:** 100 modules, 129,471 assertions, exit 0
+
+**Key contract proofs:**
+
+- Forced breach: 3 demons + seeded draw + END_TURN → breach +1, demons stay 3, CSV/summary visible
+- Trading: active player only offers; target accepts on their turn
+- UI boundary: `GameStateSummary` / play status line expose breach and infection
+
+**Stop condition:** All rule-contract tests passed — no `RULE_CONTRACT_FAILURE_ANALYSIS.md` required.
 
 ---
 
@@ -49,16 +75,15 @@
 
 ---
 
-## Latest full test result (2026-06-12, after Run C doc changes)
+## Latest full test result (2026-06-12, Run F)
 
 | Metric | Value |
 |---|---|
 | Exit code | **0** |
-| Modules run | **62** |
-| Assertions | **95,645** |
-| Passed | **95,645** |
+| Modules run | **100** |
+| Assertions | **129,471** |
+| Passed | **129,471** |
 | Failed | **0** |
-| Stale Godot processes after run | **None** |
 
 ### Command
 
@@ -74,9 +99,8 @@
 
 ## Next recommended task
 
-1. Human review of Run C documentation.
-2. **Implementation run:** macro contact resolution (instant demon removal) + tests — see [RULES_ENGINE_AUDIT.md](RULES_ENGINE_AUDIT.md) priority list.
-3. Optional: infection deck spread, hero action budget, offer/accept trading.
+1. **Human review** — Run F rules-contract audit on branch `milestone/run-f-rules-contract-tests`.
+2. **Next implementation:** M22 hex click-to-build or dataset v2 — see [NEXT_MILESTONES.md](NEXT_MILESTONES.md).
 
 **Do not start:** integrating spell combat into macro loop, ports, full drafting (unless explicitly requested).
 

@@ -1,7 +1,9 @@
 # Rules Engine Audit — Design vs Implementation
 
-**Last updated:** 2026-06-12 (post–Run D v1 macro implementation)  
+**Last updated:** 2026-06-12 (Run F rules-contract audit)  
 **Purpose:** Map intended v1 rules ([RULEBOOK.md](RULEBOOK.md)) to current headless implementation. Flags gaps without prescribing implementation in this pass.
+
+**Rule contract inventory:** [RULE_CONTRACT_TEST_INVENTORY.md](RULE_CONTRACT_TEST_INVENTORY.md) — Run F maps each rule to targeted tests.
 
 ---
 
@@ -70,7 +72,7 @@
 | Rule | Status | Notes |
 |---|---|---|
 | Max 3 demons per node | **Implemented** | `SpreadRules.MAX_DEMONS_PER_NODE := 3` |
-| 4th demon → breach, not placed | **Implemented** | `try_add_demon` increments breach, no placement |
+| 4th demon → breach, not placed | **Implemented** | Contract tests: `TestRuleContractBreach`, `TestForcedBreachScenario` |
 | Infection deck (Pandemic-style) | **Implemented** | `infection_draw_pile` / discard; seeded shuffle |
 | Spread end of each player turn | **Implemented** | `SpreadRules.resolve_player_turn_end` on each `END_TURN` |
 | Infection rate draws per turn | **Implemented** | Initial rate **2**; `state.infection_rate` |
@@ -111,7 +113,7 @@ See [TURN_TIMING_AND_PHASE_MODEL.md](TURN_TIMING_AND_PHASE_MODEL.md).
 | Rule | Status | Notes |
 |---|---|---|
 | No ports | **Correct** | No port concept in code |
-| Offer/accept asymmetric trades | **Implemented** | `TradeOfferRules`; amounts 1–3 per side |
+| Offer/accept asymmetric trades | **Implemented** | `TradeOfferRules`; active player offers only; contract: `TestRuleContractTrading` |
 | Instant 1:1 player trade | **Deprecated** | `PLAYER_TRADE` illegal; `PlayerTradeRules` legacy |
 | Bank trade 4:1 | **Implemented** | Unchanged |
 | One offer per target per turn dedup | **Implemented** | `trade_offers_made_this_turn` signatures |

@@ -25,6 +25,9 @@ The UI is only a window into the game. The game itself is the state machine.
 - Rule functions should return events describing what happened.
 - The UI must only read state and events; it must not contain rules logic.
 - Always add or update tests for any rule change.
+- Rules derive from `docs/RULEBOOK.md`; map coverage in `docs/RULE_CONTRACT_TEST_INVENTORY.md`.
+- Never treat full-suite green as proof a rule is enforced without a targeted test.
+- See `.cursor/rules/rules-contract-testing.mdc` for contract-test workflow.
 - Prefer small, focused files over large monolithic scripts.
 - Do not invent extra game systems unless asked.
 - Do not build the full game in one pass.

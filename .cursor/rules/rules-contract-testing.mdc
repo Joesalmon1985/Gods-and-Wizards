@@ -1,0 +1,47 @@
+---
+description: Rules-contract test-first development and failure-analysis stop conditions
+alwaysApply: true
+---
+
+# Rules contract testing
+
+Authoritative design: `docs/RULEBOOK.md`, `docs/TURN_TIMING_AND_PHASE_MODEL.md`.
+
+Coverage map: `docs/RULE_CONTRACT_TEST_INVENTORY.md`.
+
+## Before any rule change
+
+1. Read the rulebook section for the rule being changed.
+2. Check `docs/RULE_CONTRACT_TEST_INVENTORY.md` for existing coverage.
+3. Write or update tests **before** changing gameplay code in `godot_game/core/`.
+4. Where practical, confirm new tests fail for the expected reason before implementing.
+
+## What each rule contract must prove
+
+For every intended v1 rule, tests should cover where applicable:
+
+- **Success path** — legal action applies; state updates as designed.
+- **Rejection path** — illegal action rejected; state unchanged.
+- **Edge case** — caps, timers, boundaries (e.g. breach at 10, not 9).
+- **Event/reporting** — `GameEvent` emitted; summaries/CSV/view-models expose the outcome.
+
+## Never claim a rule is implemented without a targeted test
+
+- Full-suite green is **not** proof that a rule is enforced.
+- If no test module targets the rule, status is **Partial** or **Missing** in the inventory.
+
+## On rule-contract test failure
+
+1. **Stop** — do not silently fix implementation to green the suite.
+2. Write `docs/RULE_CONTRACT_FAILURE_ANALYSIS.md` with per-failure analysis.
+3. Wait for human review before applying implementation fixes.
+
+## Prohibited
+
+- Weakening, skipping, deleting, or rewriting tests to force progress.
+- Deriving test expectations from implementation quirks instead of rulebook intent.
+- UI/run modes directly mutating `GameState` (architecture tests enforce this).
+
+## Run F reference
+
+Rules-contract audit run: branch `milestone/run-f-rules-contract-tests`. Test modules prefixed `TestRuleContract*`.

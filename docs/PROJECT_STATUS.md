@@ -1,6 +1,6 @@
 # Project Status — Gods and Wizards
 
-**Last updated:** 2026-06-12 (post–Run E card economy vertical slice)  
+**Last updated:** 2026-06-12 (Run F rules-contract audit)  
 **Purpose:** Human-readable handoff for reviewers and Cursor agents before the next milestone.
 
 **Design docs (authoritative intent):** [RULEBOOK.md](RULEBOOK.md), [TURN_TIMING_AND_PHASE_MODEL.md](TURN_TIMING_AND_PHASE_MODEL.md), [RULES_ENGINE_AUDIT.md](RULES_ENGINE_AUDIT.md).
@@ -35,15 +35,16 @@ Do not treat stale branch names or SHAs in this doc as authoritative.
 & "C:\Users\joesa\Documents\Cursor\BoardGame\gods-and-wizards\scripts\Invoke-GodotHeadless.ps1" -ArgumentList @("--headless", "--path", "C:\Users\joesa\Documents\Cursor\BoardGame\gods-and-wizards\godot_game", "-s", "res://tests/test_runner.gd")
 ```
 
-### Result (verified 2026-06-12, after Run D implementation)
+### Result (verified 2026-06-12, Run F rules-contract audit)
 
 | Metric | Value |
 |---|---|
 | Exit code | **0** |
-| Modules run | **69** |
+| Modules run | **100** |
+| Assertions | **129,471** |
 | Passed | **All** |
 | Failed | **0** |
-| Stale Godot processes after run | **None** (`Get-Process -Name "Godot*"` empty) |
+| Stale Godot processes after run | Check locally with `Get-Process -Name "Godot*"` |
 
 Optional suite filter: `--suite=architecture`, `--suite=integration`, etc. (see `tests/test_registry.gd`).
 
@@ -209,7 +210,7 @@ godot_game/
 ├── embodied/       Placeholder wizard/encounter scripts (must not mutate GameState directly)
 ├── run_modes/      Headless CSV/batch runners, wizard-world main scene, 2D strategic mode
 ├── data/balance/   Balance config JSON (skeleton)
-└── tests/          46 test modules, architecture scanner, test runner
+└── tests/          100 test modules (+ rule contract suite), architecture scanner, test runner
 ```
 
 ---
