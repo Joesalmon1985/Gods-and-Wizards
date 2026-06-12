@@ -463,7 +463,7 @@ Micro combat and AI training adaptation is a **parallel deferred track** (Run J2
 | `TestDraftSession` | Passed (8) |
 | `TestDraftPickApply` | Passed (4) |
 | `TestStrategicCardDisplay` | Passed (3) |
-| Full test suite | **Not completed** — headless run hung >5 min (likely Godot editor lock on project). Last verified on `main`: 110 modules, 151,318 assertions, exit 0 (Run H). Planning branch adds docs/scripts only — no gameplay changes. |
+| Full test suite | **Passed** — 152,857 assertions, 0 failed, exit 0 (~13 min). Godot reported CanvasItem/RID leak warnings at shutdown (non-failing). |
 
 ---
 
