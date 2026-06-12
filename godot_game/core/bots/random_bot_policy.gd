@@ -7,7 +7,13 @@ static func choose_action(state: GameState) -> GameAction:
 	for action in legal:
 		if action.kind == ActionKind.Kind.END_TURN:
 			continue
-		if action.kind in [ActionKind.Kind.BANK_TRADE, ActionKind.Kind.PLAYER_TRADE]:
+		if action.kind in [
+			ActionKind.Kind.BANK_TRADE,
+			ActionKind.Kind.PLAYER_TRADE,
+			ActionKind.Kind.TRADE_OFFER,
+			ActionKind.Kind.TRADE_ACCEPT,
+			ActionKind.Kind.TRADE_REJECT,
+		]:
 			continue
 		non_pass.append(action)
 

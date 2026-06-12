@@ -43,6 +43,7 @@ func get_observation(player_id: int) -> Dictionary:
 		"game_finished": state.game_finished,
 		"winner_id": state.winner_id,
 		"policy_name": session.policy_name,
+		"phase": TurnPhase.to_key(state.current_phase),
 	}
 
 

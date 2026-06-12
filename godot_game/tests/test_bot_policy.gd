@@ -79,7 +79,13 @@ static func _apply_one_non_pass_action(state: GameState) -> bool:
 	for action in LegalActionQuery.get_legal_actions_sorted(state):
 		if action.kind == ActionKind.Kind.END_TURN:
 			continue
-		if action.kind in [ActionKind.Kind.BANK_TRADE, ActionKind.Kind.PLAYER_TRADE]:
+		if action.kind in [
+			ActionKind.Kind.BANK_TRADE,
+			ActionKind.Kind.PLAYER_TRADE,
+			ActionKind.Kind.TRADE_OFFER,
+			ActionKind.Kind.TRADE_ACCEPT,
+			ActionKind.Kind.TRADE_REJECT,
+		]:
 			continue
 		ActionRules.apply(state, action)
 		return true

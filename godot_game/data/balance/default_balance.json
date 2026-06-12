@@ -1,6 +1,6 @@
 {
   "vp_to_win": 21,
-  "breach_limit": 7,
+  "breach_limit": 10,
   "vp_per_city": 1,
   "max_turns_default": 200,
   "build_city": {

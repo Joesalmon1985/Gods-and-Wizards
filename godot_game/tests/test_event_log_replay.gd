@@ -2,7 +2,7 @@ class_name TestEventLogReplay
 extends RefCounted
 
 static func run(test_assert: TestAssert) -> void:
-	var result := GameSimulator.run(42, 2)
+	var result := GameSimulator.run(42, 6)
 	var baseline: Dictionary = result["replay_baseline"]
 	var log: EventLog = result["event_log"]
 	var final_state: GameState = result["state"]

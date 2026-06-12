@@ -1,6 +1,6 @@
 # Rules Engine Audit — Design vs Implementation
 
-**Last updated:** 2026-06-12 (post–Run C design clarification)  
+**Last updated:** 2026-06-12 (post–Run D v1 macro implementation)  
 **Purpose:** Map intended v1 rules ([RULEBOOK.md](RULEBOOK.md)) to current headless implementation. Flags gaps without prescribing implementation in this pass.
 
 ---
@@ -33,7 +33,7 @@
 | Rule | Status | Notes |
 |---|---|---|
 | Win at 21 VP | **Implemented** | `GameConstants.VP_TO_WIN := 21` |
-| Breach collective loss | **Partial** | Design target: breach at **10**; code: `BREACH_LIMIT := 7` — update `GameConstants` and breach tests when aligned |
+| Breach collective loss | **Implemented** | `BREACH_LIMIT := 10`; `BreachEndCondition` uses `BalanceConfig.breach_limit()` |
 | VP-only win | **Implemented** | No alternate win paths |
 
 ---
@@ -42,9 +42,9 @@
 
 | Rule | Status | Notes |
 |---|---|---|
-| Hero removes all demons on node | **Not implemented** | `MoveRules` / `_apply_move_hero` moves hero only; no demon clearance |
-| Demon cannot coexist with hero on node | **Partial** | `MoveRules.can_move_hero` blocks moving **into** occupied hero node; no purge on arrival |
-| Demon spawn onto hero node → demon removed | **Not implemented** | Spread skips hero nodes but does not remove demons that would land on heroes |
+| Hero removes all demons on node | **Implemented** | `ContactResolutionRules` via `_apply_move_hero` |
+| Demon cannot coexist with hero on node | **Implemented** | Instant clearance on hero enter and post-placement hook |
+| Demon spawn onto hero node → demon removed | **Implemented** | Infection placement calls contact resolution |
 | No SpellCombatSession in macro AI | **Correct by omission** | Macro loop does not invoke spell combat |
 | `EncounterRules.resolve_hero_vs_demon` | **Legacy / debug** | Uses `CombatResolver` card duel — **not** intended v1 macro rule |
 
@@ -56,7 +56,7 @@
 |---|---|---|
 | Persistent hero IDs | **Implemented** | `Hero.id`, `heroes_by_id` |
 | No leveling / equipment | **Implemented** | No level/equipment fields |
-| 4 actions per hero per turn | **Not implemented** | Unlimited hero moves per turn today |
+| 4 actions per hero per turn | **Implemented** | `hero_actions_remaining`; `GameConstants.HERO_ACTIONS_PER_TURN` |
 | Move to adjacent node | **Implemented** | `MoveRules.can_move_hero` |
 | God commands via macro actions | **Implemented** | `MOVE_HERO` action kind |
 | Development card hero modifiers | **Not implemented** | No drafting/modifiers |
@@ -69,14 +69,14 @@
 
 | Rule | Status | Notes |
 |---|---|---|
-| Max 3 demons per node | **Partial** | `OUTBREAK_THRESHOLD := 3` triggers breach when count **≥ 3** after spread; semantics differ from “4th causes breach without placing” |
-| 4th demon → breach, not placed | **Partial** | Breach fires on nodes at threshold; spread adds demons without pre-check cap in all paths |
-| Infection deck (Pandemic-style) | **Not implemented** | No deck of node locations |
-| Spread end of each player turn | **Not implemented** | Spread at **round boundary** in `_apply_end_turn` |
-| Infection rate draws per turn | **Not implemented** | Adjacent propagation from all demon nodes |
-| No chain outbreaks v1 | **Implemented** | Single propagation pass |
-| Age-based infection rate +1 | **Not implemented** | No age system |
-| Deck reshuffle by age | **Not implemented** | No infection deck |
+| Max 3 demons per node | **Implemented** | `SpreadRules.MAX_DEMONS_PER_NODE := 3` |
+| 4th demon → breach, not placed | **Implemented** | `try_add_demon` increments breach, no placement |
+| Infection deck (Pandemic-style) | **Implemented** | `infection_draw_pile` / discard; seeded shuffle |
+| Spread end of each player turn | **Implemented** | `SpreadRules.resolve_player_turn_end` on each `END_TURN` |
+| Infection rate draws per turn | **Implemented** | Initial rate **2**; `state.infection_rate` |
+| No chain outbreaks v1 | **Implemented** | Single draw pass per turn |
+| Age-based infection rate +1 | **Partial** | `DraftRules._advance_age` increments rate; age-reshuffle probabilities stubbed |
+| Deck reshuffle by age | **Partial** | Simple discard reshuffle; age-weighted reshuffle deferred |
 
 ---
 
@@ -84,10 +84,10 @@
 
 | Rule | Status | Notes |
 |---|---|---|
-| Demon on city → 0 production | **Not implemented / unverified** | Production rules do not check demon occupancy |
-| Full round occupied → purge developments | **Not implemented** | No `city_demon_occupied_since_round` |
-| Cannot build dev in occupied city | **Not implemented** | Stub development build ignores demon state |
-| Timer reset on demon clear | **Not implemented** | |
+| Demon on city → 0 production | **Implemented** | `CityOccupationRules.is_city_suppressed` in `ProductionRules` |
+| Full round occupied → purge developments | **Implemented** | `city_demon_occupied_since_round`; `evaluate_round_start_purges` |
+| Cannot build dev in occupied city | **Implemented** | `DevelopmentRules.can_build` blocks |
+| Timer reset on demon clear | **Implemented** | `SetupRules.set_demon_count` → `on_demon_count_changed` |
 
 ---
 
@@ -98,9 +98,9 @@
 | Multi-step turn until `END_TURN` | **Implemented** | `BotTurnResolver` loops; human session same pattern |
 | Step-level legal masks | **Implemented** | `LegalActionQuery`, `ActionSpace` |
 | `END_TURN` legal action | **Implemented** | |
-| Formal phase enum | **Not implemented** | Overlay shows generic “Player turn” |
-| Production at turn/round start | **Partial** | Production at round boundary only |
-| Spread at end of each player turn | **Not implemented** | Round boundary only |
+| Formal phase enum | **Implemented** | `TurnPhase`; `GameState.current_phase` |
+| Production at turn/round start | **Partial** | Production at round boundary only (unchanged v1) |
+| Spread at end of each player turn | **Implemented** | Infection draw per `END_TURN` |
 
 See [TURN_TIMING_AND_PHASE_MODEL.md](TURN_TIMING_AND_PHASE_MODEL.md).
 
@@ -111,10 +111,10 @@ See [TURN_TIMING_AND_PHASE_MODEL.md](TURN_TIMING_AND_PHASE_MODEL.md).
 | Rule | Status | Notes |
 |---|---|---|
 | No ports | **Correct** | No port concept in code |
-| Offer/accept asymmetric trades | **Not implemented** | |
-| Instant 1:1 player trade | **Implemented (provisional)** | `PlayerTradeRules`, fixed amount 1 |
-| Bank trade 4:1 | **Implemented** | Separate from player trade design |
-| One offer per target per turn dedup | **Not implemented** | |
+| Offer/accept asymmetric trades | **Implemented** | `TradeOfferRules`; amounts 1–3 per side |
+| Instant 1:1 player trade | **Deprecated** | `PLAYER_TRADE` illegal; `PlayerTradeRules` legacy |
+| Bank trade 4:1 | **Implemented** | Unchanged |
+| One offer per target per turn dedup | **Implemented** | `trade_offers_made_this_turn` signatures |
 
 ---
 
@@ -122,10 +122,10 @@ See [TURN_TIMING_AND_PHASE_MODEL.md](TURN_TIMING_AND_PHASE_MODEL.md).
 
 | Rule | Status | Notes |
 |---|---|---|
-| Seven Wonders drafting | **Not implemented** | Explicitly deferred |
-| Play dev card into city (stub) | **Stub** | Single stub card path |
-| 3 slots per city | **Not implemented** | |
-| 3 ages × 8 cards | **Not implemented** | |
+| Seven Wonders drafting | **Partial (skeleton)** | `DraftRules`; auto-pick at round end; pass-left packs |
+| Play dev card from hand | **Implemented** | `DevelopmentRules`; hand required |
+| 3 slots per city | **Implemented** | `city.developments` max 3 |
+| 3 ages × 8 cards | **Partial** | Age advance after 8 draft rounds; full human pick UI deferred |
 
 ---
 
@@ -155,7 +155,7 @@ See [TURN_TIMING_AND_PHASE_MODEL.md](TURN_TIMING_AND_PHASE_MODEL.md).
 
 | Rule | Status | Notes |
 |---|---|---|
-| Macro export partial | **Implemented** | `macro_training_v1` — not production RL-ready |
+| Macro export partial | **Implemented** | `macro_training_v1` + `phase` column — not production RL-ready |
 | Full global state observation (design) | **Not implemented** | Aggregate scalars only |
 | Dataset v2 schema | **Not implemented** | Documented in NTD audit |
 | No NN training in Godot | **Correct** | Export only |
@@ -164,15 +164,14 @@ See [NEURAL_TRAINING_DATA_EXPORT_AUDIT.md](NEURAL_TRAINING_DATA_EXPORT_AUDIT.md)
 
 ---
 
-## Priority implementation gaps (for next coding run)
+## Priority implementation gaps (post–Run D)
 
-1. Macro contact resolution — instant demon removal on hero enter; no `CombatResolver` in macro path  
-2. Demon spread — infection deck, per-player-turn timing, cap-at-3 / breach-on-4th semantics  
-3. City demon occupation — production suppression, timer, development purge  
-4. Hero action budget — 4 actions per hero per turn  
-5. Player trade — offer/accept model replacing provisional 1:1  
-6. Turn phase enum and production/spread timing alignment  
-7. Drafting session (when explicitly scheduled)  
+1. M22 hex click-to-build human UI (keyboard play mode exists)  
+2. Dataset v2 schema + board featurizer  
+3. Drafting human pick actions (replace auto-pick skeleton)  
+4. Age-weighted infection deck reshuffle probabilities  
+5. Deprecate/remove legacy `EncounterRules` / `PlayerTradeRules` code paths  
+6. Production timing per-player vs round boundary (design TBD)  
 
 ---
 

@@ -76,6 +76,7 @@ static func build_step_row(
 		"reward": str(reward),
 		"terminal": str(terminal).to_lower(),
 		"event_summaries": event_summaries,
+		"phase": str(observation.get("phase", "")),
 	}
 
 

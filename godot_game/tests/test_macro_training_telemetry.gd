@@ -7,6 +7,7 @@ static func run(test_assert: TestAssert) -> void:
 	_test_step_row_fields(test_assert)
 	_test_fixed_seed_row_count(test_assert)
 	_test_no_game_state_mutation_outside_env(test_assert)
+	_test_legal_mask_matches_query_step_zero(test_assert)
 
 
 static func _test_schema_columns(test_assert: TestAssert) -> void:
@@ -44,6 +45,27 @@ static func _test_fixed_seed_row_count(test_assert: TestAssert) -> void:
 	var rows := MacroTrainingTelemetryExporter.run_episode(99, max_steps, BotTurnResolver.POLICY_HEURISTIC)
 	test_assert.check(rows.size() > 0, "should record steps")
 	test_assert.check(rows.size() <= max_steps, "row count should not exceed max steps")
+
+
+static func _test_legal_mask_matches_query_step_zero(test_assert: TestAssert) -> void:
+	var env := MacroTrainingEnv.new()
+	env.reset(42, BotTurnResolver.POLICY_HEURISTIC)
+	var player_id := env.session.get_active_player_id()
+	var view := env.get_legal_action_view(player_id)
+	var mask: Array = JSON.parse_string(JSON.stringify(_mask_bits(view)))
+	test_assert.check(mask is Array, "mask bits should parse as array")
+	for i in range(mini(mask.size(), view.legal_mask.size())):
+		var expected := 1 if view.legal_mask[i] else 0
+		test_assert.eq(int(mask[i]), expected, "mask bit %d should match LegalActionQuery" % i)
+	var end_turn := env.session.state.action_space.get_action(0)
+	test_assert.eq(int(mask[end_turn.action_id]), 1, "END_TURN should be legal at step 0")
+
+
+static func _mask_bits(view: LegalActionView) -> Array:
+	var bits: Array = []
+	for i in range(view.legal_mask.size()):
+		bits.append(1 if view.legal_mask[i] else 0)
+	return bits
 
 
 static func _test_no_game_state_mutation_outside_env(test_assert: TestAssert) -> void:

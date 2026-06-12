@@ -77,7 +77,11 @@ func _refresh_view() -> void:
 		if _session.finished:
 			_status_label.text = "Game over."
 		elif _session.is_waiting_for_human():
-			_status_label.text = "Waiting for human (player %d)." % human_player_id
+			_status_label.text = "Waiting for human (player %d) | phase=%s | infection=%d" % [
+				human_player_id,
+				summary.get("phase", "?"),
+				int(summary.get("infection_rate", 0)),
+			]
 		else:
 			_status_label.text = "Bots playing..."
 	if _help_label != null:

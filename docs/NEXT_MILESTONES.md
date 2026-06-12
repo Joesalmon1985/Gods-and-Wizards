@@ -1,6 +1,6 @@
 # Next Milestones (Proposed)
 
-**Last updated:** 2026-06-12 (post–Run C design clarification)
+**Last updated:** 2026-06-12 (post–Run D v1 macro implementation)
 
 **Strategic direction:** Macro-first, trainable mythic civilisation simulation. One authoritative `GameState`. Headless core and `BotGameSession` are source of truth. **Near-term dev default:** 2D strategic playable/debug. **Long-term product default:** 3D wizard spectator/RPG. See [GAME_DESIGN_BRIEF.md](GAME_DESIGN_BRIEF.md) and [RULEBOOK.md](RULEBOOK.md).
 
@@ -14,34 +14,32 @@
 
 ---
 
-## Run C complete (documentation only)
+## Run D complete (v1 macro implementation)
 
-Run C captured design decisions in:
+Run D implemented and test-covered:
 
-- [RULEBOOK.md](RULEBOOK.md)
-- [TURN_TIMING_AND_PHASE_MODEL.md](TURN_TIMING_AND_PHASE_MODEL.md)
-- [RULES_ENGINE_AUDIT.md](RULES_ENGINE_AUDIT.md)
-- Updated gap/decision log, test matrix, neural export audit, macro/tactical integration design
+- Breach limit **10**; `TurnPhase` + turn lifecycle
+- Macro contact resolution (`ContactResolutionRules`)
+- Infection deck spread per `END_TURN`
+- City demon occupation (suppression, timer, purge)
+- Hero 4-action budget per turn
+- Offer/accept trade v1 (`TradeOfferRules`)
+- Drafting skeleton (`DraftRules` auto-pick)
+- 2D play mode alignment + `phase` export column
 
-No gameplay code, tests, or scenes were changed in Run C.
+See [RULES_ENGINE_AUDIT.md](RULES_ENGINE_AUDIT.md) for status.
 
 ---
 
-## Priority implementation follow-ups (next coding run)
-
-Suggested order based on [RULES_ENGINE_AUDIT.md](RULES_ENGINE_AUDIT.md):
+## Priority follow-ups (post–Run D)
 
 | Priority | Work item | Why |
 |---|---|---|
-| 1 | **Macro contact resolution** — hero removes all demons on enter | Core v1 underworld containment; replaces legacy card duel in macro path |
-| 2 | **Infection deck spread** — per-player-turn, cap 3, breach on 4th | Aligns demon threat with Pandemic-style design |
-| 3 | **City demon occupation** — production suppression, timer, dev purge | Connects underworld to economy |
-| 4 | **Hero action budget** — 4 actions per hero per turn | Turn model completeness |
-| 5 | **Offer/accept trading** — replace provisional 1:1 | Design-aligned trade model; no ports |
-| 6 | **Phase enum + turn timing alignment** | Production/spread timing; telemetry `phase` column |
-| 7 | **Dataset v2 schema + board featurizer spec** | Before serious macro RL (not NN training in Godot) |
-| 8 | **2D human action selection (M22)** | First playable macro loop for humans |
-| 9 | **Drafting session** | When explicitly scheduled — Seven Wonders-style at round end |
+| 1 | **M22 hex click-to-build** | Keyboard play exists; hex selection is next UX step |
+| 2 | **Dataset v2 + board featurizer** | Before serious macro RL |
+| 3 | **Drafting human pick** | Replace auto-pick skeleton |
+| 4 | **M26 divine instruction offers** | 3D/macro bridge when ready |
+| 5 | **Legacy cleanup** | Deprecate `EncounterRules` / `PlayerTradeRules` paths |
 
 ---
 

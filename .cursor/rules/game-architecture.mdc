@@ -56,7 +56,8 @@ The headless milestone is **complete and extended**. The active Godot project is
 **Implemented in core (test-covered):**
 
 - Seeded radius-3 hex board, players, cities, production
-- Roads, heroes, demon spread, breach loss, victory-point win
+- Roads, heroes, infection-deck demon spread, macro contact resolution, breach loss (10), victory-point win
+- Hero action budgets, city demon occupation, offer/accept trade, drafting skeleton, `TurnPhase`
 - Legal actions, bots, event log, deterministic simulation
 - Development build stub, headless card combat contract (**legacy**), `SpellCombatSession` tactical combat (isolated)
 - `BotGameSession`, CSV export, reporting helpers
@@ -71,11 +72,9 @@ The headless milestone is **complete and extended**. The active Godot project is
 
 **Not yet implemented:**
 
-- Macro contact resolution (instant demon removal on hero enter)
-- Infection deck demon spread, hero action budgets, city demon occupation rules
-- Offer/accept player trading (provisional 1:1 exists)
-- Human player action selection wired to 2D UI (M22)
-- Full drafting and development-card library
+- M22 hex click-to-build (keyboard 2D play mode exists)
+- Full drafting human pick + development-card library balance
+- Dataset v2 / production RL export
 - 3D human encounters and embodied wizard/combat in macro loop
 - Dataset v2 / production RL export
 

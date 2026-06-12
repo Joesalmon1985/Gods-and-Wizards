@@ -24,7 +24,7 @@
 | Condition | Rule |
 |---|---|
 | **Win** | Reach **21 victory points** (target VP for now). Only VP wins the game. |
-| **Loss (breach)** | **Collective** breach loss when the global breach counter reaches the limit. **Design target: 10.** Current code uses `GameConstants.BREACH_LIMIT := 7` — implementation gap; update constant and tests when aligned. |
+| **Loss (breach)** | **Collective** breach loss when the global breach counter reaches the limit (**10**). |
 
 ---
 

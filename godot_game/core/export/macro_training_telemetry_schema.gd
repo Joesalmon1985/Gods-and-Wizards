@@ -26,4 +26,5 @@ const STEP_COLUMNS: Array[String] = [
 	"reward",
 	"terminal",
 	"event_summaries",
+	"phase",
 ]

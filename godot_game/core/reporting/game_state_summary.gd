@@ -14,7 +14,7 @@ static func build(state: GameState, session: BotGameSession = null) -> Dictionar
 		"turn_number": player_turns,
 		"active_player_name": _active_player_name(state),
 		"active_player_id": state.active_player_index,
-		"phase": _phase_label(state),
+		"phase": TurnPhase.to_key(state.current_phase),
 		"total_cities": state.cities.size(),
 		"total_roads": state.roads.size(),
 		"total_demons": _total_demons(state),
@@ -25,6 +25,9 @@ static func build(state: GameState, session: BotGameSession = null) -> Dictionar
 		"leader_name": _leader_name(state),
 		"leader_vp": _leader_vp(state),
 		"players": _player_rows(state),
+		"infection_rate": state.infection_rate,
+		"draft_age": state.draft_age,
+		"hero_actions_remaining": state.hero_actions_remaining.duplicate(),
 	}
 
 
@@ -119,12 +122,6 @@ static func _active_player_name(state: GameState) -> String:
 	if player == null:
 		return "?"
 	return player.display_name
-
-
-static func _phase_label(state: GameState) -> String:
-	if state.game_finished:
-		return "Game over"
-	return "Player turn"
 
 
 static func _total_demons(state: GameState) -> int:

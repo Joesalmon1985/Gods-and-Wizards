@@ -1,6 +1,6 @@
 # Rules Gap Analysis and Decision Log
 
-**Last updated:** 2026-06-12 (post–Run C design clarification)  
+**Last updated:** 2026-06-12 (post–Run D v1 macro implementation)  
 **Purpose:** Record known gaps between design intent and current implementation, with explicit decisions and follow-ups. Prefixes: **NTD-** = neural training data; **INT-** = integration; **GD-** = game design (Run C clarification).
 
 ---
@@ -26,7 +26,7 @@ Authoritative design rules: [RULEBOOK.md](RULEBOOK.md). Implementation status: [
 | ID | Area | Gap | Decision | Date | Rationale | Follow-up |
 |---|---|---|---|---|---|---|
 | **GD-001** | Macro vs tactical | Risk of integrating spell combat into macro loop | **Do not integrate** `SpellCombatSession` into macro economy; macro hero/demon = instant contact resolution | 2026-06-12 | Tactical combat is for 3D human encounters and isolated sim modes | Implement instant demon removal in macro rules |
-| **GD-002** | Macro contact | Hero/demon coexistence unclear in code | **v1:** hero removes **all** demons on node immediately; demon cannot remain on hero node | 2026-06-12 | Pandemic-style containment without RPG combat | `MoveRules` + contact resolution rules + tests |
+| **GD-002** | Macro contact | Hero/demon coexistence unclear in code | **v1:** hero removes **all** demons on node immediately; demon cannot remain on hero node | 2026-06-12 | Pandemic-style containment without RPG combat | **Done (Run D)** — `ContactResolutionRules` |
 | **GD-003** | Demons | Spread model differs from Pandemic design | **v1 intent:** infection deck, draw `infection_rate` nodes per player turn, cap 3, 4th → breach | 2026-06-12 | Design clarity for balancing | Replace adjacent spread; per-player-turn timing |
 | **GD-004** | Cities / demons | No occupation timer or dev purge | **v1 intent:** demon > 0 suppresses production; full round occupied purges developments | 2026-06-12 | Underworld threatens civilisation growth | Track `city_demon_occupied_since_round` |
 | **GD-005** | Heroes | No action budget | **v1:** 4 actions per hero per turn default | 2026-06-12 | Limits hero mobility per turn | Hero action counter in `GameState` |
@@ -34,7 +34,7 @@ Authoritative design rules: [RULEBOOK.md](RULEBOOK.md). Implementation status: [
 | **GD-007** | Trading | Instant 1:1 in code vs design | **Offer/accept only**; no ports; asymmetric ratios; provisional 1:1 kept until replaced | 2026-06-12 | Catan ports not planned | New trade session + action kinds |
 | **GD-008** | Drafting | Not implemented | **Seven Wonders-style** at round end; 8 cards × 3 ages; passed pack terminology | 2026-06-12 | Explicit deferral with documented intent | Drafting milestone when requested |
 | **GD-009** | 3D layer | Risk of 3D owning state | **3D reads macro state; submits via APIs only**; long-term default product mode | 2026-06-12 | Architecture rule | Encounter radius + pause deferred |
-| **GD-010** | Win condition | — | **VP-only win at 21**; collective breach loss at **10** (design target) | 2026-06-12 | Aligns with `GameConstants.VP_TO_WIN`; breach limit still 7 in code | Update `BREACH_LIMIT` + breach tests |
+| **GD-010** | Win condition | — | **VP-only win at 21**; collective breach loss at **10** | 2026-06-12 | Aligns with `GameConstants.VP_TO_WIN` | **Done (Run D)** — `BREACH_LIMIT := 10` |
 | **GD-011** | Legacy combat | `EncounterRules` uses card duel | **Legacy/debug**; not v1 macro resolution; `SpellCombatSession` is canonical tactical model | 2026-06-12 | Terminology clarity | Deprecate or rewrite `EncounterRules` |
 | **GD-012** | Macro RL observation | Export is active-player aggregates | **Design target:** full global state for macro RL | 2026-06-12 | Multi-agent centralized training | Dataset v2 + board featurizer |
 

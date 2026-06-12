@@ -20,7 +20,13 @@ static func apply(state: GameState, action: GameAction) -> Array:
 		ActionKind.Kind.BANK_TRADE:
 			return _apply_bank_trade(state, action)
 		ActionKind.Kind.PLAYER_TRADE:
-			return _apply_player_trade(state, action)
+			return []
+		ActionKind.Kind.TRADE_OFFER:
+			return _apply_trade_offer(state, action)
+		ActionKind.Kind.TRADE_ACCEPT:
+			return _apply_trade_accept(state, action)
+		ActionKind.Kind.TRADE_REJECT:
+			return _apply_trade_reject(state, action)
 		_:
 			return []
 
@@ -68,12 +74,16 @@ static func _apply_move_hero(state: GameState, action: GameAction) -> Array:
 	state.heroes_by_node.erase(from_node.to_key())
 	hero.node = action.target_node
 	state.heroes_by_node[action.target_node.to_key()] = hero
-	return [HeroMovedEvent.new(state.round_number, hero.id, from_node, action.target_node)]
+	var remaining := int(state.hero_actions_remaining.get(hero.id, GameConstants.HERO_ACTIONS_PER_TURN))
+	state.hero_actions_remaining[hero.id] = maxi(0, remaining - 1)
+	var events: Array = [HeroMovedEvent.new(state.round_number, hero.id, from_node, action.target_node)]
+	events.append_array(ContactResolutionRules.resolve_after_hero_enters(state, action.target_node, hero.id))
+	return events
 
 
 static func _apply_build_development(state: GameState, action: GameAction) -> Array:
 	var player := TurnRules.get_active_player(state)
-	return DevelopmentRules.apply(state, player.id, action.vertex)
+	return DevelopmentRules.apply(state, player.id, action.vertex, action.development_id)
 
 
 static func _apply_bank_trade(state: GameState, action: GameAction) -> Array:
@@ -88,33 +98,60 @@ static func _apply_bank_trade(state: GameState, action: GameAction) -> Array:
 	)
 
 
-static func _apply_player_trade(state: GameState, action: GameAction) -> Array:
+static func _apply_trade_offer(state: GameState, action: GameAction) -> Array:
 	var player := TurnRules.get_active_player(state)
 	if player == null:
 		return []
-	return PlayerTradeRules.apply(
+	return TradeOfferRules.apply_offer(
 		state,
 		player.id,
 		action.partner_player_id,
 		action.give_resource,
-		action.receive_resource
+		action.give_amount,
+		action.receive_resource,
+		action.request_amount
 	)
+
+
+static func _apply_trade_accept(state: GameState, action: GameAction) -> Array:
+	var player := TurnRules.get_active_player(state)
+	if player == null:
+		return []
+	return TradeOfferRules.apply_accept(state, player.id, action.trade_offer_id)
+
+
+static func _apply_trade_reject(state: GameState, action: GameAction) -> Array:
+	var player := TurnRules.get_active_player(state)
+	if player == null:
+		return []
+	return TradeOfferRules.apply_reject(state, player.id, action.trade_offer_id)
 
 
 static func _apply_end_turn(state: GameState) -> Array:
 	var player := TurnRules.get_active_player(state)
 	var events: Array = [TurnEndedEvent.new(state.round_number, player.id)]
+	TurnLifecycleRules.on_turn_end(state, player.id)
+	events.append_array(SpreadRules.resolve_player_turn_end(state))
 
 	state.active_player_index = (state.active_player_index + 1) % TurnRules.player_count(state)
+	state.turn_number += 1
+
 	if state.active_player_index == 0:
 		state.round_number += 1
 		events.append(RoundStartedEvent.new(state.round_number))
+		TurnLifecycleRules.on_round_start(state)
+		events.append_array(CityOccupationRules.evaluate_round_start_purges(state))
+		events.append_array(DraftRules.advance_round_end(state))
 		events.append_array(ProductionRules.resolve_round_production(state))
-		events.append_array(SpreadRules.resolve_spread(state))
 		var game_over := GameOverRules.evaluate(state)
 		if game_over != null:
 			state.game_finished = true
 			state.winner_id = game_over.winner_id
+			state.current_phase = TurnPhase.Phase.GAME_OVER
 			events.append(game_over)
+		else:
+			TurnLifecycleRules.on_turn_start(state)
+	else:
+		TurnLifecycleRules.on_turn_start(state)
 
 	return events
