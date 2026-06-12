@@ -152,7 +152,7 @@ func _node_id_to_pixel(node_id: String) -> Vector2:
 func _world_dict_to_pixel(world: Dictionary) -> Vector2:
 	var x := float(world.get("x", 0.0))
 	var z := float(world.get("z", 0.0))
-	return Vector2(x * 20.0, z * 20.0)
+	return Vector2(x, z)
 
 
 func _axial_to_pixel(coord: HexCoord) -> Vector2:

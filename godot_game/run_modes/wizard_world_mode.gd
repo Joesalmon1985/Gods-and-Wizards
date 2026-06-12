@@ -32,37 +32,36 @@ func _ready() -> void:
 	_wizard_marker = $WizardMarker
 	_camera = $Camera3D
 	_board_visualizer = $BoardVisuals
+	_setup_wizard_billboard()
 	if _camera_button != null:
 		_camera_button.pressed.connect(_on_camera_toggle_pressed)
 	_refresh_view()
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event.is_action_pressed("ui_accept"):
-		_advance_simulation_step()
-		return
 	if not (event is InputEventKey and event.pressed and not event.echo):
 		return
-	match event.keycode:
-		KEY_N:
+	var action := WizardWorldInput.action_from_keycode(event.keycode)
+	match action:
+		WizardWorldInput.Action.ADVANCE:
 			_advance_simulation_step()
-		KEY_SPACE:
+		WizardWorldInput.Action.TOGGLE_CAMERA:
+			_on_camera_toggle_pressed()
+		WizardWorldInput.Action.TOGGLE_AUTOPLAY:
 			_autoplay = not _autoplay
 			_autoplay_timer = 0.0
 			_refresh_view()
-		KEY_EQUAL, KEY_KP_ADD:
+		WizardWorldInput.Action.AUTOPLAY_FASTER:
 			_autoplay_interval = maxf(0.25, _autoplay_interval - 0.25)
 			_refresh_view()
-		KEY_MINUS, KEY_KP_SUBTRACT:
+		WizardWorldInput.Action.AUTOPLAY_SLOWER:
 			_autoplay_interval = minf(5.0, _autoplay_interval + 0.25)
 			_refresh_view()
-		KEY_R:
+		WizardWorldInput.Action.RESET:
 			_reset_session()
-		KEY_H:
+		WizardWorldInput.Action.TOGGLE_HELP:
 			_show_help = not _show_help
 			_refresh_view()
-		KEY_C:
-			_on_camera_toggle_pressed()
 
 
 func _process(delta: float) -> void:
@@ -90,6 +89,26 @@ func _process(delta: float) -> void:
 		if _autoplay_timer >= _autoplay_interval:
 			_autoplay_timer = 0.0
 			_advance_simulation_step()
+
+
+func _setup_wizard_billboard() -> void:
+	if _wizard_marker == null:
+		return
+	for child in _wizard_marker.get_children():
+		child.queue_free()
+	if _wizard_marker is MeshInstance3D:
+		(_wizard_marker as MeshInstance3D).mesh = null
+	var texture := BillboardManifest.load_texture("wizard_default")
+	if texture == null:
+		return
+	var sprite := Sprite3D.new()
+	sprite.name = "WizardSprite"
+	sprite.texture = texture
+	sprite.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	sprite.pixel_size = float(BillboardManifest.get_entry("wizard_default").get("scale", 0.04))
+	sprite.axis = Vector3.AXIS_Y
+	sprite.position = Vector3(0, WorldPresentationScale.wizard_eye_height() * 0.25, 0)
+	_wizard_marker.add_child(sprite)
 
 
 func _on_camera_toggle_pressed() -> void:
@@ -158,7 +177,7 @@ func _update_overlay() -> void:
 
 func _help_text() -> String:
 	return (
-		"Enter/N: advance turn | Space: autoplay (%s) | +/-: speed %.1fs | R: reset | H: hide help | WASD: move | Q/E: turn | C/button: camera (%s)"
+		"Space/Enter/N: advance turn | P: autoplay (%s) | +/-: speed %.1fs | R: reset | H: hide help | WASD: move | Q/E: turn | C/button: camera (%s)"
 		% [
 			"ON" if _autoplay else "OFF",
 			_autoplay_interval,

@@ -27,7 +27,8 @@ static func _test_wizard_mode_uses_marker(test_assert: TestAssert) -> void:
 		10.0
 	)
 	var position: Vector3 = transform_data.get("position", Vector3.ZERO)
-	test_assert.check(position.distance_to(marker) < 5.0, "wizard camera should stay near marker")
+	var max_distance := WorldPresentationScale.wizard_back_offset() + WorldPresentationScale.wizard_eye_height() + 2.0
+	test_assert.check(position.distance_to(marker) < max_distance, "wizard camera should stay near marker")
 
 
 static func _test_board_mode_uses_center(test_assert: TestAssert) -> void:

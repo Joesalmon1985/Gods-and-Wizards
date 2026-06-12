@@ -133,16 +133,24 @@ Launch from the editor (F5) or:
 
 **The 3D layer does not own or directly mutate `GameState`.** WASD wizard movement is presentation-only.
 
-### Controls
+### Controls (Run J — 2026-06-12)
 
 | Input | Action |
 |---|---|
-| **Enter** / **N** | Advance one bot player turn |
-| **Space** | Toggle autoplay |
+| **Space** / **Enter** / **N** | Advance one bot player turn (explicit handler; not `ui_accept`) |
+| **P** | Toggle autoplay |
 | **+** / **-** | Adjust autoplay speed |
+| **C** / camera button | Toggle board overview / wizard camera |
 | **R** | Reset with the same seed |
 | **H** | Hide/show help overlay |
-| **WASD** | Move wizard marker (presentation only; does not mutate `GameState`) |
+| **WASD** | Move wizard marker relative to Q/E facing (presentation only) |
+| **Q** / **E** | Turn wizard marker yaw |
+
+**Scale:** `WorldPresentationScale.HEX_SIZE = 16`; walk speed calibrated for ~5 hex centre-spacings in 180 s.
+
+**Visuals:** Manifest-backed billboards from `godot_game/assets/billboards/` (wizard, heroes, demons, forest props, spell icons). Hybrid built-development indicators on city vertices (read-only; no draft pack/hand UI).
+
+**Deferred:** Combat sim / DTO adapter → Run J2 ([RUN_J2_MICRO_COMBAT_ADAPTER_PLAN.md](RUN_J2_MICRO_COMBAT_ADAPTER_PLAN.md)); AI/training → Run K.
 
 ---
 

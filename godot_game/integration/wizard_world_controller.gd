@@ -24,7 +24,7 @@ func get_camera_transform() -> Dictionary:
 
 
 func apply_movement(keys: Dictionary, delta: float) -> void:
-	var move := WizardMovementInput.compute_move_delta(keys, delta)
+	var move := WizardMovementInput.compute_move_delta(keys, delta, -1.0, marker_yaw_rad)
 	if move != Vector3.ZERO:
 		marker_position += move
 	var yaw_delta := WizardMovementInput.compute_yaw_delta(keys, delta)

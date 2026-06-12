@@ -1,23 +1,28 @@
 class_name WizardMovementInput
 extends RefCounted
 
-const DEFAULT_MOVE_SPEED := 3.0
 const DEFAULT_TURN_SPEED := 2.0
 
 
-static func compute_move_delta(keys: Dictionary, delta: float, speed: float = DEFAULT_MOVE_SPEED) -> Vector3:
+static func compute_move_delta(
+	keys: Dictionary,
+	delta: float,
+	speed: float = -1.0,
+	yaw_rad: float = 0.0
+) -> Vector3:
+	var move_speed := speed if speed >= 0.0 else WorldPresentationScale.walk_speed()
 	var move := Vector3.ZERO
 	if bool(keys.get("w", false)):
-		move.z -= 1.0
+		move += WizardOrientation.forward(yaw_rad)
 	if bool(keys.get("s", false)):
-		move.z += 1.0
+		move -= WizardOrientation.forward(yaw_rad)
 	if bool(keys.get("a", false)):
-		move.x -= 1.0
+		move -= WizardOrientation.right(yaw_rad)
 	if bool(keys.get("d", false)):
-		move.x += 1.0
+		move += WizardOrientation.right(yaw_rad)
 	if move == Vector3.ZERO:
 		return Vector3.ZERO
-	return move.normalized() * speed * delta
+	return move.normalized() * move_speed * delta
 
 
 static func compute_yaw_delta(keys: Dictionary, delta: float, turn_speed: float = DEFAULT_TURN_SPEED) -> float:

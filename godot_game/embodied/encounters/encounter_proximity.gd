@@ -1,10 +1,8 @@
 class_name EncounterProximity
 extends RefCounted
 
-const DEFAULT_RADIUS := 6.0
-
-
-static func check(snapshot: Dictionary, marker_world: Dictionary, radius: float = DEFAULT_RADIUS) -> Dictionary:
+static func check(snapshot: Dictionary, marker_world: Dictionary, radius: float = -1.0) -> Dictionary:
+	var effective_radius := radius if radius >= 0.0 else WorldPresentationScale.encounter_radius()
 	var marker := Vector3(
 		float(marker_world.get("x", 0.0)),
 		float(marker_world.get("y", 0.0)),
@@ -14,11 +12,11 @@ static func check(snapshot: Dictionary, marker_world: Dictionary, radius: float 
 	var best := {"in_range": false, "distance": INF, "target_type": "", "target_id": "", "node_id": ""}
 
 	for entry in snapshot.get("cities", []):
-		_consider_target(best, marker, entry, "city", radius, node_worlds)
+		_consider_target(best, marker, entry, "city", effective_radius, node_worlds)
 	for entry in snapshot.get("heroes", []):
-		_consider_target(best, marker, entry, "hero", radius, node_worlds)
+		_consider_target(best, marker, entry, "hero", effective_radius, node_worlds)
 	for entry in snapshot.get("demons", []):
-		_consider_target(best, marker, entry, "demon", radius, node_worlds)
+		_consider_target(best, marker, entry, "demon", effective_radius, node_worlds)
 
 	return best
 

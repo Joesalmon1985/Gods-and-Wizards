@@ -32,8 +32,8 @@ static func build_snapshot(state: GameState, recent_events: Array = []) -> Dicti
 
 
 static func hex_to_world(hex: HexCoord) -> Vector3:
-	var x := BoardNodeAnchors.HEX_SIZE * (sqrt(3.0) * hex.q + sqrt(3.0) / 2.0 * hex.r)
-	var z := BoardNodeAnchors.HEX_SIZE * (3.0 / 2.0 * hex.r)
+	var x := WorldPresentationScale.HEX_SIZE * (sqrt(3.0) * hex.q + sqrt(3.0) / 2.0 * hex.r)
+	var z := WorldPresentationScale.HEX_SIZE * (3.0 / 2.0 * hex.r)
 	return Vector3(x, 0.0, z)
 
 

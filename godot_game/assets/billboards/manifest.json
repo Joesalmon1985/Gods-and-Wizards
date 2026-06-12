@@ -1,0 +1,117 @@
+{
+  "version": 1,
+  "entries": [
+    {
+      "id": "wizard_default",
+      "path": "wizards/wizard_default.png",
+      "anchor": "feet",
+      "scale": 0.04,
+      "donor_source": "donor_projects/dark_fantasy/Characters/NPC/EnemyNPC/WizardSprites/Wizard.png"
+    },
+    {
+      "id": "demon_default",
+      "path": "demons/demon_default.png",
+      "anchor": "feet",
+      "scale": 0.035,
+      "donor_source": "donor_projects/dark_fantasy/Characters/NPC/EnemyNPC/ApostateSprites/Apostate.png"
+    },
+    {
+      "id": "hero_default",
+      "path": "heroes/hero_default.png",
+      "anchor": "feet",
+      "scale": 0.035,
+      "donor_source": "donor_projects/dark_fantasy/Characters/NPC/EnemyNPC/ClericSprites/Cleric.png"
+    },
+    {
+      "id": "forest_cairn_t1_c1",
+      "path": "props/forest_cairn_t1_c1.png",
+      "anchor": "feet",
+      "scale": 0.03,
+      "donor_source": "donor_projects/dark_fantasy/World/GameWorld3D/Hexagons/Forest/Cairn/T1_C1.png"
+    },
+    {
+      "id": "forest_cairn_t1_c2",
+      "path": "props/forest_cairn_t1_c2.png",
+      "anchor": "feet",
+      "scale": 0.03,
+      "donor_source": "donor_projects/dark_fantasy/World/GameWorld3D/Hexagons/Forest/Cairn/T1_C2.png"
+    },
+    {
+      "id": "forest_cairn_t2_c1",
+      "path": "props/forest_cairn_t2_c1.png",
+      "anchor": "feet",
+      "scale": 0.03,
+      "donor_source": "donor_projects/dark_fantasy/World/GameWorld3D/Hexagons/Forest/Cairn/T2_C1.png"
+    },
+    {
+      "id": "forest_cairn_t2_c3",
+      "path": "props/forest_cairn_t2_c3.png",
+      "anchor": "feet",
+      "scale": 0.03,
+      "donor_source": "donor_projects/dark_fantasy/World/GameWorld3D/Hexagons/Forest/Cairn/T2_C3.png"
+    },
+    {
+      "id": "spell_aid",
+      "path": "ui_status/aid_icon.jpeg",
+      "anchor": "center",
+      "scale": 0.02,
+      "donor_source": "donor_projects/dark_fantasy/Spells/icons/AidIcon.jpeg"
+    },
+    {
+      "id": "spell_fireball",
+      "path": "ui_status/fireball_icon.jpeg",
+      "anchor": "center",
+      "scale": 0.02,
+      "donor_source": "donor_projects/dark_fantasy/Spells/icons/FireballIcon.jpeg"
+    },
+    {
+      "id": "spell_silence",
+      "path": "ui_status/silence_icon.jpeg",
+      "anchor": "center",
+      "scale": 0.02,
+      "donor_source": "donor_projects/dark_fantasy/Spells/icons/SilenceIcon.jpeg"
+    },
+    {
+      "id": "spell_shield",
+      "path": "ui_status/shield_icon.jpeg",
+      "anchor": "center",
+      "scale": 0.02,
+      "donor_source": "donor_projects/dark_fantasy/Spells/icons/ShieldIcon.jpeg"
+    },
+    {
+      "id": "spell_quicken",
+      "path": "ui_status/quicken_icon.jpeg",
+      "anchor": "center",
+      "scale": 0.02,
+      "donor_source": "donor_projects/dark_fantasy/Spells/icons/QuickenIcon.jpeg"
+    },
+    {
+      "id": "spell_regen",
+      "path": "ui_status/regen_icon.jpeg",
+      "anchor": "center",
+      "scale": 0.02,
+      "donor_source": "donor_projects/dark_fantasy/Spells/icons/RegenIcon.jpeg"
+    },
+    {
+      "id": "spell_blight",
+      "path": "ui_status/blight_icon.jpeg",
+      "anchor": "center",
+      "scale": 0.02,
+      "donor_source": "donor_projects/dark_fantasy/Spells/icons/BlightIcon.jpeg"
+    },
+    {
+      "id": "spell_focus",
+      "path": "ui_status/focus_icon.jpeg",
+      "anchor": "center",
+      "scale": 0.02,
+      "donor_source": "donor_projects/dark_fantasy/Spells/icons/FocusIcon.jpeg"
+    },
+    {
+      "id": "generic_development_slot",
+      "path": "ui_status/focus_icon.jpeg",
+      "anchor": "center",
+      "scale": 0.015,
+      "donor_source": "fallback: spell_focus reused as generic development marker"
+    }
+  ]
+}
