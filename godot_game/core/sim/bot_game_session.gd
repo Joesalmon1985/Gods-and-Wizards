@@ -13,6 +13,7 @@ var player_turn_count: int = 0
 var finished: bool = false
 var human_player_ids: Array[int] = []
 var waiting_for_human: bool = false
+var waiting_for_draft: bool = false
 
 
 static func start_four_player(game_seed: int, policy: String = BotTurnResolver.POLICY_HEURISTIC) -> BotGameSession:
@@ -65,7 +66,7 @@ static func _start_session(
 func advance_one_player_turn() -> Array:
 	if finished:
 		return []
-	if waiting_for_human or _active_player_is_human():
+	if waiting_for_human or waiting_for_draft or _active_player_is_human():
 		_open_human_turn()
 		return []
 
@@ -73,13 +74,18 @@ func advance_one_player_turn() -> Array:
 	for event in turn_events:
 		events.append(event)
 
+	var draft_events := _resolve_draft_if_needed()
+	for event in draft_events:
+		events.append(event)
+		_record_event(event)
+
 	player_turn_count += 1
 	finished = _check_game_over()
-	return turn_events
+	return turn_events + draft_events
 
 
 func advance_until_human_or_game_over() -> void:
-	while not finished and not waiting_for_human:
+	while not finished and not waiting_for_human and not waiting_for_draft:
 		if _active_player_is_human():
 			_open_human_turn()
 			return
@@ -95,18 +101,22 @@ func get_active_player_id() -> int:
 
 
 func is_waiting_for_human() -> bool:
-	return waiting_for_human and not finished
+	return (waiting_for_human or waiting_for_draft) and not finished
 
 
 func get_legal_human_actions() -> Array[GameAction]:
 	if not is_waiting_for_human():
 		return []
+	if waiting_for_draft:
+		return _legal_human_draft_actions()
 	return LegalActionQuery.get_legal_actions_sorted(state)
 
 
 func submit_human_action(action: GameAction) -> Array:
 	if not is_waiting_for_human():
 		return []
+	if waiting_for_draft:
+		return submit_human_draft_action(action)
 	if not is_human_player(get_active_player_id()):
 		return []
 
@@ -121,8 +131,29 @@ func submit_human_action(action: GameAction) -> Array:
 	if action.kind == ActionKind.Kind.END_TURN:
 		waiting_for_human = false
 		player_turn_count += 1
+		var draft_events := _resolve_draft_if_needed()
+		for event in draft_events:
+			_record_event(event)
+		applied.append_array(draft_events)
 		finished = _check_game_over()
 
+	return applied
+
+
+func submit_human_draft_action(action: GameAction) -> Array:
+	if action.kind != ActionKind.Kind.DRAFT_PICK:
+		return []
+	if not is_human_player(action.draft_player_id):
+		return []
+	var applied := ActionRules.apply(state, action)
+	if applied.is_empty():
+		return []
+	for event in applied:
+		_record_event(event)
+	if not state.awaiting_draft_step:
+		waiting_for_draft = false
+		waiting_for_human = false
+		finished = _check_game_over()
 	return applied
 
 
@@ -145,6 +176,7 @@ func to_result() -> Dictionary:
 		"player_turn_count": player_turn_count,
 		"human_player_ids": human_player_ids.duplicate(),
 		"waiting_for_human": waiting_for_human,
+		"waiting_for_draft": waiting_for_draft,
 	}
 
 
@@ -164,6 +196,32 @@ func status_line() -> String:
 
 func _open_human_turn() -> void:
 	waiting_for_human = true
+
+
+func _legal_human_draft_actions() -> Array[GameAction]:
+	var legal: Array[GameAction] = []
+	for human_id in human_player_ids:
+		for action in LegalActionQuery.get_legal_draft_actions_for_player(state, human_id):
+			legal.append(action)
+	return legal
+
+
+func _resolve_draft_if_needed() -> Array:
+	if not state.awaiting_draft_step:
+		waiting_for_draft = false
+		return []
+	var bot_ids: Array[int] = []
+	for player in state.players:
+		if not is_human_player(player.id):
+			bot_ids.append(player.id)
+	DraftRules.apply_bot_draft_picks(state, bot_ids)
+	if DraftRules.all_picks_received(state):
+		waiting_for_draft = false
+		return DraftRules.finalize_round_after_draft(state)
+	waiting_for_draft = true
+	waiting_for_human = true
+	SetupRules.rebuild_action_space(state)
+	return []
 
 
 func _active_player_is_human() -> bool:

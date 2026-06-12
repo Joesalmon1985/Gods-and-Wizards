@@ -14,6 +14,7 @@ var give_amount: int = 1
 var request_amount: int = 1
 var trade_offer_id: int = -1
 var development_id: String = ""
+var draft_player_id: int = -1
 
 
 func _init(
@@ -58,6 +59,11 @@ func equals(other: GameAction) -> bool:
 			return edge.equals(other.edge)
 		ActionKind.Kind.MOVE_HERO:
 			return hero_id == other.hero_id and target_node != null and other.target_node != null and target_node.equals(other.target_node)
+		ActionKind.Kind.DRAFT_PICK:
+			return (
+				draft_player_id == other.draft_player_id
+				and development_id == other.development_id
+			)
 		ActionKind.Kind.BANK_TRADE:
 			return give_resource == other.give_resource and receive_resource == other.receive_resource
 		ActionKind.Kind.PLAYER_TRADE:
@@ -90,6 +96,9 @@ func to_dict() -> Dictionary:
 		data["give_resource"] = ResourceType.to_key(give_resource)
 		data["receive_resource"] = ResourceType.to_key(receive_resource)
 		data["partner_player_id"] = partner_player_id
+	if kind == ActionKind.Kind.DRAFT_PICK:
+		data["draft_player_id"] = draft_player_id
+		data["development_id"] = development_id
 	return data
 
 
@@ -149,5 +158,7 @@ static func _kind_from_key(key: String) -> ActionKind.Kind:
 			return ActionKind.Kind.BANK_TRADE
 		"player_trade":
 			return ActionKind.Kind.PLAYER_TRADE
+		"draft_pick":
+			return ActionKind.Kind.DRAFT_PICK
 		_:
 			return ActionKind.Kind.END_TURN

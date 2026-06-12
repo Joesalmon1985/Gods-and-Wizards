@@ -15,8 +15,79 @@ static func initialize_for_game(state: GameState) -> void:
 	_deal_packs_for_current_age(state)
 
 
+static func begin_draft_step(state: GameState) -> void:
+	state.awaiting_draft_step = true
+	state.draft_pending_picks.clear()
+	state.current_phase = TurnPhase.Phase.DRAFT_ROUND
+
+
+static func record_draft_pick(state: GameState, player_id: int, card_id: String) -> bool:
+	if not state.awaiting_draft_step:
+		return false
+	if state.draft_pending_picks.has(player_id):
+		return false
+	if not _is_legal_pick(state, player_id, card_id):
+		return false
+	state.draft_pending_picks[player_id] = card_id
+	return true
+
+
+static func all_picks_received(state: GameState) -> bool:
+	if not state.awaiting_draft_step:
+		return false
+	return state.draft_pending_picks.size() == state.players.size()
+
+
+static func apply_bot_draft_picks(state: GameState, bot_player_ids: Array[int] = []) -> void:
+	var bots := bot_player_ids
+	if bots.is_empty():
+		for player in state.players:
+			bots.append(player.id)
+	for player_id in bots:
+		if state.draft_pending_picks.has(player_id):
+			continue
+		var card_id := DraftBotPolicy.choose_card_id(state, player_id)
+		if card_id != "":
+			record_draft_pick(state, player_id, card_id)
+
+
+static func resolve_draft_step(state: GameState) -> Array:
+	if not all_picks_received(state):
+		return []
+	var events := advance_round_end_with_picks(state, state.draft_pending_picks.duplicate())
+	state.draft_pending_picks.clear()
+	state.awaiting_draft_step = false
+	return events
+
+
+static func finalize_round_after_draft(state: GameState) -> Array:
+	var events: Array = resolve_draft_step(state)
+	events.append_array(ProductionRules.resolve_round_production(state))
+	var game_over := GameOverRules.evaluate(state)
+	if game_over != null:
+		state.game_finished = true
+		state.winner_id = game_over.winner_id
+		state.current_phase = TurnPhase.Phase.GAME_OVER
+		events.append(game_over)
+	else:
+		TurnLifecycleRules.on_turn_start(state)
+	SetupRules.rebuild_action_space(state)
+	return events
+
+
+static func complete_automatic_draft_for_bots(state: GameState) -> Array:
+	if not state.awaiting_draft_step:
+		return []
+	apply_bot_draft_picks(state)
+	if not all_picks_received(state):
+		return []
+	return finalize_round_after_draft(state)
+
+
 static func advance_round_end(state: GameState) -> Array:
-	return advance_round_end_with_picks(state, _default_picks_for_step(state))
+	begin_draft_step(state)
+	apply_bot_draft_picks(state)
+	return finalize_round_after_draft(state)
 
 
 static func advance_round_end_with_picks(state: GameState, picks_by_player: Dictionary) -> Array:
@@ -58,11 +129,7 @@ static func build_shuffled_age_deck(state: GameState, age: int) -> Array[String]
 
 
 static func apply_draft_pick(state: GameState, player_id: int, card_id: String) -> bool:
-	var picks := _default_picks_for_step(state)
-	if not _is_legal_pick(state, player_id, card_id):
-		return false
-	picks[player_id] = card_id
-	return not advance_round_end_with_picks(state, picks).is_empty()
+	return record_draft_pick(state, player_id, card_id)
 
 
 static func _deal_packs_for_current_age(state: GameState) -> void:

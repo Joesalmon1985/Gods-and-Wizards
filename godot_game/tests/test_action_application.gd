@@ -62,16 +62,18 @@ static func _test_end_turn_advances(test_assert: TestAssert) -> void:
 
 static func _test_round_wrap_runs_production(test_assert: TestAssert) -> void:
 	var state := TestScenario.build_bot_ready_game(42)
+	GameStartRules.start_game(state)
 	var end_turn := state.action_space.get_action(0)
 
 	ActionRules.apply(state, end_turn)
 	test_assert.eq(state.active_player_index, 1, "player 1 turn after player 0 ends")
 
-	var events := ActionRules.apply(state, end_turn)
+	ActionRules.apply(state, end_turn)
 	test_assert.eq(state.active_player_index, 0, "should wrap to player 0")
 	test_assert.eq(state.round_number, 2, "round should advance after all players end turn")
 
 	var production_found := false
+	var events := DraftRules.complete_automatic_draft_for_bots(state)
 	for event in events:
 		if event is ProductionCheckEvent:
 			production_found = true

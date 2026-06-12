@@ -12,6 +12,7 @@ enum Kind {
 	TRADE_OFFER,
 	TRADE_ACCEPT,
 	TRADE_REJECT,
+	DRAFT_PICK,
 }
 
 
@@ -37,5 +38,7 @@ static func to_key(kind: Kind) -> String:
 			return "trade_accept"
 		Kind.TRADE_REJECT:
 			return "trade_reject"
+		Kind.DRAFT_PICK:
+			return "draft_pick"
 		_:
 			return "unknown"

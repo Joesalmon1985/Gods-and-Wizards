@@ -83,13 +83,18 @@ static func _test_full_game_human_end_turn_only_to_finish(test_assert: TestAsser
 	while not session.finished and turns < 400:
 		StrategicPlayController.advance_until_human_or_stopped(session)
 		if session.is_waiting_for_human():
-			var end_action: GameAction = null
-			for action in session.get_legal_human_actions():
-				if action.kind == ActionKind.Kind.END_TURN:
-					end_action = action
-					break
-			test_assert.check(end_action != null, "human should always have END_TURN")
-			session.submit_human_action(end_action)
+			var legal := session.get_legal_human_actions()
+			test_assert.check(not legal.is_empty(), "human should have a legal action")
+			var chosen: GameAction = legal[0]
+			if not session.waiting_for_draft:
+				var end_action: GameAction = null
+				for action in legal:
+					if action.kind == ActionKind.Kind.END_TURN:
+						end_action = action
+						break
+				test_assert.check(end_action != null, "human should always have END_TURN outside draft")
+				chosen = end_action
+			session.submit_human_action(chosen)
 		turns += 1
 	test_assert.check(session.finished or turns < 400, "game should finish or stay within turn budget")
 

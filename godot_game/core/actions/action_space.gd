@@ -97,7 +97,21 @@ static func from_state(state: GameState) -> ActionSpace:
 			space._register(move_action)
 
 	_register_development_plays(space, state)
+	if state.awaiting_draft_step:
+		_register_draft_picks(space, state)
 	return space
+
+
+static func _register_draft_picks(space: ActionSpace, state: GameState) -> void:
+	for player in state.players:
+		if state.draft_pending_picks.has(player.id):
+			continue
+		var pack: Array = state.draft_packs_by_player.get(player.id, [])
+		for card_id in pack:
+			var draft_action := GameAction.new(space.size(), ActionKind.Kind.DRAFT_PICK)
+			draft_action.draft_player_id = player.id
+			draft_action.development_id = str(card_id)
+			space._register(draft_action)
 
 
 static func _register_development_plays(space: ActionSpace, state: GameState) -> void:

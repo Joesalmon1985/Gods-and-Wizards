@@ -27,8 +27,20 @@ static func apply(state: GameState, action: GameAction) -> Array:
 			return _apply_trade_accept(state, action)
 		ActionKind.Kind.TRADE_REJECT:
 			return _apply_trade_reject(state, action)
+		ActionKind.Kind.DRAFT_PICK:
+			return _apply_draft_pick(state, action)
 		_:
 			return []
+
+
+static func _apply_draft_pick(state: GameState, action: GameAction) -> Array:
+	if not DraftRules.record_draft_pick(state, action.draft_player_id, action.development_id):
+		return []
+	var events: Array = []
+	SetupRules.rebuild_action_space(state)
+	if DraftRules.all_picks_received(state):
+		events.append_array(DraftRules.finalize_round_after_draft(state))
+	return events
 
 
 static func _apply_build_city(state: GameState, action: GameAction) -> Array:
@@ -141,17 +153,9 @@ static func _apply_end_turn(state: GameState) -> Array:
 		events.append(RoundStartedEvent.new(state.round_number))
 		TurnLifecycleRules.on_round_start(state)
 		events.append_array(CityOccupationRules.evaluate_round_start_purges(state))
+		DraftRules.begin_draft_step(state)
+		SetupRules.rebuild_action_space(state)
 		state.current_phase = TurnPhase.Phase.DRAFT_ROUND
-		events.append_array(DraftRules.advance_round_end(state))
-		events.append_array(ProductionRules.resolve_round_production(state))
-		var game_over := GameOverRules.evaluate(state)
-		if game_over != null:
-			state.game_finished = true
-			state.winner_id = game_over.winner_id
-			state.current_phase = TurnPhase.Phase.GAME_OVER
-			events.append(game_over)
-		else:
-			TurnLifecycleRules.on_turn_start(state)
 	else:
 		TurnLifecycleRules.on_turn_start(state)
 

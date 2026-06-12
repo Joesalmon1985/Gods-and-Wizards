@@ -27,9 +27,7 @@ static func _test_budget_resets_on_end_turn(test_assert: TestAssert) -> void:
 	for _i in 4:
 		var action := _first_legal_move(state, hero.id)
 		ActionRules.apply(state, action)
-	var end_turn := state.action_space.get_action(0)
-	for _i in TurnRules.player_count(state):
-		ActionRules.apply(state, end_turn)
+	TestRoundHelpers.apply_full_round_wrap(state)
 	test_assert.eq(
 		int(state.hero_actions_remaining.get(hero.id, 0)),
 		GameConstants.HERO_ACTIONS_PER_TURN,

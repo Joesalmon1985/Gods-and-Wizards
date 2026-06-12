@@ -54,10 +54,11 @@ static func _test_production_only_on_round_wrap(test_assert: TestAssert) -> void
 
 	var production_on_wrap := false
 	for _i in TurnRules.player_count(state):
-		var wrap_events := ActionRules.apply(state, end_turn)
-		for event in wrap_events:
-			if event is ProductionCheckEvent:
-				production_on_wrap = true
+		ActionRules.apply(state, end_turn)
+	var finalize_events := DraftRules.complete_automatic_draft_for_bots(state)
+	for event in finalize_events:
+		if event is ProductionCheckEvent:
+			production_on_wrap = true
 	test_assert.check(production_on_wrap, "full player cycle should run production at round wrap")
 
 

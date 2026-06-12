@@ -6,7 +6,10 @@ static func get_view(state: GameState) -> LegalActionView:
 	var active_player := TurnRules.get_active_player(state)
 
 	for action in state.action_space.all_actions_sorted():
-		view.legal_mask[action.action_id] = _is_legal(state, active_player, action)
+		if action.kind == ActionKind.Kind.DRAFT_PICK:
+			view.legal_mask[action.action_id] = _is_draft_pick_legal(state, action)
+		else:
+			view.legal_mask[action.action_id] = _is_legal(state, active_player, action)
 
 	return view
 
@@ -20,7 +23,32 @@ static func get_legal_actions_sorted(state: GameState) -> Array[GameAction]:
 	return legal
 
 
+static func _is_draft_pick_legal(state: GameState, action: GameAction) -> bool:
+	if not state.awaiting_draft_step:
+		return false
+	if action.draft_player_id < 0:
+		return false
+	if state.draft_pending_picks.has(action.draft_player_id):
+		return false
+	return DraftRules._is_legal_pick(state, action.draft_player_id, action.development_id)
+
+
+static func get_legal_draft_actions_for_player(state: GameState, player_id: int) -> Array[GameAction]:
+	var legal: Array[GameAction] = []
+	var view := get_view(state)
+	for action in state.action_space.all_actions_sorted():
+		if action.kind != ActionKind.Kind.DRAFT_PICK:
+			continue
+		if action.draft_player_id != player_id:
+			continue
+		if view.legal_mask[action.action_id]:
+			legal.append(action)
+	return legal
+
+
 static func _is_legal(state: GameState, active_player: Player, action: GameAction) -> bool:
+	if state.awaiting_draft_step:
+		return false
 	if active_player == null:
 		return false
 

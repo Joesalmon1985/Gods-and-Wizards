@@ -24,8 +24,9 @@ static func _test_pack_passes_left(test_assert: TestAssert) -> void:
 	var state := ScenarioBuilder.build_four_player_bot_game(43)
 	GameStartRules.start_game(state)
 	var player0_pack_before: Array = state.draft_packs_by_player[0].duplicate()
+	var player0_pick := DraftBotPolicy.choose_card_id(state, 0)
 	var expected_for_player1: Array = player0_pack_before.duplicate()
-	expected_for_player1.pop_front()
+	expected_for_player1.erase(player0_pick)
 	_simulate_round_wrap(state)
 	test_assert.eq(
 		state.draft_packs_by_player[1],
@@ -98,6 +99,7 @@ static func _simulate_round_wrap(state: GameState) -> void:
 	var end_turn := state.action_space.get_action(0)
 	for _i in state.players.size():
 		ActionRules.apply(state, end_turn)
+	DraftRules.complete_automatic_draft_for_bots(state)
 
 
 static func _find_development_action(
