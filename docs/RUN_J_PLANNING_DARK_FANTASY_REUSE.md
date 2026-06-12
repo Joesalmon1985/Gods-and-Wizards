@@ -2,7 +2,7 @@
 
 **Date:** 2026-06-12  
 **Branch:** `milestone/run-j-planning-dark-fantasy-reuse`  
-**Status:** Planning complete — **do not implement Run J from this branch**  
+**Status:** Planning complete with Joe's final decisions — **do not implement Run J from this branch**  
 **Authoritative for:** actual Run J implementation prompt at end of this document
 
 ---
@@ -19,7 +19,7 @@
 8. [Reuse recommendation table](#8-reuse-recommendation-table)
 9. [Planning conclusions](#9-planning-conclusions)
 10. [Checks run during planning](#10-checks-run-during-planning)
-11. [Unresolved decisions for Joe](#11-unresolved-decisions-for-joe)
+11. [Remaining decisions (minimal)](#11-remaining-decisions-minimal)
 12. [Revised Run J Implementation Prompt](#12-revised-run-j-implementation-prompt)
 
 ---
@@ -28,29 +28,31 @@
 
 ### Summary
 
-The wizard-world mode (`wizard_world_mode.tscn`, F5 main scene) combines a read-only macro `BotGameSession`, procedural 3D board visuals, and a **cosmetic** wizard marker. Seven confirmed or likely issues block comfortable exploration and mislead help text.
+The wizard-world mode (`wizard_world_mode.tscn`, F5 main scene) combines a read-only macro `BotGameSession`, procedural 3D board visuals, and a **cosmetic** wizard marker. Seven confirmed or likely issues block comfortable exploration and mislead help text. Joe's final input decision: **`KEY_SPACE` advances turns explicitly** (not via `ui_accept`); **`KEY_C`** camera; **`KEY_P`** autoplay.
 
 ### Issue register
 
 | # | Issue | Evidence | File / function | Recommended fix | Tests before impl | Manual smoke | Risk |
 |---|---|---|---|---|---|---|---|
-| 1 | `ui_accept` advances simulation | L41–42: `event.is_action_pressed("ui_accept")` → `_advance_simulation_step()` | `wizard_world_mode.gd` `_unhandled_input` | Remove `ui_accept` handler; use explicit `KEY_ENTER` / `KEY_N` only | Test 1, 2 | Enter/N advance one turn; Space does not | Low |
-| 2 | Godot default `ui_accept` includes Space | No custom InputMap override in `project.godot`; Godot 4 defaults bind Space, Enter, Kp Enter | `project.godot` | Same as #1; document InputMap if global change needed | Test 1 | Space does not advance | Low |
-| 3 | Space unsafe — autoplay never toggles | `ui_accept` returns early; `KEY_SPACE` block (L49) unreachable when Space pressed | `wizard_world_mode.gd` | Move autoplay to `KEY_P`; fix help text | Test 3, 4 | P toggles autoplay; help accurate | Low |
-| 4 | Focusable UI reacts to Space | `CameraToggleButton` uses default `FOCUS_ALL`; Space activates button + may advance | `wizard_world_mode.tscn` | `focus_mode = FOCUS_NONE` on overlay buttons; or `_gui_input` consume | Test 1 | Space with button focused does not advance | Medium |
+| 1 | Space must advance **only** via explicit `KEY_SPACE` | L41–42: `event.is_action_pressed("ui_accept")` → `_advance_simulation_step()` — wrong path | `wizard_world_mode.gd` `_unhandled_input` | Remove `ui_accept` advance handler; add explicit `KEY_SPACE` → `_advance_simulation_step()` | Test 1, 2 | Space advances one turn via `KEY_SPACE` only | Low |
+| 2 | Godot default `ui_accept` includes Space | No custom InputMap override in `project.godot`; Godot 4 defaults bind Space, Enter, Kp Enter | `project.godot` | Do **not** use `ui_accept` for advance; do **not** rely on Godot default InputMap | Test 1, 2 | Space does not advance through `ui_accept` | Low |
+| 3 | Space must not toggle camera or autoplay | `KEY_SPACE` block (L49) conflates autoplay; camera toggle unclear | `wizard_world_mode.gd` | `KEY_C` toggles camera; `KEY_P` toggles autoplay; `KEY_SPACE` advances only | Test 3, 4 | C = camera; P = autoplay; Space = advance only | Low |
+| 4 | Focusable UI steals Space | `CameraToggleButton` uses default `FOCUS_ALL`; Space activates button instead of advancing | `wizard_world_mode.tscn` | `focus_mode = FOCUS_NONE` on overlay buttons so Space reaches explicit handler | Test 1 | Space with UI visible still advances turn | Medium |
 | 5 | WASD is global X/Z, not yaw-relative | `compute_move_delta` uses fixed -Z/+X; yaw updated separately without rotating move | `wizard_movement_input.gd`, `wizard_world_controller.gd` | Rotate delta by `marker_yaw_rad`; same basis as camera (`sin/cos`) | Tests 5–10 | After Q/E turn, W moves forward relative to facing | Medium |
-| 6 | Board / world too small | `HEX_SIZE=1.0`, `HEX_RADIUS=0.42`, tiny procedural meshes | `board_node_anchors.gd`, `board_state_visualizer.gd` | Centralise scale; increase `HEX_SIZE` and visual radii together | Tests 11–15 | Board readable at wizard eye height | Medium |
-| 7 | Walk speed wrong for 5 hex / 180 s | 5 centre spacings ≈ `5 * sqrt(3) * HEX_SIZE` ≈ 8.66 at scale 1; at speed 3.0 → ~2.9 s | `wizard_movement_input.gd` `DEFAULT_MOVE_SPEED` | `walk_speed = 5 * sqrt(3) * HEX_SIZE / 180.0` | Tests 13–14 | Hold W ~180 s crosses ~5 hex centres | Low |
+| 6 | Board / world too small | `HEX_SIZE=1.0`, `HEX_RADIUS=0.42`, tiny procedural meshes | `board_node_anchors.gd`, `board_state_visualizer.gd` | Centralise scale; set **`HEX_SIZE = 16`** and visual radii together | Tests 11–15 | Board readable at wizard eye height | Medium |
+| 7 | Walk speed wrong for 5 hex / 180 s | 5 centre spacings ≈ `5 * sqrt(3) * HEX_SIZE` ≈ 8.66 at scale 1; at speed 3.0 → ~2.9 s | `wizard_movement_input.gd` `DEFAULT_MOVE_SPEED` | `hex_centre_spacing = sqrt(3) * HEX_SIZE`; `five_hex_distance = 5 * sqrt(3) * HEX_SIZE`; `walk_speed = five_hex_distance / 180` → at `HEX_SIZE=16`: spacing ≈ 27.71, five_hex ≈ 138.56, walk_speed ≈ 0.77 u/s | Tests 13–14 | Hold W ~180 s crosses ~5 hex centres (±5%) | Low |
 | 8 | Camera / movement yaw convention split | Camera uses `Vector3(sin(yaw), 0, cos(yaw))`; movement ignores yaw | `wizard_camera_rig.gd`, `wizard_movement_input.gd` | Shared helper e.g. `WizardOrientation.forward(yaw)` | Tests 6–8 | W at yaw π/2 matches camera forward | Medium |
 
 ### Input flow (current)
 
 ```mermaid
 flowchart LR
-  Space --> ui_accept
-  ui_accept --> advanceTurn
-  Space -.->|unreachable| autoplayToggle
-  Space -->|button focused| cameraButton
+  Space --> KEY_SPACE
+  KEY_SPACE --> advanceTurn
+  KEY_C --> cameraToggle
+  KEY_P --> autoplayToggle
+  EnterN["Enter / N (optional)"] --> advanceTurn
+  ui_accept -.->|removed| advanceTurn
   WASD --> globalXZ
   QE --> markerYaw
   globalXZ --> markerPos
@@ -74,22 +76,26 @@ flowchart LR
 
 ### What Run J should implement
 
-- Input isolation (no Space advance; explicit turn keys; autoplay on P)
-- Yaw-relative WASD aligned with camera convention
-- Centralised world scale + walk speed calibration (5 hex / 180 s)
-- Manifest-driven billboards from dark_fantasy shortlist (see §4)
-- Read-only built-development indicators on city vertices (from `StrategicDevelopmentViewModel` / `city.developments`)
+- Input: explicit **`KEY_SPACE`** advances one simulation step (primary); **`KEY_C`** toggles camera; **`KEY_P`** toggles autoplay; optional **`KEY_ENTER` / `KEY_N`** aliases for advance if low risk; **no `ui_accept`** for advance; do not rely on Godot default InputMap
+- UI overlay buttons use **`FOCUS_NONE`** so Space is not stolen
+- Yaw-relative WASD aligned with camera convention (Space does **not** move wizard)
+- Centralised world scale with **`HEX_SIZE = 16`** and walk speed calibration (5 hex / 180 s)
+- Manifest-driven billboards from dark_fantasy shortlist — **implementation agent picks final sprites from CSV** (prefer readable at `HEX_SIZE=16`, transparency, dark mythic style)
+- **Hybrid** built-development indicators on city vertices: generic slot markers + per-card icon where asset exists + fallback generic (read-only via `StrategicDevelopmentViewModel`, `DevelopmentCatalog`, manifest)
 - Documentation + manual smoke checklist
 
 ### What Run J must deliberately avoid
 
 - Rewriting or replacing `SpellCombatSession` / Run H combat rules
-- Importing `DuelSim`, `MageSim`, or donor AI into `godot_game/core/`
+- Importing `DuelSim`, `MageSim`, `EvoEngine`, `EvoTrainer`, or donor AI into `godot_game/core/`
+- Donor DTO adapter work (deferred to **`milestone/run-j2-micro-combat-donor-adapter`**, MC-1–MC-6)
+- Evo training / `evo_brains/*.json` (reference-only; future sandbox after DTO)
 - Bulk unstructured asset imports (use manifest + target folders)
 - Mutating `GameState` from wizard movement or development display
 - Merging donor scripts into core
 - Human `DRAFT_PICK` submit UI (defer to M22 / Impl I4)
 - Integrating tactical combat into macro loop
+- Any combat sim migration (Run J is **visual-only** for dark_fantasy combat material)
 
 ### Architecture constraints (unchanged)
 
@@ -127,14 +133,16 @@ Align Run J visuals with Run I **Impl I2 / I6** ([IMPLEMENTATION_PLAN_3D_UI.md](
 
 ### Run J shortlist (~15 files)
 
-| Role | Source path | Target | Notes |
+**Final sprite selection:** delegated to the implementation agent — choose from [donor_asset_reuse_matrix.csv](donor_asset_reuse_matrix.csv) shortlist. Prefer assets that remain readable at **`HEX_SIZE=16`**, have transparency, and match the dark mythic visual language.
+
+| Role | Source path (candidates) | Target | Notes |
 |---|---|---|---|
 | Wizard marker | `dark_fantasy/Characters/NPC/EnemyNPC/WizardSprites/Wizard.png` (1080², alpha) | `godot_game/assets/billboards/wizards/wizard_default.png` | Cosmetic marker + billboard |
 | Demon / enemy | `dark_fantasy/Characters/NPC/EnemyNPC/ApostateSprites/Apostate.png` | `godot_game/assets/billboards/demons/demon_default.png` | Maps to macro demon token |
-| Hero / NPC | `dark_fantasy/Characters/NPC/EnemyNPC/ClericSprites/Cleric.png` or `ApprenticeSprites/Apprentice.png` | `godot_game/assets/billboards/heroes/hero_default.png` | Hero billboard on board |
+| Hero / NPC | `ClericSprites/Cleric.png`, `ApprenticeSprites/Apprentice.png`, or CSV alternative | `godot_game/assets/billboards/heroes/hero_default.png` | Agent picks best readability |
 | Forest prop ×4 | `World/GameWorld3D/Hexagons/Forest/Cairn/T1_C1.png`, `T1_C2.png`, `T2_C1.png`, `T2_C3.png` | `godot_game/assets/billboards/props/` | Scatter on production hexes |
 | Spell icons ×8 | `AidIcon`, `FireballIcon`, `SilenceIcon`, `ShieldIcon`, `QuickenIcon`, `RegenIcon`, `BlightIcon`, `FocusIcon` | `godot_game/assets/billboards/ui_status/` | Match `spell_catalog_v1.json` ids |
-| Hex floor (review) | `World/Art/floors/` (pick one after scale test) | `godot_game/assets/terrain/` | **Needs manual review** at target `HEX_SIZE` |
+| Hex floor (review) | `World/Art/floors/` (pick one after scale test at `HEX_SIZE=16`) | `godot_game/assets/terrain/` | Validate at target scale |
 
 ### Defer to later runs
 
@@ -182,7 +190,7 @@ Align Run J visuals with Run I **Impl I2 / I6** ([IMPLEMENTATION_PLAN_3D_UI.md](
 **What Run J should do:**
 
 - **No drafting UI in wizard-world mode** — draft picks are AI/bot gods only; human draft UX stays in 2D (M22 / Impl I4)
-- Plan **read-only built-development visibility on cities** (Phase 5): visual indicators at city vertices for cards in `city.developments` (e.g. granary, mine icons via `StrategicDevelopmentViewModel` + `DevelopmentCatalog` / manifest art)
+- Plan **read-only hybrid built-development visibility on cities** (Phase 5): generic slot markers at city vertices + per-card icon where manifest asset exists + fallback generic marker; data from `StrategicDevelopmentViewModel` + `DevelopmentCatalog` / manifest art
 - Do **not** show draft pack, hand, or `waiting_for_draft` state in 3D
 - Do **not** block Run J on drafting core — it is already implemented; wizard mode only reflects **built** state on the board
 
@@ -194,11 +202,11 @@ Align Run J visuals with Run I **Impl I2 / I6** ([IMPLEMENTATION_PLAN_3D_UI.md](
 
 | | |
 |---|---|
-| **Purpose** | Stop Space advancing macro turns; fix help text |
+| **Purpose** | Explicit `KEY_SPACE` advance; remove `ui_accept` advance; separate camera/autoplay keys; fix help text |
 | **Files** | `wizard_world_mode.gd`, `wizard_world_mode.tscn` |
 | **Tests first** | 1–4 |
-| **Notes** | Remove `ui_accept`; `KEY_P` autoplay; `FOCUS_NONE` on buttons |
-| **Manual** | Space = camera or no-op; Enter/N = advance; P = autoplay |
+| **Notes** | `KEY_SPACE` → advance (primary); `KEY_C` → camera; `KEY_P` → autoplay; optional `KEY_ENTER`/`KEY_N` aliases; `FOCUS_NONE` on buttons; do not use `ui_accept` or Godot default InputMap for advance |
+| **Manual** | Space = advance; C = camera; P = autoplay; Enter/N = advance (if implemented); help text matches |
 | **Risks** | Global InputMap side effects if changed project-wide |
 | **Rollback** | Revert input block only |
 
@@ -221,8 +229,8 @@ Align Run J visuals with Run I **Impl I2 / I6** ([IMPLEMENTATION_PLAN_3D_UI.md](
 | **Purpose** | Readable world; 5 hex centre spacings in ~180 s walking |
 | **Files** | New `world_presentation_scale.gd` (or similar), `board_node_anchors.gd`, `board_state_visualizer.gd`, `wizard_movement_input.gd`, `wizard_camera_rig.gd` |
 | **Tests first** | 11–15 |
-| **Notes** | `HEX_SIZE` TBD (Joe); `walk_speed = 5 * sqrt(3) * HEX_SIZE / 180` |
-| **Manual** | Timer walk test across 5 hexes |
+| **Notes** | **`HEX_SIZE = 16`** (Joe decision); `hex_centre_spacing = sqrt(3) * HEX_SIZE`; `five_hex_distance = 5 * sqrt(3) * HEX_SIZE`; `walk_speed = five_hex_distance / 180` (≈ 0.77 u/s at 16) |
+| **Manual** | Timer walk test: 180 s forward movement ≈ five hex centre-spacings ±5% |
 | **Risks** | Encounter proximity thresholds may need rescaling |
 | **Rollback** | Scale constants revert independently |
 
@@ -233,7 +241,7 @@ Align Run J visuals with Run I **Impl I2 / I6** ([IMPLEMENTATION_PLAN_3D_UI.md](
 | **Purpose** | Replace procedural boxes with manifest billboards |
 | **Files** | `board_state_visualizer.gd`, new `godot_game/assets/billboards/manifest.json`, imported shortlist from §4 |
 | **Tests first** | 21–24 |
-| **Notes** | Follow [BILLBOARD_SPRITE_ASSET_PIPELINE.md](BILLBOARD_SPRITE_ASSET_PIPELINE.md); spell icons for status/card art only |
+| **Notes** | Implementation agent picks final sprites from CSV shortlist (§4); follow [BILLBOARD_SPRITE_ASSET_PIPELINE.md](BILLBOARD_SPRITE_ASSET_PIPELINE.md); spell icons for status/card art only |
 | **Manual** | Board entities show sprites; no missing textures |
 | **Risks** | Large PNG memory; import settings |
 | **Rollback** | Procedural fallback if manifest missing |
@@ -242,10 +250,10 @@ Align Run J visuals with Run I **Impl I2 / I6** ([IMPLEMENTATION_PLAN_3D_UI.md](
 
 | | |
 |---|---|
-| **Purpose** | Show built development cards on city vertices (e.g. granary, mine) once played onto cities |
+| **Purpose** | Show built development cards on city vertices (hybrid: generic slot markers + per-card icon + fallback) |
 | **Files** | Extend `board_state_visualizer.gd` and/or new `wizard_world_development_presenter.gd`; wire via `wizard_world_controller.gd` |
 | **Tests first** | 16–20 |
-| **Notes** | Read `StrategicDevelopmentViewModel.city_slots` / `city.developments`; map card ids to manifest icons via `DevelopmentCatalog`; no `GameState` mutation; no draft pack or hand UI |
+| **Notes** | Read `StrategicDevelopmentViewModel.city_slots` / `city.developments`; map card ids to manifest icons via `DevelopmentCatalog`; per-card icon where asset exists, else generic slot marker; no `GameState` mutation; no draft pack or hand UI |
 | **Manual** | After bots build developments, city vertices show correct per-card indicators; draft rounds show no draft UI |
 | **Risks** | Icon mapping gaps for 96-card catalogue; clutter at dense cities (max 3 slots) |
 | **Rollback** | Hide development markers; city meshes unchanged |
@@ -265,10 +273,10 @@ Align Run J visuals with Run I **Impl I2 / I6** ([IMPLEMENTATION_PLAN_3D_UI.md](
 
 | | |
 |---|---|
-| **Purpose** | Point to §7; no sim migration in Run J |
+| **Purpose** | Point to §7; **no combat sim migration in Run J** — visual-only dark_fantasy reuse |
 | **Files** | This doc, optional `docs/RUN_J2_MICRO_COMBAT_ADAPTER_PLAN.md` stub |
 | **Tests first** | N/A in Run J |
-| **Notes** | Spell/class **visuals** only in Phase 4 |
+| **Notes** | Spell/class **visuals** only in Phase 4; DTO adapter deferred to Run J2 (MC-1–MC-6); AI/training deferred to Run K / experimental sandbox |
 | **Manual** | Confirm tactical combat replay mode still works |
 | **Risks** | Scope creep into DuelSim port |
 | **Rollback** | N/A |
@@ -277,10 +285,10 @@ Align Run J visuals with Run I **Impl I2 / I6** ([IMPLEMENTATION_PLAN_3D_UI.md](
 
 **Input**
 
-1. Space does not advance simulation  
-2. Enter/N advance simulation  
-3. C/Space toggle camera only (after input fix)  
-4. P toggles autoplay only  
+1. `KEY_SPACE` advances simulation via explicit handler (not `ui_accept`)  
+2. `KEY_ENTER` / `KEY_N` advance simulation when implemented as optional aliases (low risk)  
+3. `KEY_C` toggles camera; `KEY_SPACE` does **not** toggle camera  
+4. `KEY_P` toggles autoplay; `KEY_SPACE` does **not** toggle autoplay  
 
 **Movement**
 
@@ -293,18 +301,18 @@ Align Run J visuals with Run I **Impl I2 / I6** ([IMPLEMENTATION_PLAN_3D_UI.md](
 
 **Scale / speed**
 
-11. Board scale constants centralised  
-12. Hex centre spacing derived from `HEX_SIZE`  
-13. `walking_speed = five_hex_centre_spacings / 180`  
-14. 180 s simulated W movement ≈ five hex centres (tolerance band)  
+11. Board scale constants centralised with **`HEX_SIZE = 16`**  
+12. Hex centre spacing = `sqrt(3) * HEX_SIZE` (≈ 27.71 at 16)  
+13. `walk_speed = five_hex_distance / 180` where `five_hex_distance = 5 * sqrt(3) * HEX_SIZE` (≈ 0.77 u/s at 16)  
+14. 180 s simulated forward movement ≈ five hex centre-spacings ±5%  
 15. Camera overview derives from board/world scale  
 
 **Built development visibility**
 
-16. Built-development display model derived from `StrategicDevelopmentViewModel` / `city.developments`  
+16. Built-development display model derived from `StrategicDevelopmentViewModel` / `city.developments` (hybrid slot + per-card + fallback)  
 17. Built-development display does not mutate `GameState`  
 18. City with no built developments shows no indicators (or empty slot state)  
-19. City with one or more built developments shows correct per-card indicators  
+19. City with one or more built developments shows correct hybrid indicators (per-card icon where asset exists, else generic)  
 20. Demon-occupied city still shows existing built developments until rules purge (read-only)  
 
 **Asset reuse**
@@ -371,7 +379,7 @@ Align Run J visuals with Run I **Impl I2 / I6** ([IMPLEMENTATION_PLAN_3D_UI.md](
 7. **Logs?** `LoggerCSV`, verbose duel logs under `evo_logs/`, brain JSON snapshots.  
 8. **Maps cleanly?** Data fields, CSV logging patterns, spell icons, legal-mask **concept**.  
 9. **Conflicts?** Continuous sim vs turn session; dual_cast/counter chains deferred in Run H; donor scene dependencies; evo brain format.  
-10. **Run J use?** **Reference only** for combat code; **Use now** for visual assets only.
+10. **Run J use?** **Visual-only** for combat code and assets; **no** sim migration. DTO adapter → Run J2; AI/training → Run K/sandbox.
 
 ### Future test plan (micro combat adaptation — Run J2/K, not Run J)
 
@@ -392,36 +400,46 @@ Align Run J visuals with Run I **Impl I2 / I6** ([IMPLEMENTATION_PLAN_3D_UI.md](
 
 ### Planning conclusion (micro combat track)
 
+**Joe's decisions applied:**
+
+- **Run J:** visual-only reuse (spell icons, class billboards). No `SpellCombatSession` replacement. No `DuelSim`/`MageSim`/`EvoEngine`/`EvoTrainer` imports.
+- **Run J2:** headless donor DTO adapter on branch `milestone/run-j2-micro-combat-donor-adapter` (MC-1–MC-6 only; no runtime replacement).
+- **Run K / experimental sandbox:** AI legal masks, policy features, evolution/training ideas, CSV duel logging enhancements.
+- **Evo training:** reference-only in Run J; future sandbox after DTO adapter; reject direct `evo_brains/*.json` reuse.
+
 ```text
 Micro combat recommendation:
   Visual-only reuse in Run J (spell icons, class billboards). Do not replace
-  SpellCombatSession or import DuelSim/MageSim. Run H fidelity matrix stays authoritative.
+  SpellCombatSession or import DuelSim/MageSim/EvoEngine. Run H fidelity matrix stays authoritative.
 
 AI/training recommendation:
-  Defer EvoEngine/EvoTrainer port. Reference legal-mask + feature-vector ideas and
-  LoggerCSV patterns for a headless Experimental sandbox or Run K. Reject direct
-  reuse of evo_brains/*.json weights.
+  Defer EvoEngine/EvoTrainer port to Run K / experimental sandbox (after Run J2 DTO).
+  Reference legal-mask + feature-vector ideas and LoggerCSV patterns only in Run J planning.
+  Reject direct reuse of evo_brains/*.json weights.
 
 Spell catalogue recommendation:
   Keep spell_catalog_v1.json authoritative (already derived from dark fantasy workbook).
-  Run J2: optional DonorSpellDto adapter from SpellSimDef/specs for gap analysis only —
-  not a runtime replacement.
+  Run J2: DonorSpellDto adapter from SpellSimDef/specs for gap analysis (MC-1–MC-6) —
+  not a runtime replacement; no SpellCombatSession replacement.
 
 What to use in Run J:
-  Spells/icons (8), Wizard/Apostate/Cleric sprites, 4 Cairn trees, manifest pipeline.
+  Spells/icons (8+), wizard/demon/hero sprites (agent picks from CSV), 4 Cairn trees, manifest pipeline.
 
-What to defer to Run J2 / Run K:
-  SpellSimDef→DTO adapter prototype; legal action masks for micro RL; CSV duel logging
-  enhancements; regen/wither/haste parity review under turn-based clock.
+What to defer to Run J2:
+  SpellSimDef→DTO adapter prototype (MC-1–MC-6); branch milestone/run-j2-micro-combat-donor-adapter.
 
-What not to use:
-  DuelSim, MageSim, EvoEngine runtime imports; evo_brains weights; donor spell .gd scripts;
+What to defer to Run K / sandbox:
+  Legal action masks for micro RL; CSV duel logging enhancements; regen/wither/haste parity review;
+  EvoEngine-style training loop prototype.
+
+What not to use in Run J:
+  DuelSim, MageSim, EvoEngine, EvoTrainer runtime imports; evo_brains weights; donor spell .gd scripts;
   continuous-time merge without migration plan.
 
 Prototype branch recommended: yes
   milestone/run-j2-micro-combat-donor-adapter (headless DTO + mapping tests MC-1–MC-6 only)
 
-First tests to write:
+First tests to write (Run J2, not Run J):
   MC-1, MC-2, MC-5, MC-11 (adapter canary + no regression on SpellCombatSession)
 ```
 
@@ -437,20 +455,36 @@ First tests to write:
 | Terrain/hex texture | Adapt | `World/Art/floors/` | `assets/terrain/` | Review | Needs scale validation |
 | Tree/grass sprites | Use directly | Cairn T1/T2 PNGs (×4) | `assets/billboards/props/` | Yes | Forest hex dressing |
 | Spell icons | Use directly | 8 icons (§4) | `assets/billboards/ui_status/` | Yes | Cards + combat UI art |
-| Development / card icons | Use directly | Spell icons + `DevelopmentCatalog` id mapping | `assets/billboards/ui_status/` or `props/` | Yes | City built-development indicators Phase 5 |
+| Development / card icons | Use directly (hybrid) | Spell icons + `DevelopmentCatalog` id mapping + generic slot fallback | `assets/billboards/ui_status/` or `props/` | Yes | Hybrid city built-development indicators Phase 5 |
 | Billboard rendering code | Adapt | Run I pipeline + new manifest loader | `integration/` or `ui/` | Yes | Impl I6 |
 | World/hex rendering code | Adapt | `board_state_visualizer.gd` only | `integration/` | Yes | No donor script import |
 | Combat simulation code | Reject | `DuelSim.gd`, `MageSim.gd` | — | No | Conflicts with SpellCombatSession |
-| Training/evolution code | Defer | `EvoEngine.gd`, `EvoTrainer.gd` | experimental sandbox | No | Separate milestone |
+| Training/evolution code | Defer (reference-only in Run J) | `EvoEngine.gd`, `EvoTrainer.gd` | Run K / experimental sandbox | No | After Run J2 DTO; no EvoEngine in Run J |
 | CSV logging ideas | Adapt | `LoggerCSV.gd` pattern | `core/export/` or `core/ml/` | No (Run K) | Pattern reuse only |
 
 ---
 
 ## 9. Planning conclusions
 
-Run J is a **3D wizard-world presentation milestone** with strict boundaries: fix input/movement/scale, import a **small manifest-backed asset set** from dark_fantasy, add read-only built-development indicators on cities, and **do not** migrate combat sim or training code. Wizard mode has **no** draft pack or hand UI.
+Run J is a **3D wizard-world presentation milestone** with strict boundaries: fix input/movement/scale, import a **small manifest-backed asset set** from dark_fantasy (agent picks from CSV shortlist), add **hybrid read-only built-development indicators** on cities, and **do not** migrate combat sim or training code. Wizard mode has **no** draft pack or hand UI.
 
-Micro combat and AI training adaptation is a **parallel deferred track** (Run J2/K + experimental sandbox) documented in §7.
+**Joe's final scope decisions (2026-06-12):**
+
+| Decision | Resolution |
+|---|---|
+| `HEX_SIZE` | **16** — spacing ≈ 27.71, five_hex ≈ 138.56, walk_speed ≈ 0.77 u/s |
+| Advance turn | **`KEY_SPACE`** (explicit handler); optional `KEY_ENTER`/`KEY_N`; no `ui_accept` |
+| Camera toggle | **`KEY_C`** only — Space does not toggle camera |
+| Autoplay | **`KEY_P`** only — Space does not toggle autoplay |
+| Sprite picks | Implementation agent chooses from CSV shortlist |
+| Built-development UI | **Hybrid** — generic slot markers + per-card icon + fallback |
+| Combat in Run J | **Visual-only** — no sim migration |
+| DTO adapter | **Yes, but Run J2** — `milestone/run-j2-micro-combat-donor-adapter`, MC-1–MC-6 |
+| Evo training | **Reference-only** in Run J; sandbox after DTO |
+
+Micro combat and AI training adaptation is a **parallel deferred track** (Run J2 DTO + Run K/sandbox) documented in §7.
+
+**Run J is allowed to be a larger-than-usual milestone** — up to four times usual recent run scope — provided it remains tests-first, branch-isolated, and architecture-safe.
 
 ---
 
@@ -468,16 +502,13 @@ Micro combat and AI training adaptation is a **parallel deferred track** (Run J2
 
 ---
 
-## 11. Unresolved decisions for Joe
+## 11. Remaining decisions (minimal)
 
-1. Target `HEX_SIZE` (e.g. 8, 12, 16) — drives all scale + walk speed  
-2. Camera toggle: Space vs C vs both (after `ui_accept` fix)  
-3. Autoplay key: P (recommended) vs other  
-4. Final sprite picks from CSV shortlist  
-5. Built-development indicators: per-card billboard vs generic slot marker vs hybrid  
-6. Combat adapter timing: Run J2 vs Run K vs experimental sandbox  
-7. Prototype donor DTO adapter before any mechanics merge (recommended: yes)  
-8. Evo training: reference-only vs future sandbox port  
+Joe resolved all blocking planning decisions. Remaining items are operational, not architectural:
+
+1. **Final sprite picks** — delegated to implementation agent from [donor_asset_reuse_matrix.csv](donor_asset_reuse_matrix.csv) shortlist (readable at `HEX_SIZE=16`, transparency, dark mythic style)  
+2. **`HEX_SIZE` fine-tuning** — 16 is the target; adjust only if manual smoke at wizard eye height shows readability issues  
+3. **Run J2 vs Run K timing** — DTO adapter (Run J2) precedes AI/training sandbox (Run K); exact Run K milestone name TBD after J2  
 
 ---
 
@@ -495,44 +526,78 @@ Implement Run J from docs/RUN_J_PLANNING_DARK_FANTASY_REUSE.md on branch
 
 This is implementation, not planning. Follow tests-first and milestone workflow.
 
+**Run J is allowed to be a larger-than-usual milestone** — up to four times usual recent
+run scope — provided it remains tests-first, branch-isolated, and architecture-safe.
+
 ## Scope
 
 ### In scope (phases 1–6)
 
-1. Input isolation: remove ui_accept advance; Enter/N only; P autoplay; fix help text;
-   FOCUS_NONE on overlay buttons; Space/C for camera only.
+1. **Input (Joe decisions):**
+   - `KEY_SPACE` → advance one simulation step (PRIMARY, explicit handler in `_unhandled_input`)
+   - `KEY_C` → toggle camera
+   - `KEY_P` → toggle autoplay
+   - Optional `KEY_ENTER` / `KEY_N` aliases for advance if low risk
+   - Do **NOT** use `ui_accept` for advance
+   - Do **NOT** rely on Godot default InputMap for advance
+   - UI overlay buttons: `focus_mode = FOCUS_NONE` so Space is not stolen
+   - Space must **NOT** toggle camera, autoplay, or move wizard
+   - Help text must match actual bindings
+
 2. Yaw-relative WASD using same convention as WizardCameraRig (sin/cos yaw).
-3. Centralise WorldPresentationScale (HEX_SIZE TBD by Joe — default propose 12);
-   walk_speed = 5 * sqrt(3) * HEX_SIZE / 180.
-4. Import Run J asset shortlist via manifest.json under godot_game/assets/billboards/
-   (Wizard, Apostate, Cleric, 4 Cairn trees, 8 spell icons). Record donor paths.
-5. Read-only built-development indicators on city vertices from StrategicDevelopmentViewModel
-   + DevelopmentCatalog/manifest icons. No draft pack, hand, or waiting_for_draft UI in wizard mode.
+
+3. Centralise WorldPresentationScale with **`HEX_SIZE = 16`**:
+   - `hex_centre_spacing = sqrt(3) * HEX_SIZE` (≈ 27.71)
+   - `five_hex_distance = 5 * sqrt(3) * HEX_SIZE` (≈ 138.56)
+   - `walk_speed = five_hex_distance / 180` (≈ 0.77 u/s)
+   - Deterministic test: 180 s forward movement ≈ five hex centre-spacings ±5%
+
+4. Import Run J asset shortlist via manifest.json under godot_game/assets/billboards/.
+   **Implementation agent picks final sprites from donor_asset_reuse_matrix.csv shortlist**
+   (prefer readable at HEX_SIZE=16, transparency, dark mythic style).
+   Record donor paths in manifest notes.
+
+5. **Hybrid** read-only built-development indicators on city vertices:
+   - Generic slot markers + per-card icon where manifest asset exists + fallback generic
+   - Data from StrategicDevelopmentViewModel + DevelopmentCatalog + manifest
+   - No draft pack, hand, or waiting_for_draft UI in wizard mode
+
 6. Update docs/run_modes.md + manual smoke checklist.
 
 ### Explicitly out of scope
 
 - No SpellCombatSession / Run H rule changes
-- No DuelSim, MageSim, EvoEngine imports into core
+- No DuelSim, MageSim, EvoEngine, EvoTrainer imports into core
+- No donor DTO adapter (deferred to Run J2: milestone/run-j2-micro-combat-donor-adapter, MC-1–MC-6)
+- No Evo training / evo_brains in Run J (reference-only; future sandbox after DTO)
 - No bulk asset imports outside manifest
 - No GameState mutation from movement or development display
 - No draft pack, hand, or waiting_for_draft UI in wizard-world mode (drafting is AI-only there)
 - No human DRAFT_PICK UI in 3D (2D M22 / Impl I4 only)
 - No macro/tactical combat integration
+- No combat sim migration — Run J uses dark_fantasy material **visual-only**
 
 ### Deferred follow-up track (Run J2 / Run K — do NOT implement in Run J)
 
 Micro Combat and AI Training Adaptation Plan (§7 of planning doc):
-- Headless SpellSimDef → neutral DTO adapter prototype
-- 12 MC tests (MC-1–MC-12)
-- Experimental sandbox for EvoEngine-style training ideas
-- Branch: milestone/run-j2-micro-combat-donor-adapter
+- **Run J2:** Headless SpellSimDef → neutral DTO adapter (MC-1–MC-6); branch milestone/run-j2-micro-combat-donor-adapter; no SpellCombatSession replacement
+- **Run K / experimental sandbox:** AI legal masks, policy features, EvoEngine-style training, CSV duel logging (MC-7–MC-12)
 
 Run J may use dark_fantasy combat material ONLY as visual assets (spell icons, class billboards).
 
 ## Tests first (Run J suite)
 
 Write failing tests before implementation for items 1–24 in planning doc §6.
+
+**Input tests (Joe decisions):**
+1. KEY_SPACE advances simulation via explicit handler (not ui_accept)
+2. KEY_ENTER / KEY_N advance simulation (optional aliases, if implemented)
+3. KEY_C toggles camera; KEY_SPACE does not toggle camera
+4. KEY_P toggles autoplay; KEY_SPACE does not toggle autoplay
+
+**Scale tests:**
+11–14 use HEX_SIZE=16; test 14: 180 s forward movement ≈ five hex centre-spacings ±5%
+
 Run full suite before merge:
 
   scripts/invoke-godot-headless.sh --headless --path godot_game \
@@ -540,14 +605,16 @@ Run full suite before merge:
 
 ## Manual smoke checklist
 
-- [ ] Space does not advance macro turn
-- [ ] Enter/N advances one bot turn
-- [ ] P toggles autoplay
-- [ ] C or Space toggles camera (per Joe decision)
-- [ ] WASD moves relative to Q/E facing
-- [ ] ~180 s walk crosses ~5 hex centres
+- [ ] Space advances one macro turn (explicit KEY_SPACE)
+- [ ] Space does not advance via ui_accept or focused UI stealing
+- [ ] Enter/N advance one bot turn (if implemented)
+- [ ] C toggles camera; Space does not toggle camera
+- [ ] P toggles autoplay; Space does not toggle autoplay
+- [ ] Help text matches actual key bindings
+- [ ] WASD moves relative to Q/E facing; Space does not move wizard
+- [ ] ~180 s walk crosses ~5 hex centres (±5%) at HEX_SIZE=16
 - [ ] Board sprites visible; no pink missing textures
-- [ ] Built developments visible on city vertices after bots build cards (read-only)
+- [ ] Hybrid built developments visible on city vertices after bots build cards (read-only)
 - [ ] No draft pack or hand UI during waiting_for_draft in wizard mode
 - [ ] Wizard movement does not change demon counts / VP
 - [ ] Spell combat replay / isolated modes still work unchanged
@@ -556,6 +623,7 @@ Run full suite before merge:
 
 - core/ headless; presentation in run_modes/, integration/, ui/, embodied/
 - Asset manifest required for all imported PNGs
+- No DuelSim / MageSim / EvoEngine / EvoTrainer in Run J
 
 ## Deliverable
 
