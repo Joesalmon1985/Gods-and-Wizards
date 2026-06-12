@@ -141,6 +141,7 @@ static func _apply_end_turn(state: GameState) -> Array:
 		events.append(RoundStartedEvent.new(state.round_number))
 		TurnLifecycleRules.on_round_start(state)
 		events.append_array(CityOccupationRules.evaluate_round_start_purges(state))
+		state.current_phase = TurnPhase.Phase.DRAFT_ROUND
 		events.append_array(DraftRules.advance_round_end(state))
 		events.append_array(ProductionRules.resolve_round_production(state))
 		var game_over := GameOverRules.evaluate(state)
