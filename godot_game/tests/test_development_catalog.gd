@@ -1,65 +1,65 @@
 class_name TestDevelopmentCatalog
 extends RefCounted
 
+const SAMPLE_NO_VP_ID := "lumber_camp_a1"
+const SAMPLE_VP_ID := "monument_a1"
+
+
 static func run(test_assert: TestAssert) -> void:
 	_test_catalog_entries(test_assert)
-	_test_watchtower_build_unchanged(test_assert)
-	_test_shrine_grants_victory_point(test_assert)
-	_test_unknown_id_falls_back_to_watchtower(test_assert)
+	_test_no_vp_build(test_assert)
+	_test_vp_card_grants_victory_point(test_assert)
+	_test_unknown_id_falls_back_to_first(test_assert)
 
 
 static func _test_catalog_entries(test_assert: TestAssert) -> void:
 	var ids := DevelopmentCatalog.all_ids_sorted()
-	test_assert.eq(ids.size(), 3, "catalog should expose three development cards")
-	test_assert.check(DevelopmentCatalog.has_id("watchtower"), "watchtower should exist")
-	test_assert.check(DevelopmentCatalog.has_id("granary"), "granary should exist")
-	test_assert.check(DevelopmentCatalog.has_id("shrine"), "shrine should exist")
+	test_assert.eq(ids.size(), 96, "catalog should expose 96 development cards")
+	test_assert.check(DevelopmentCatalog.has_id(SAMPLE_NO_VP_ID), "sample production card should exist")
+	test_assert.check(DevelopmentCatalog.has_id(SAMPLE_VP_ID), "sample vp card should exist")
 
 
-static func _test_watchtower_build_unchanged(test_assert: TestAssert) -> void:
+static func _test_no_vp_build(test_assert: TestAssert) -> void:
 	var state := ScenarioBuilder.build_bot_ready_game(42)
 	var player := state.players[0]
-	SetupRules.grant_resources(state, player.id, {
-		ResourceType.Type.WOOD: 0,
-		ResourceType.Type.BRICK: 0,
-		ResourceType.Type.WHEAT: 2,
-		ResourceType.Type.SHEEP: 2,
-		ResourceType.Type.ORE: 2,
-	})
-
-	player.development_hand.append(DevelopmentCatalog.WATCHTOWER_ID)
+	_grant_build_resources(state, player.id)
+	player.development_hand.append(SAMPLE_NO_VP_ID)
 	var city_vertex := state.cities[0].vertex
-	var events := DevelopmentRules.apply(state, player.id, city_vertex, DevelopmentCatalog.WATCHTOWER_ID)
-	test_assert.check(events[0] is DevelopmentBuiltEvent, "watchtower build should emit DevelopmentBuiltEvent")
+	var events := DevelopmentRules.apply(state, player.id, city_vertex, SAMPLE_NO_VP_ID)
+	test_assert.check(events[0] is DevelopmentBuiltEvent, "build should emit DevelopmentBuiltEvent")
 	var city: City = state.cities_by_vertex[city_vertex.to_key()]
-	test_assert.eq(city.development_id, DevelopmentCatalog.WATCHTOWER_ID, "default build should remain watchtower")
-	test_assert.eq(events.size(), 1, "watchtower should not grant bonus victory points")
+	test_assert.eq(city.developments[0], SAMPLE_NO_VP_ID, "city should store built card")
+	test_assert.eq(events.size(), 1, "production card should not grant bonus victory points on play")
 
 
-static func _test_shrine_grants_victory_point(test_assert: TestAssert) -> void:
+static func _test_vp_card_grants_victory_point(test_assert: TestAssert) -> void:
 	var state := ScenarioBuilder.build_bot_ready_game(5)
 	var player := state.players[0]
-	SetupRules.grant_resources(state, player.id, {
-		ResourceType.Type.WOOD: 0,
-		ResourceType.Type.BRICK: 0,
+	_grant_build_resources(state, player.id)
+	var starting_vp := player.victory_points
+	player.development_hand.append(SAMPLE_VP_ID)
+	var city_vertex := state.cities[0].vertex
+	var events := DevelopmentRules.apply(state, player.id, city_vertex, SAMPLE_VP_ID)
+	test_assert.check(events.size() >= 2, "vp card build should emit development and scoring events")
+	var city: City = state.cities_by_vertex[city_vertex.to_key()]
+	test_assert.eq(city.developments[0], SAMPLE_VP_ID, "city should store vp development")
+	test_assert.eq(player.victory_points, starting_vp + 1, "monument should grant one victory point")
+
+
+static func _test_unknown_id_falls_back_to_first(test_assert: TestAssert) -> void:
+	var first_id := DevelopmentCatalog.all_ids_sorted()[0]
+	test_assert.eq(
+		DevelopmentCatalog.resolve_build_id("mystery_card"),
+		first_id,
+		"unknown development ids should fall back to first catalog id"
+	)
+
+
+static func _grant_build_resources(state: GameState, player_id: int) -> void:
+	SetupRules.grant_resources(state, player_id, {
+		ResourceType.Type.WOOD: 2,
+		ResourceType.Type.BRICK: 2,
 		ResourceType.Type.WHEAT: 2,
 		ResourceType.Type.SHEEP: 2,
 		ResourceType.Type.ORE: 2,
 	})
-	var starting_vp := player.victory_points
-	player.development_hand.append(DevelopmentCatalog.SHRINE_ID)
-	var city_vertex := state.cities[0].vertex
-	var events := DevelopmentRules.apply(state, player.id, city_vertex, DevelopmentCatalog.SHRINE_ID)
-
-	test_assert.check(events.size() >= 2, "shrine build should emit development and scoring events")
-	var city: City = state.cities_by_vertex[city_vertex.to_key()]
-	test_assert.eq(city.development_id, DevelopmentCatalog.SHRINE_ID, "city should store shrine development")
-	test_assert.eq(player.victory_points, starting_vp + 1, "shrine should grant one victory point")
-
-
-static func _test_unknown_id_falls_back_to_watchtower(test_assert: TestAssert) -> void:
-	test_assert.eq(
-		DevelopmentCatalog.resolve_build_id("mystery_card"),
-		DevelopmentCatalog.WATCHTOWER_ID,
-		"unknown development ids should fall back to watchtower"
-	)

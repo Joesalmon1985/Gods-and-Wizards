@@ -254,13 +254,14 @@ def build_cards() -> list[dict]:
                     stem, name = demon_age3_names[stem]
 
                 card_id = f"{stem}_a{age}"
+                display_name = f"{name} (Age {age})"
                 tpl = dict(template)
                 tpl["stem"] = stem
                 effects = effects_for(category, age, tpl)
                 vp = sum(e.get("amount", 0) for e in effects if e["type"] == "vp_flat")
                 card = {
                     "id": card_id,
-                    "name": name,
+                    "name": display_name,
                     "age": age,
                     "category": category,
                     "slot_type": template.get("slot", SLOT_BY_CATEGORY[category]),

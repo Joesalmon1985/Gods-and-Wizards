@@ -26,7 +26,7 @@
 
 ### production_bonuses
 
-#### `brickworks_a1` — Brickworks
+#### `brickworks_a1` — Brickworks (Age 1)
 
 | Field | Value |
 |-------|-------|
@@ -40,7 +40,7 @@
 | flavour_text | Kilns bake clay into sturdy brick. |
 | effects | `[{"type": "production_flat", "resource": "brick", "amount": 1}]` |
 
-#### `lumber_camp_a1` — Lumber Camp
+#### `lumber_camp_a1` — Lumber Camp (Age 1)
 
 | Field | Value |
 |-------|-------|
@@ -54,7 +54,7 @@
 | flavour_text | Timber flows from the forest edge. |
 | effects | `[{"type": "production_flat", "resource": "wood", "amount": 1}]` |
 
-#### `ore_shaft_a1` — Ore Shaft
+#### `ore_shaft_a1` — Ore Shaft (Age 1)
 
 | Field | Value |
 |-------|-------|
@@ -68,7 +68,7 @@
 | flavour_text | A shallow mine taps nearby ore. |
 | effects | `[{"type": "production_flat", "resource": "ore", "amount": 1}]` |
 
-#### `pasture_grant_a1` — Pasture Grant
+#### `pasture_grant_a1` — Pasture Grant (Age 1)
 
 | Field | Value |
 |-------|-------|
@@ -84,7 +84,7 @@
 
 ### vp_cards
 
-#### `garden_terrace_a1` — Garden Terrace
+#### `garden_terrace_a1` — Garden Terrace (Age 1)
 
 | Field | Value |
 |-------|-------|
@@ -98,7 +98,7 @@
 | flavour_text | Terraced gardens delight citizens. |
 | effects | `[{"type": "vp_flat", "amount": 1}]` |
 
-#### `monument_a1` — Monument
+#### `monument_a1` — Monument (Age 1)
 
 | Field | Value |
 |-------|-------|
@@ -112,7 +112,7 @@
 | flavour_text | A stone marker of civic pride. |
 | effects | `[{"type": "vp_flat", "amount": 1}]` |
 
-#### `obelisk_a1` — Obelisk
+#### `obelisk_a1` — Obelisk (Age 1)
 
 | Field | Value |
 |-------|-------|
@@ -126,7 +126,7 @@
 | flavour_text | Rising stone honours the founders. |
 | effects | `[{"type": "vp_flat", "amount": 1}]` |
 
-#### `tapestry_hall_a1` — Tapestry Hall
+#### `tapestry_hall_a1` — Tapestry Hall (Age 1)
 
 | Field | Value |
 |-------|-------|
@@ -142,7 +142,7 @@
 
 ### hero_ability
 
-#### `militia_yard_a1` — Militia Yard
+#### `militia_yard_a1` — Militia Yard (Age 1)
 
 | Field | Value |
 |-------|-------|
@@ -156,7 +156,7 @@
 | flavour_text | Drill grounds for town guards. |
 | effects | `[{"type": "hero_actions_bonus", "amount": 1}]` |
 
-#### `ranger_post_a1` — Ranger Post
+#### `ranger_post_a1` — Ranger Post (Age 1)
 
 | Field | Value |
 |-------|-------|
@@ -170,7 +170,7 @@
 | flavour_text | Scouts train for swift patrols. |
 | effects | `[{"type": "hero_actions_bonus", "amount": 1}]` |
 
-#### `signal_beacon_a1` — Signal Beacon
+#### `signal_beacon_a1` — Signal Beacon (Age 1)
 
 | Field | Value |
 |-------|-------|
@@ -184,7 +184,7 @@
 | flavour_text | Beacons coordinate hero movement. |
 | effects | `[{"type": "hero_actions_bonus", "amount": 1}]` |
 
-#### `supply_cache_a1` — Supply Cache
+#### `supply_cache_a1` — Supply Cache (Age 1)
 
 | Field | Value |
 |-------|-------|
@@ -200,7 +200,7 @@
 
 ### anti_demon
 
-#### `blessed_wall_a1` — Blessed Wall
+#### `blessed_wall_a1` — Blessed Wall (Age 1)
 
 | Field | Value |
 |-------|-------|
@@ -214,7 +214,7 @@
 | flavour_text | Consecrated stone resists occupation. |
 | effects | `[{"type": "city_demon_protection", "amount": 1}]` |
 
-#### `holy_font_a1` — Holy Font
+#### `holy_font_a1` — Holy Font (Age 1)
 
 | Field | Value |
 |-------|-------|
@@ -228,7 +228,7 @@
 | flavour_text | Blessed water guards the threshold. |
 | effects | `[{"type": "city_demon_protection", "amount": 1}]` |
 
-#### `sentinel_shrine_a1` — Sentinel Shrine
+#### `sentinel_shrine_a1` — Sentinel Shrine (Age 1)
 
 | Field | Value |
 |-------|-------|
@@ -242,7 +242,7 @@
 | flavour_text | Shrines watch for demonic presence. |
 | effects | `[{"type": "city_demon_protection", "amount": 1}]` |
 
-#### `ward_stone_a1` — Ward Stone
+#### `ward_stone_a1` — Ward Stone (Age 1)
 
 | Field | Value |
 |-------|-------|
@@ -258,7 +258,7 @@
 
 ### trade_economy
 
-#### `exchange_booth_a1` — Exchange Booth
+#### `exchange_booth_a1` — Exchange Booth (Age 1)
 
 | Field | Value |
 |-------|-------|
@@ -272,7 +272,7 @@
 | flavour_text | Official booth for fair deals. |
 | effects | `[{"type": "trade_bonus", "amount": 1}]` |
 
-#### `market_stall_a1` — Market Stall
+#### `market_stall_a1` — Market Stall (Age 1)
 
 | Field | Value |
 |-------|-------|
@@ -286,7 +286,7 @@
 | flavour_text | Merchants barter surplus goods. |
 | effects | `[{"type": "trade_bonus", "amount": 1}]` |
 
-#### `merchant_tent_a1` — Merchant Tent
+#### `merchant_tent_a1` — Merchant Tent (Age 1)
 
 | Field | Value |
 |-------|-------|
@@ -300,7 +300,7 @@
 | flavour_text | Travelling traders rest here. |
 | effects | `[{"type": "trade_bonus", "amount": 1}]` |
 
-#### `trade_post_a1` — Trade Post
+#### `trade_post_a1` — Trade Post (Age 1)
 
 | Field | Value |
 |-------|-------|
@@ -316,7 +316,7 @@
 
 ### wizard_access
 
-#### `arcane_study_a1` — Arcane Study
+#### `arcane_study_a1` — Arcane Study (Age 1)
 
 | Field | Value |
 |-------|-------|
@@ -330,7 +330,7 @@
 | flavour_text | Novices glimpse the wizard path. |
 | effects | `[{"type": "wizard_access", "amount": 1, "tag": "wizard_encounter_unlock"}, {"type": "vp_flat", "amount": 1}]` |
 
-#### `mystic_circle_a1` — Mystic Circle
+#### `mystic_circle_a1` — Mystic Circle (Age 1)
 
 | Field | Value |
 |-------|-------|
@@ -344,7 +344,7 @@
 | flavour_text | A circle for minor enchantments. |
 | effects | `[{"type": "wizard_access", "amount": 1, "tag": "wizard_encounter_unlock"}, {"type": "vp_flat", "amount": 1}]` |
 
-#### `novice_tower_a1` — Novice Tower
+#### `novice_tower_a1` — Novice Tower (Age 1)
 
 | Field | Value |
 |-------|-------|
@@ -358,7 +358,7 @@
 | flavour_text | A tower for aspiring mages. |
 | effects | `[{"type": "wizard_access", "amount": 1, "tag": "wizard_encounter_unlock"}, {"type": "vp_flat", "amount": 1}]` |
 
-#### `spell_shelf_a1` — Spell Shelf
+#### `spell_shelf_a1` — Spell Shelf (Age 1)
 
 | Field | Value |
 |-------|-------|
@@ -374,7 +374,7 @@
 
 ### additional_hero
 
-#### `levy_barracks_a1` — Levy Barracks
+#### `levy_barracks_a1` — Levy Barracks (Age 1)
 
 | Field | Value |
 |-------|-------|
@@ -388,7 +388,7 @@
 | flavour_text | Barracks house new champions. |
 | effects | `[{"type": "hero_actions_bonus", "amount": 1}]` |
 
-#### `recruit_hall_a1` — Recruit Hall
+#### `recruit_hall_a1` — Recruit Hall (Age 1)
 
 | Field | Value |
 |-------|-------|
@@ -402,7 +402,7 @@
 | flavour_text | Volunteers answer the call. |
 | effects | `[{"type": "hero_actions_bonus", "amount": 1}]` |
 
-#### `town_champion_a1` — Town Champion
+#### `town_champion_a1` — Town Champion (Age 1)
 
 | Field | Value |
 |-------|-------|
@@ -416,7 +416,7 @@
 | flavour_text | A champion rises from the city. |
 | effects | `[{"type": "hero_actions_bonus", "amount": 1}]` |
 
-#### `volunteer_corps_a1` — Volunteer Corps
+#### `volunteer_corps_a1` — Volunteer Corps (Age 1)
 
 | Field | Value |
 |-------|-------|
@@ -432,7 +432,7 @@
 
 ### hybrid
 
-#### `granary_shrine_a1` — Granary Shrine
+#### `granary_shrine_a1` — Granary Shrine (Age 1)
 
 | Field | Value |
 |-------|-------|
@@ -446,7 +446,7 @@
 | flavour_text | Food and faith sustain the city. |
 | effects | `[{"type": "production_flat", "resource": "wheat", "amount": 1}, {"type": "vp_flat", "amount": 1}]` |
 
-#### `hero_monument_a1` — Hero Monument
+#### `hero_monument_a1` — Hero Monument (Age 1)
 
 | Field | Value |
 |-------|-------|
@@ -460,7 +460,7 @@
 | flavour_text | Heroes and history share a plinth. |
 | effects | `[{"type": "vp_flat", "amount": 1}, {"type": "hero_actions_bonus", "amount": 1}]` |
 
-#### `mage_market_a1` — Mage Market
+#### `mage_market_a1` — Mage Market (Age 1)
 
 | Field | Value |
 |-------|-------|
@@ -474,7 +474,7 @@
 | flavour_text | Arcane goods trade openly. |
 | effects | `[{"type": "wizard_access", "amount": 1, "tag": "wizard_trade_unlock"}, {"type": "trade_bonus", "amount": 1}]` |
 
-#### `trade_watch_a1` — Trade Watch
+#### `trade_watch_a1` — Trade Watch (Age 1)
 
 | Field | Value |
 |-------|-------|
@@ -492,7 +492,7 @@
 
 ### production_bonuses
 
-#### `brickworks_a2` — Brickworks
+#### `brickworks_a2` — Brickworks (Age 2)
 
 | Field | Value |
 |-------|-------|
@@ -506,7 +506,7 @@
 | flavour_text | Kilns bake clay into sturdy brick. |
 | effects | `[{"type": "production_flat", "resource": "brick", "amount": 2}]` |
 
-#### `lumber_camp_a2` — Lumber Camp
+#### `lumber_camp_a2` — Lumber Camp (Age 2)
 
 | Field | Value |
 |-------|-------|
@@ -520,7 +520,7 @@
 | flavour_text | Timber flows from the forest edge. |
 | effects | `[{"type": "production_flat", "resource": "wood", "amount": 2}]` |
 
-#### `ore_shaft_a2` — Ore Shaft
+#### `ore_shaft_a2` — Ore Shaft (Age 2)
 
 | Field | Value |
 |-------|-------|
@@ -534,7 +534,7 @@
 | flavour_text | A shallow mine taps nearby ore. |
 | effects | `[{"type": "production_flat", "resource": "ore", "amount": 2}]` |
 
-#### `pasture_grant_a2` — Pasture Grant
+#### `pasture_grant_a2` — Pasture Grant (Age 2)
 
 | Field | Value |
 |-------|-------|
@@ -550,7 +550,7 @@
 
 ### vp_cards
 
-#### `garden_terrace_a2` — Garden Terrace
+#### `garden_terrace_a2` — Garden Terrace (Age 2)
 
 | Field | Value |
 |-------|-------|
@@ -564,7 +564,7 @@
 | flavour_text | Terraced gardens delight citizens. |
 | effects | `[{"type": "vp_flat", "amount": 2}]` |
 
-#### `monument_a2` — Monument
+#### `monument_a2` — Monument (Age 2)
 
 | Field | Value |
 |-------|-------|
@@ -578,7 +578,7 @@
 | flavour_text | A stone marker of civic pride. |
 | effects | `[{"type": "vp_flat", "amount": 2}]` |
 
-#### `obelisk_a2` — Obelisk
+#### `obelisk_a2` — Obelisk (Age 2)
 
 | Field | Value |
 |-------|-------|
@@ -592,7 +592,7 @@
 | flavour_text | Rising stone honours the founders. |
 | effects | `[{"type": "vp_flat", "amount": 2}]` |
 
-#### `tapestry_hall_a2` — Tapestry Hall
+#### `tapestry_hall_a2` — Tapestry Hall (Age 2)
 
 | Field | Value |
 |-------|-------|
@@ -608,7 +608,7 @@
 
 ### hero_ability
 
-#### `militia_yard_a2` — Militia Yard
+#### `militia_yard_a2` — Militia Yard (Age 2)
 
 | Field | Value |
 |-------|-------|
@@ -622,7 +622,7 @@
 | flavour_text | Drill grounds for town guards. |
 | effects | `[{"type": "hero_actions_bonus", "amount": 1}]` |
 
-#### `ranger_post_a2` — Ranger Post
+#### `ranger_post_a2` — Ranger Post (Age 2)
 
 | Field | Value |
 |-------|-------|
@@ -636,7 +636,7 @@
 | flavour_text | Scouts train for swift patrols. |
 | effects | `[{"type": "hero_actions_bonus", "amount": 1}]` |
 
-#### `signal_beacon_a2` — Signal Beacon
+#### `signal_beacon_a2` — Signal Beacon (Age 2)
 
 | Field | Value |
 |-------|-------|
@@ -650,7 +650,7 @@
 | flavour_text | Beacons coordinate hero movement. |
 | effects | `[{"type": "hero_actions_bonus", "amount": 1}]` |
 
-#### `supply_cache_a2` — Supply Cache
+#### `supply_cache_a2` — Supply Cache (Age 2)
 
 | Field | Value |
 |-------|-------|
@@ -666,7 +666,7 @@
 
 ### anti_demon
 
-#### `blessed_wall_a2` — Blessed Wall
+#### `blessed_wall_a2` — Blessed Wall (Age 2)
 
 | Field | Value |
 |-------|-------|
@@ -680,7 +680,7 @@
 | flavour_text | Consecrated stone resists occupation. |
 | effects | `[{"type": "city_demon_protection", "amount": 2}]` |
 
-#### `holy_font_a2` — Holy Font
+#### `holy_font_a2` — Holy Font (Age 2)
 
 | Field | Value |
 |-------|-------|
@@ -694,7 +694,7 @@
 | flavour_text | Blessed water guards the threshold. |
 | effects | `[{"type": "city_demon_protection", "amount": 2}]` |
 
-#### `sentinel_shrine_a2` — Sentinel Shrine
+#### `sentinel_shrine_a2` — Sentinel Shrine (Age 2)
 
 | Field | Value |
 |-------|-------|
@@ -708,7 +708,7 @@
 | flavour_text | Shrines watch for demonic presence. |
 | effects | `[{"type": "city_demon_protection", "amount": 2}]` |
 
-#### `ward_stone_a2` — Ward Stone
+#### `ward_stone_a2` — Ward Stone (Age 2)
 
 | Field | Value |
 |-------|-------|
@@ -724,7 +724,7 @@
 
 ### trade_economy
 
-#### `exchange_booth_a2` — Exchange Booth
+#### `exchange_booth_a2` — Exchange Booth (Age 2)
 
 | Field | Value |
 |-------|-------|
@@ -738,7 +738,7 @@
 | flavour_text | Official booth for fair deals. |
 | effects | `[{"type": "trade_bonus", "amount": 1}]` |
 
-#### `market_stall_a2` — Market Stall
+#### `market_stall_a2` — Market Stall (Age 2)
 
 | Field | Value |
 |-------|-------|
@@ -752,7 +752,7 @@
 | flavour_text | Merchants barter surplus goods. |
 | effects | `[{"type": "trade_bonus", "amount": 1}]` |
 
-#### `merchant_tent_a2` — Merchant Tent
+#### `merchant_tent_a2` — Merchant Tent (Age 2)
 
 | Field | Value |
 |-------|-------|
@@ -766,7 +766,7 @@
 | flavour_text | Travelling traders rest here. |
 | effects | `[{"type": "trade_bonus", "amount": 1}]` |
 
-#### `trade_post_a2` — Trade Post
+#### `trade_post_a2` — Trade Post (Age 2)
 
 | Field | Value |
 |-------|-------|
@@ -782,7 +782,7 @@
 
 ### wizard_access
 
-#### `arcane_study_a2` — Arcane Study
+#### `arcane_study_a2` — Arcane Study (Age 2)
 
 | Field | Value |
 |-------|-------|
@@ -796,7 +796,7 @@
 | flavour_text | Novices glimpse the wizard path. |
 | effects | `[{"type": "wizard_access", "amount": 1, "tag": "wizard_encounter_unlock"}, {"type": "vp_flat", "amount": 2}]` |
 
-#### `mystic_circle_a2` — Mystic Circle
+#### `mystic_circle_a2` — Mystic Circle (Age 2)
 
 | Field | Value |
 |-------|-------|
@@ -810,7 +810,7 @@
 | flavour_text | A circle for minor enchantments. |
 | effects | `[{"type": "wizard_access", "amount": 1, "tag": "wizard_encounter_unlock"}, {"type": "vp_flat", "amount": 2}]` |
 
-#### `novice_tower_a2` — Novice Tower
+#### `novice_tower_a2` — Novice Tower (Age 2)
 
 | Field | Value |
 |-------|-------|
@@ -824,7 +824,7 @@
 | flavour_text | A tower for aspiring mages. |
 | effects | `[{"type": "wizard_access", "amount": 1, "tag": "wizard_encounter_unlock"}, {"type": "vp_flat", "amount": 2}]` |
 
-#### `spell_shelf_a2` — Spell Shelf
+#### `spell_shelf_a2` — Spell Shelf (Age 2)
 
 | Field | Value |
 |-------|-------|
@@ -840,7 +840,7 @@
 
 ### additional_hero
 
-#### `levy_barracks_a2` — Levy Barracks
+#### `levy_barracks_a2` — Levy Barracks (Age 2)
 
 | Field | Value |
 |-------|-------|
@@ -854,7 +854,7 @@
 | flavour_text | Barracks house new champions. |
 | effects | `[{"type": "hero_spawn", "amount": 1}]` |
 
-#### `recruit_hall_a2` — Recruit Hall
+#### `recruit_hall_a2` — Recruit Hall (Age 2)
 
 | Field | Value |
 |-------|-------|
@@ -868,7 +868,7 @@
 | flavour_text | Volunteers answer the call. |
 | effects | `[{"type": "hero_spawn", "amount": 1}]` |
 
-#### `town_champion_a2` — Town Champion
+#### `town_champion_a2` — Town Champion (Age 2)
 
 | Field | Value |
 |-------|-------|
@@ -882,7 +882,7 @@
 | flavour_text | A champion rises from the city. |
 | effects | `[{"type": "hero_spawn", "amount": 1}]` |
 
-#### `volunteer_corps_a2` — Volunteer Corps
+#### `volunteer_corps_a2` — Volunteer Corps (Age 2)
 
 | Field | Value |
 |-------|-------|
@@ -898,7 +898,7 @@
 
 ### hybrid
 
-#### `granary_shrine_a2` — Granary Shrine
+#### `granary_shrine_a2` — Granary Shrine (Age 2)
 
 | Field | Value |
 |-------|-------|
@@ -912,7 +912,7 @@
 | flavour_text | Food and faith sustain the city. |
 | effects | `[{"type": "production_flat", "resource": "wheat", "amount": 2}, {"type": "vp_flat", "amount": 1}]` |
 
-#### `hero_monument_a2` — Hero Monument
+#### `hero_monument_a2` — Hero Monument (Age 2)
 
 | Field | Value |
 |-------|-------|
@@ -926,7 +926,7 @@
 | flavour_text | Heroes and history share a plinth. |
 | effects | `[{"type": "vp_flat", "amount": 2}, {"type": "hero_actions_bonus", "amount": 1}]` |
 
-#### `mage_market_a2` — Mage Market
+#### `mage_market_a2` — Mage Market (Age 2)
 
 | Field | Value |
 |-------|-------|
@@ -940,7 +940,7 @@
 | flavour_text | Arcane goods trade openly. |
 | effects | `[{"type": "wizard_access", "amount": 1, "tag": "wizard_trade_unlock"}, {"type": "trade_bonus", "amount": 2}]` |
 
-#### `trade_watch_a2` — Trade Watch
+#### `trade_watch_a2` — Trade Watch (Age 2)
 
 | Field | Value |
 |-------|-------|
@@ -958,7 +958,7 @@
 
 ### production_bonuses
 
-#### `brickworks_a3` — Brickworks
+#### `brickworks_a3` — Brickworks (Age 3)
 
 | Field | Value |
 |-------|-------|
@@ -972,7 +972,7 @@
 | flavour_text | Kilns bake clay into sturdy brick. |
 | effects | `[{"type": "production_flat", "resource": "brick", "amount": 3}]` |
 
-#### `lumber_camp_a3` — Lumber Camp
+#### `lumber_camp_a3` — Lumber Camp (Age 3)
 
 | Field | Value |
 |-------|-------|
@@ -986,7 +986,7 @@
 | flavour_text | Timber flows from the forest edge. |
 | effects | `[{"type": "production_flat", "resource": "wood", "amount": 3}]` |
 
-#### `ore_shaft_a3` — Ore Shaft
+#### `ore_shaft_a3` — Ore Shaft (Age 3)
 
 | Field | Value |
 |-------|-------|
@@ -1000,7 +1000,7 @@
 | flavour_text | A shallow mine taps nearby ore. |
 | effects | `[{"type": "production_flat", "resource": "ore", "amount": 3}]` |
 
-#### `pasture_grant_a3` — Pasture Grant
+#### `pasture_grant_a3` — Pasture Grant (Age 3)
 
 | Field | Value |
 |-------|-------|
@@ -1016,7 +1016,7 @@
 
 ### vp_cards
 
-#### `cathedral_a3` — Cathedral
+#### `cathedral_a3` — Cathedral (Age 3)
 
 | Field | Value |
 |-------|-------|
@@ -1030,7 +1030,7 @@
 | flavour_text | Woven histories adorn the walls. |
 | effects | `[{"type": "vp_flat", "amount": 3}]` |
 
-#### `palace_a3` — Palace
+#### `palace_a3` — Palace (Age 3)
 
 | Field | Value |
 |-------|-------|
@@ -1044,7 +1044,7 @@
 | flavour_text | A stone marker of civic pride. |
 | effects | `[{"type": "vp_flat", "amount": 3}]` |
 
-#### `triumph_a3` — Triumph
+#### `triumph_a3` — Triumph (Age 3)
 
 | Field | Value |
 |-------|-------|
@@ -1058,7 +1058,7 @@
 | flavour_text | Terraced gardens delight citizens. |
 | effects | `[{"type": "vp_flat", "amount": 2}, {"type": "end_game_vp_per_hero", "amount": 1}]` |
 
-#### `wonder_a3` — Wonder
+#### `wonder_a3` — Wonder (Age 3)
 
 | Field | Value |
 |-------|-------|
@@ -1074,7 +1074,7 @@
 
 ### hero_ability
 
-#### `militia_yard_a3` — Militia Yard
+#### `militia_yard_a3` — Militia Yard (Age 3)
 
 | Field | Value |
 |-------|-------|
@@ -1088,7 +1088,7 @@
 | flavour_text | Drill grounds for town guards. |
 | effects | `[{"type": "hero_actions_bonus", "amount": 2}]` |
 
-#### `ranger_post_a3` — Ranger Post
+#### `ranger_post_a3` — Ranger Post (Age 3)
 
 | Field | Value |
 |-------|-------|
@@ -1102,7 +1102,7 @@
 | flavour_text | Scouts train for swift patrols. |
 | effects | `[{"type": "hero_actions_bonus", "amount": 2}]` |
 
-#### `signal_beacon_a3` — Signal Beacon
+#### `signal_beacon_a3` — Signal Beacon (Age 3)
 
 | Field | Value |
 |-------|-------|
@@ -1116,7 +1116,7 @@
 | flavour_text | Beacons coordinate hero movement. |
 | effects | `[{"type": "hero_actions_bonus", "amount": 2}]` |
 
-#### `supply_cache_a3` — Supply Cache
+#### `supply_cache_a3` — Supply Cache (Age 3)
 
 | Field | Value |
 |-------|-------|
@@ -1132,7 +1132,7 @@
 
 ### anti_demon
 
-#### `archon_seal_a3` — Archon Seal
+#### `archon_seal_a3` — Archon Seal (Age 3)
 
 | Field | Value |
 |-------|-------|
@@ -1146,7 +1146,7 @@
 | flavour_text | Blessed water guards the threshold. |
 | effects | `[{"type": "city_demon_protection", "amount": 3}]` |
 
-#### `demon_barrier_a3` — Demon Barrier
+#### `demon_barrier_a3` — Demon Barrier (Age 3)
 
 | Field | Value |
 |-------|-------|
@@ -1160,7 +1160,7 @@
 | flavour_text | Consecrated stone resists occupation. |
 | effects | `[{"type": "city_demon_protection", "amount": 3}]` |
 
-#### `holy_citadel_a3` — Holy Citadel
+#### `holy_citadel_a3` — Holy Citadel (Age 3)
 
 | Field | Value |
 |-------|-------|
@@ -1174,7 +1174,7 @@
 | flavour_text | Runes repel minor corruption. |
 | effects | `[{"type": "city_demon_protection", "amount": 3}]` |
 
-#### `purifying_flame_a3` — Purifying Flame
+#### `purifying_flame_a3` — Purifying Flame (Age 3)
 
 | Field | Value |
 |-------|-------|
@@ -1190,7 +1190,7 @@
 
 ### trade_economy
 
-#### `free_port_a3` — Free Port
+#### `free_port_a3` — Free Port (Age 3)
 
 | Field | Value |
 |-------|-------|
@@ -1204,7 +1204,7 @@
 | flavour_text | Official booth for fair deals. |
 | effects | `[{"type": "trade_bonus", "amount": 2}, {"type": "draft_bonus", "amount": 1}]` |
 
-#### `grand_bazaar_a3` — Grand Bazaar
+#### `grand_bazaar_a3` — Grand Bazaar (Age 3)
 
 | Field | Value |
 |-------|-------|
@@ -1218,7 +1218,7 @@
 | flavour_text | Merchants barter surplus goods. |
 | effects | `[{"type": "trade_bonus", "amount": 2}]` |
 
-#### `merchant_prince_a3` — Merchant Prince
+#### `merchant_prince_a3` — Merchant Prince (Age 3)
 
 | Field | Value |
 |-------|-------|
@@ -1232,7 +1232,7 @@
 | flavour_text | Travelling traders rest here. |
 | effects | `[{"type": "trade_bonus", "amount": 2}]` |
 
-#### `trade_emporium_a3` — Trade Emporium
+#### `trade_emporium_a3` — Trade Emporium (Age 3)
 
 | Field | Value |
 |-------|-------|
@@ -1248,7 +1248,7 @@
 
 ### wizard_access
 
-#### `arcane_study_a3` — Arcane Study
+#### `arcane_study_a3` — Arcane Study (Age 3)
 
 | Field | Value |
 |-------|-------|
@@ -1262,7 +1262,7 @@
 | flavour_text | Novices glimpse the wizard path. |
 | effects | `[{"type": "wizard_access", "amount": 1, "tag": "wizard_encounter_unlock"}, {"type": "vp_flat", "amount": 2}]` |
 
-#### `mystic_circle_a3` — Mystic Circle
+#### `mystic_circle_a3` — Mystic Circle (Age 3)
 
 | Field | Value |
 |-------|-------|
@@ -1276,7 +1276,7 @@
 | flavour_text | A circle for minor enchantments. |
 | effects | `[{"type": "wizard_access", "amount": 1, "tag": "wizard_encounter_unlock"}, {"type": "vp_flat", "amount": 2}]` |
 
-#### `novice_tower_a3` — Novice Tower
+#### `novice_tower_a3` — Novice Tower (Age 3)
 
 | Field | Value |
 |-------|-------|
@@ -1290,7 +1290,7 @@
 | flavour_text | A tower for aspiring mages. |
 | effects | `[{"type": "wizard_access", "amount": 1, "tag": "wizard_encounter_unlock"}, {"type": "vp_flat", "amount": 2}]` |
 
-#### `spell_shelf_a3` — Spell Shelf
+#### `spell_shelf_a3` — Spell Shelf (Age 3)
 
 | Field | Value |
 |-------|-------|
@@ -1306,7 +1306,7 @@
 
 ### additional_hero
 
-#### `levy_barracks_a3` — Levy Barracks
+#### `levy_barracks_a3` — Levy Barracks (Age 3)
 
 | Field | Value |
 |-------|-------|
@@ -1320,7 +1320,7 @@
 | flavour_text | Barracks house new champions. |
 | effects | `[{"type": "hero_spawn", "amount": 1}]` |
 
-#### `recruit_hall_a3` — Recruit Hall
+#### `recruit_hall_a3` — Recruit Hall (Age 3)
 
 | Field | Value |
 |-------|-------|
@@ -1334,7 +1334,7 @@
 | flavour_text | Volunteers answer the call. |
 | effects | `[{"type": "hero_spawn", "amount": 1}]` |
 
-#### `town_champion_a3` — Town Champion
+#### `town_champion_a3` — Town Champion (Age 3)
 
 | Field | Value |
 |-------|-------|
@@ -1348,7 +1348,7 @@
 | flavour_text | A champion rises from the city. |
 | effects | `[{"type": "hero_spawn", "amount": 1}]` |
 
-#### `volunteer_corps_a3` — Volunteer Corps
+#### `volunteer_corps_a3` — Volunteer Corps (Age 3)
 
 | Field | Value |
 |-------|-------|
@@ -1364,7 +1364,7 @@
 
 ### hybrid
 
-#### `granary_shrine_a3` — Granary Shrine
+#### `granary_shrine_a3` — Granary Shrine (Age 3)
 
 | Field | Value |
 |-------|-------|
@@ -1378,7 +1378,7 @@
 | flavour_text | Food and faith sustain the city. |
 | effects | `[{"type": "production_flat", "resource": "wheat", "amount": 3}, {"type": "vp_flat", "amount": 2}]` |
 
-#### `hero_monument_a3` — Hero Monument
+#### `hero_monument_a3` — Hero Monument (Age 3)
 
 | Field | Value |
 |-------|-------|
@@ -1392,7 +1392,7 @@
 | flavour_text | Heroes and history share a plinth. |
 | effects | `[{"type": "vp_flat", "amount": 3}, {"type": "hero_actions_bonus", "amount": 2}]` |
 
-#### `mage_market_a3` — Mage Market
+#### `mage_market_a3` — Mage Market (Age 3)
 
 | Field | Value |
 |-------|-------|
@@ -1406,7 +1406,7 @@
 | flavour_text | Arcane goods trade openly. |
 | effects | `[{"type": "wizard_access", "amount": 1, "tag": "wizard_trade_unlock"}, {"type": "trade_bonus", "amount": 3}]` |
 
-#### `trade_watch_a3` — Trade Watch
+#### `trade_watch_a3` — Trade Watch (Age 3)
 
 | Field | Value |
 |-------|-------|

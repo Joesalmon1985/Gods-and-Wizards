@@ -47,7 +47,7 @@ static func _test_timer_reset_on_demon_clear(test_assert: TestAssert) -> void:
 static func _test_full_round_purge_development(test_assert: TestAssert) -> void:
 	var state := ScenarioBuilder.build_bot_ready_game(44)
 	var city: City = state.cities[0]
-	city.development_id = DevelopmentCatalog.SHRINE_ID
+	city.developments = ["monument_a1"]
 	state.round_number = 2
 	SetupRules.set_demon_count(state, city.vertex, 1)
 	state.city_demon_occupied_since_round[city.vertex.to_key()] = 1

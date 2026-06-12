@@ -37,7 +37,7 @@ static func _test_pack_passes_left(test_assert: TestAssert) -> void:
 static func _test_play_from_hand_into_city_slot(test_assert: TestAssert) -> void:
 	var state := ScenarioBuilder.build_bot_ready_game(44)
 	GameStartRules.start_game(state)
-	state.players[0].development_hand.append(DevelopmentCatalog.WATCHTOWER_ID)
+	state.players[0].development_hand.append("lumber_camp_a1")
 	SetupRules.grant_resources(state, 0, {
 		ResourceType.Type.WHEAT: 2,
 		ResourceType.Type.SHEEP: 2,
@@ -45,16 +45,16 @@ static func _test_play_from_hand_into_city_slot(test_assert: TestAssert) -> void
 	})
 	SetupRules.rebuild_action_space(state)
 	var city_vertex := state.cities[0].vertex
-	var action := _find_development_action(state, city_vertex, DevelopmentCatalog.WATCHTOWER_ID)
+	var action := _find_development_action(state, city_vertex, "lumber_camp_a1")
 	test_assert.check(action != null, "development play action should exist for hand card")
 	var events := ActionRules.apply(state, action)
 	test_assert.check(not events.is_empty(), "development play should apply")
 	test_assert.check(
-		DevelopmentCatalog.WATCHTOWER_ID in state.cities[0].developments,
+		"lumber_camp_a1" in state.cities[0].developments,
 		"played card should occupy city development slot"
 	)
 	test_assert.check(
-		DevelopmentCatalog.WATCHTOWER_ID not in state.players[0].development_hand,
+		"lumber_camp_a1" not in state.players[0].development_hand,
 		"played card should leave hand"
 	)
 
@@ -63,19 +63,15 @@ static func _test_fourth_slot_illegal(test_assert: TestAssert) -> void:
 	var state := ScenarioBuilder.build_bot_ready_game(45)
 	GameStartRules.start_game(state)
 	var city: City = state.cities[0]
-	city.developments = [
-		DevelopmentCatalog.WATCHTOWER_ID,
-		DevelopmentCatalog.GRANARY_ID,
-		DevelopmentCatalog.SHRINE_ID,
-	]
-	state.players[0].development_hand.append(DevelopmentCatalog.WATCHTOWER_ID)
+	city.developments = ["lumber_camp_a1", "brickworks_a1", "pasture_grant_a1"]
+	state.players[0].development_hand.append("lumber_camp_a1")
 	SetupRules.rebuild_action_space(state)
 	test_assert.check(
 		not DevelopmentRules.can_build(
 			state,
 			0,
 			city.vertex,
-			DevelopmentCatalog.WATCHTOWER_ID
+			"lumber_camp_a1"
 		),
 		"fourth development slot should be illegal"
 	)
@@ -84,7 +80,7 @@ static func _test_fourth_slot_illegal(test_assert: TestAssert) -> void:
 static func _test_occupied_city_cannot_play(test_assert: TestAssert) -> void:
 	var state := ScenarioBuilder.build_bot_ready_game(46)
 	GameStartRules.start_game(state)
-	state.players[0].development_hand.append(DevelopmentCatalog.GRANARY_ID)
+	state.players[0].development_hand.append("brickworks_a1")
 	SetupRules.set_demon_count(state, state.cities[0].vertex, 1)
 	SetupRules.rebuild_action_space(state)
 	test_assert.check(
@@ -92,7 +88,7 @@ static func _test_occupied_city_cannot_play(test_assert: TestAssert) -> void:
 			state,
 			0,
 			state.cities[0].vertex,
-			DevelopmentCatalog.GRANARY_ID
+			"brickworks_a1"
 		),
 		"demon-occupied city should block development play"
 	)

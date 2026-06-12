@@ -1,7 +1,7 @@
 class_name DevelopmentRules
 extends RefCounted
 
-const DEFAULT_DEVELOPMENT_ID := DevelopmentCatalog.WATCHTOWER_ID
+const DEFAULT_DEVELOPMENT_ID := ""
 const MAX_DEVELOPMENTS_PER_CITY := 3
 
 
