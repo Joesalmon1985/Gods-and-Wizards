@@ -12,6 +12,8 @@ static func capture_baseline(state: GameState) -> Dictionary:
 		"players": _players_data(state),
 		"cities": _cities_data(state),
 		"roads": _roads_data(state),
+		"breach_count": state.breach_count,
+		"total_demons": _total_demons(state),
 	}
 
 
@@ -92,6 +94,8 @@ static func _duplicate_baseline(baseline: Dictionary) -> Dictionary:
 		"players": players_copy,
 		"cities": cities_copy,
 		"roads": roads_copy,
+		"breach_count": int(baseline.get("breach_count", 0)),
+		"total_demons": int(baseline.get("total_demons", 0)),
 	}
 
 
@@ -112,6 +116,12 @@ static func _apply_entry(view: Dictionary, entry: Dictionary) -> void:
 			view["round_number"] = payload.get("round", view["round_number"])
 		"victory_points_changed":
 			_apply_victory_points_changed(view, payload)
+		"breach":
+			view["breach_count"] = int(payload.get("breach_count", view.get("breach_count", 0)))
+		"demon_spread":
+			view["total_demons"] = int(view.get("total_demons", 0)) + int(payload.get("amount", 0))
+		"demons_cleared":
+			view["total_demons"] = maxi(0, int(view.get("total_demons", 0)) - int(payload.get("cleared_count", 0)))
 		_:
 			pass
 
@@ -220,6 +230,13 @@ static func summarize_entry(entry: Dictionary) -> String:
 			]
 		"game_over":
 			return "winner P%d (%s)" % [payload.get("winner_id", -1), payload.get("reason", "")]
+		"breach":
+			return "breach total %d" % int(payload.get("breach_count", 0))
+		"demon_spread":
+			return "demon +%d at %s" % [
+				int(payload.get("amount", 0)),
+				_vertex_summary(payload.get("to_node", {})),
+			]
 		_:
 			return ""
 
@@ -239,3 +256,10 @@ static func _vertex_summary(vertex_data: Dictionary) -> String:
 
 static func _hex_summary(hex_data: Dictionary) -> String:
 	return "%d,%d" % [hex_data.get("q", 0), hex_data.get("r", 0)]
+
+
+static func _total_demons(state: GameState) -> int:
+	var total := 0
+	for key in state.demon_counts_by_node.keys():
+		total += int(state.demon_counts_by_node[key])
+	return total

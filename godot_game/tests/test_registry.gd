@@ -34,6 +34,7 @@ static func all_modules() -> Array:
 		{"category": CATEGORY_INTEGRATION, "name": "TestInfectionDeckSpread", "module": TestInfectionDeckSpread},
 		{"category": CATEGORY_INTEGRATION, "name": "TestCityDemonOccupation", "module": TestCityDemonOccupation},
 		{"category": CATEGORY_INTEGRATION, "name": "TestBreachEnd", "module": TestBreachEnd},
+		{"category": CATEGORY_INTEGRATION, "name": "TestForcedBreachScenario", "module": TestForcedBreachScenario},
 		{"category": CATEGORY_INTEGRATION, "name": "TestDevelopmentBuild", "module": TestDevelopmentBuild},
 		{"category": CATEGORY_UNIT, "name": "TestDevelopmentEffectEngine", "module": TestDevelopmentEffectEngine},
 		{"category": CATEGORY_INTEGRATION, "name": "TestDevelopmentPerCardCost", "module": TestDevelopmentPerCardCost},

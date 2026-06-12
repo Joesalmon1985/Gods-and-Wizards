@@ -51,7 +51,7 @@ static func build_rows(session: BotGameSession) -> Array:
 		row["event_summary"] = EventSummary.summarize_event_entry(entry_type, payload, state)
 		row["city_count"] = str(replayed.get("cities", []).size())
 		row["road_count"] = str(replayed.get("roads", []).size())
-		row["demon_breach_info"] = _demon_breach_info(state)
+		row["demon_breach_info"] = _demon_breach_info(replayed)
 		row["score"] = _scores_summary(replayed)
 		row["player_resources"] = _resources_summary(replayed)
 
@@ -139,11 +139,11 @@ static func _scores_summary(replayed: Dictionary) -> String:
 	return "|".join(parts)
 
 
-static func _demon_breach_info(state: GameState) -> String:
-	var demon_total := 0
-	for key in state.demon_counts_by_node.keys():
-		demon_total += int(state.demon_counts_by_node[key])
-	return "breach=%d,demons=%d" % [state.breach_count, demon_total]
+static func _demon_breach_info(replayed: Dictionary) -> String:
+	return "breach=%d,demons=%d" % [
+		int(replayed.get("breach_count", 0)),
+		int(replayed.get("total_demons", 0)),
+	]
 
 
 static func _vertex_key(vertex_data) -> String:
