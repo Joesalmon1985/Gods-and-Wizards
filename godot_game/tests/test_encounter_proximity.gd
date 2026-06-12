@@ -23,7 +23,9 @@ static func _test_out_of_range(test_assert: TestAssert) -> void:
 static func _test_deterministic_from_snapshot(test_assert: TestAssert) -> void:
 	var state := ScenarioBuilder.build_four_player_bot_game(42)
 	var snapshot := BoardWorldMapper.build_snapshot(state, [])
-	var marker := snapshot.get("nodes", [])[0].get("world", {})
+	var nodes: Array = snapshot.get("nodes", [])
+	test_assert.check(not nodes.is_empty(), "snapshot should include board nodes")
+	var marker: Dictionary = nodes[0].get("world", {})
 	var a := EncounterProximity.check(snapshot, marker, 20.0)
 	var b := EncounterProximity.check(snapshot, marker, 20.0)
 	test_assert.eq(JSON.stringify(a), JSON.stringify(b), "proximity check should be deterministic")
