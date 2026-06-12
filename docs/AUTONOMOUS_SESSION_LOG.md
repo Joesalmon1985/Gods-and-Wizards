@@ -19,7 +19,14 @@
 
 **Suite:** 110 modules, 151,318 assertions, exit 0
 
-**Handoff:** push branch; PR for human review; Run I branched from Run H (not merged to main).
+## Run I — 3D / UI product planning (2026-06-12)
+
+**Branch:** `milestone/run-i-3d-ui-ux-product-planning`  
+**Base:** Run H @ `fdae8c9` (docs-only; no `.gd`/`.tscn` changes)
+
+**Delivered:** I0–I14 specs — [PRODUCT_SURFACE_AUDIT.md](PRODUCT_SURFACE_AUDIT.md) through [UI_3D_TESTING_STRATEGY.md](UI_3D_TESTING_STRATEGY.md), [IMPLEMENTATION_PLAN_3D_UI.md](IMPLEMENTATION_PLAN_3D_UI.md).
+
+**Next:** Human review Run H PR → merge → begin Impl I1 (HUD shell).
 
 ---
 

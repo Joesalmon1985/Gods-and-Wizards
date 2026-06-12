@@ -61,6 +61,8 @@ Optional suite filter: `--suite=architecture`, `--suite=integration`, etc. (see 
 
 Donor folders under `donor_projects/` are **reference-only** (`project.godot.donor.txt`).
 
+**Run I (docs-only):** Product/UI specs on `milestone/run-i-3d-ui-ux-product-planning` — see [PRODUCT_SURFACE_AUDIT.md](PRODUCT_SURFACE_AUDIT.md).
+
 ---
 
 ## Architecture constraints (mandatory)

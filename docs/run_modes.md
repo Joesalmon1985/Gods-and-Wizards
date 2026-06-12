@@ -264,3 +264,9 @@ Architecture tests verify:
 ## Debug overlay (legacy)
 
 The earlier debug replay UI remains at `res://ui/debug/debug_game_overlay.tscn` for event-log inspection. It is not the default main scene.
+
+---
+
+## Product / UI planning (Run I)
+
+Implementation-ready UX and 3D specs live under `docs/` (prefix `PRODUCT_*`, `THREE_D_*`, `HUD_*`, `IMPLEMENTATION_PLAN_3D_UI.md`). No gameplay changes in Run I — future work tracked as Impl I1–I7.
