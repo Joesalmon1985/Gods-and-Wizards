@@ -29,6 +29,16 @@ The UI is only a window into the game. The game itself is the state machine.
 - Do not invent extra game systems unless asked.
 - Do not build the full game in one pass.
 
+## Terminology (mandatory)
+
+- **Macro contact resolution** — instant deterministic board resolution when macro pieces share a node (hero removes all demons). **Not** tactical combat.
+- **Tactical combat** — `SpellCombatSession`; canonical spell duel for isolated sim, replay, telemetry, and future 3D human encounters. **Not in the macro economy loop.**
+- **Legacy card duel** — `CombatResolver`; debug/reference unless revived.
+- **Hero** — generic macro piece commanded by a god; not an RPG character.
+- **3D human encounter** — future embodied layer; may pause game and lead to tactical combat; not implemented in macro loop.
+
+See `docs/RULEBOOK.md` for full intended v1 rules.
+
 ## Game concept
 
 This is a competitive civilisation-building board game on a hex map.
@@ -48,23 +58,28 @@ The headless milestone is **complete and extended**. The active Godot project is
 - Seeded radius-3 hex board, players, cities, production
 - Roads, heroes, demon spread, breach loss, victory-point win
 - Legal actions, bots, event log, deterministic simulation
-- Development build stub, headless card combat contract
+- Development build stub, headless card combat contract (**legacy**), `SpellCombatSession` tactical combat (isolated)
 - `BotGameSession`, CSV export, reporting helpers
 
-**Implemented in presentation (read-only / bot-advance):**
+**Implemented in presentation (read-only / bot-advance / isolated tactical):**
 
 - Headless CSV bot run mode
-- 3D wizard-world board visualisation with human-readable overlay
+- 2D strategic playable/debug modes (near-term dev default)
+- 3D wizard-world board visualisation (long-term product direction; read-only)
+- Spell combat replay/play modes (isolated tactical combat)
 - Legacy debug event-log overlay
 
 **Not yet implemented:**
 
-- Human player action selection
-- 2D strategic board UI
+- Macro contact resolution (instant demon removal on hero enter)
+- Infection deck demon spread, hero action budgets, city demon occupation rules
+- Offer/accept player trading (provisional 1:1 exists)
+- Human player action selection wired to 2D UI (M22)
 - Full drafting and development-card library
-- Full embodied wizard/combat gameplay loop
+- 3D human encounters and embodied wizard/combat in macro loop
+- Dataset v2 / production RL export
 
-See `docs/PROJECT_STATUS.md` and `docs/NEXT_MILESTONES.md` for handoff details.
+See `docs/RULEBOOK.md`, `docs/RULES_ENGINE_AUDIT.md`, `docs/PROJECT_STATUS.md`, and `docs/NEXT_MILESTONES.md` for handoff details.
 
 ## Do not build yet
 
@@ -72,7 +87,9 @@ Do not build these until specifically requested:
 
 - Drafting (full Seven Wonders-style system)
 - Full development-card library beyond the current stub
-- Neural network training
+- Neural network training in Godot (export telemetry only; dataset v2 before serious RL)
+- Ports or Catan-style fixed trade ratios
+- Integrating `SpellCombatSession` into the macro economy loop
 - Finished art, animation, and polish
 - Multiplayer networking
 - A second parallel GameState or donor-project merge

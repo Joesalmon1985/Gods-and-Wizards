@@ -113,7 +113,7 @@ New-Item -ItemType Directory -Force (Split-Path $Out) | Out-Null
 
 ## B. 3D wizard-world mode
 
-**Main scene:** `res://run_modes/wizard_world_mode.tscn`
+**Main scene:** `res://run_modes/wizard_world_mode.tscn` (also `macro_spectator_3d_mode.tscn` for Run B spectator)
 
 Launch from the editor (F5) or:
 
@@ -121,13 +121,17 @@ Launch from the editor (F5) or:
 & "C:\Tools\Godot\godot.exe" --path "C:\Users\joesa\Documents\Cursor\BoardGame\gods-and-wizards\godot_game"
 ```
 
+**Product direction:** Long-term default player experience is 3D wizard spectator/RPG. Near-term development default remains 2D strategic playable/debug until macro rules are stable.
+
 ### What it shows
 
 - Initialises the same `BotGameSession` / `GameState` as headless mode
-- Renders a read-only 3D board from `BoardWorldMapper` / `BoardStateVisualizer`
+- Renders a **read-only** 3D board from `BoardWorldMapper` / `BoardStateVisualizer`
 - Human-readable overlay via `GameStateSummary`, `TurnReport`, and `EventSummary` (no raw JSON spam)
 - Scoreboard with victory points, cities, roads, hero status, and resource totals per player
 - Recent-turn log with aggregated production summaries
+
+**The 3D layer does not own or directly mutate `GameState`.** WASD wizard movement is presentation-only.
 
 ### Controls
 
@@ -142,11 +146,11 @@ Launch from the editor (F5) or:
 
 ---
 
-## C. 2D strategic mode (read-only)
+## C. 2D strategic mode
 
-**Scene:** `res://run_modes/strategic_2d_mode.tscn`
+**Scenes:** `strategic_2d_mode.tscn` (read-only), `strategic_play_2d_mode.tscn` (playable), `strategic_audit_2d_mode.tscn` (audit)
 
-Read-only 2D hex board driven by `BoardWorldMapper` snapshots and `BotGameSession`. Enter/N advances bot turns. Does not replace the F5 main scene (`wizard_world_mode.tscn`).
+**Near-term development default** for macro rules testing and human play. Read-only and playable variants driven by `BoardWorldMapper` snapshots and `BotGameSession` / human session API. Does not replace F5 main scene (`wizard_world_mode.tscn`).
 
 ```powershell
 & "C:\Tools\Godot\godot.exe" --path "C:\Users\joesa\Documents\Cursor\BoardGame\gods-and-wizards\godot_game" res://run_modes/strategic_2d_mode.tscn
@@ -154,11 +158,13 @@ Read-only 2D hex board driven by `BoardWorldMapper` snapshots and `BotGameSessio
 
 ---
 
-## D. Headless micro-duel runner
+## D. Headless micro-duel runner (legacy card duel)
 
 **Script:** `res://run_modes/run_headless_duel.gd`
 
 Runs a single headless `CombatResolver.resolve_encounter()` from a seed and writes a CSV with one summary row plus per-round detail. No `GameState`, no 3D.
+
+**Classification:** **Legacy / debug only.** Uses the card-duel `CombatResolver` model, not canonical tactical combat (`SpellCombatSession`). Do not use for macro hero/demon resolution or NN training alongside `micro_combat_v1` export.
 
 ### Command
 
@@ -219,17 +225,19 @@ New-Item -ItemType Directory -Force (Split-Path $Out) | Out-Null
 
 Exports step-level macro training rows (observations, legal masks, selected actions, rewards) from `MacroTrainingEnv`.
 
+**Classification:** Partial/prototyping telemetry — **not production RL-ready.** Dataset v2 required before serious macro RL. Macro RL design target uses full global state observation; v1 export has aggregate scalars only. See [NEURAL_TRAINING_DATA_EXPORT_AUDIT.md](NEURAL_TRAINING_DATA_EXPORT_AUDIT.md).
+
 ```powershell
 & "C:\Tools\Godot\godot.exe.exe" --headless --path (Join-Path $ProjectRoot "godot_game") -s res://run_modes/run_macro_training_export.gd -- --seed 42 --max-steps 50 --output (Join-Path $ProjectRoot "logs\macro_training_seed_42.csv")
 ```
 
 ---
 
-## F. Headless micro combat telemetry export
+## F. Headless tactical combat telemetry export
 
 **Script:** `res://run_modes/run_micro_combat_export.gd`
 
-Exports step-level spell combat telemetry from `SpellCombatSession` / `MicroCombatTrainingEnv`.
+Exports step-level **tactical combat** telemetry from `SpellCombatSession` / `MicroCombatTrainingEnv`. This is the canonical tactical combat export — not macro contact resolution and not the legacy card-duel runner (§D).
 
 ```powershell
 & "C:\Tools\Godot\godot.exe.exe" --headless --path (Join-Path $ProjectRoot "godot_game") -s res://run_modes/run_micro_combat_export.gd -- --seed 123 --max-steps 80 --output (Join-Path $ProjectRoot "logs\micro_combat_seed_123.csv")

@@ -1,7 +1,9 @@
 # Rules Enforcement Test Matrix
 
-**Last updated:** 2026-06-12  
+**Last updated:** 2026-06-12 (post–Run C design clarification)  
 **Purpose:** Map game rules and export contracts to test modules. Used for Run C training-data audit and ongoing milestone verification.
+
+Design intent: [RULEBOOK.md](RULEBOOK.md). Implementation gaps: [RULES_ENGINE_AUDIT.md](RULES_ENGINE_AUDIT.md).
 
 ---
 
@@ -32,9 +34,25 @@ Integration tests for training exports are registered in [`godot_game/tests/test
 |---|---|---|---|---|
 | Legal actions | Mask size matches action space | `TestLegalActions` | Enforced | Foundation for macro masks |
 | Action application | Illegal actions rejected | `TestActionRules`, domain tests | Enforced | |
+| Multi-step turn | Bot loops until `END_TURN` | `TestBotPolicy`, bot integration | Enforced | Each step = one legal action |
 | Bot policy | Same seed → same heuristic choices | `TestHeuristicBot`, `TestBotPolicy` | Enforced | Macro export policy source |
-| Game over | VP win and breach loss | `TestGameOver`, `TestBreachLoss` | Enforced | Terminal macro outcomes |
+| Game over | VP win (21) and breach loss (design target **10**; code **7**) | `TestGameOver`, `TestBreachLoss` | Enforced | Breach limit value may lag design until `GameConstants` updated |
 | Determinism | Same seed + actions → same state | Multiple integration tests | Enforced | Project-wide contract |
+
+---
+
+## Intended v1 macro rules (design — mostly not enforced yet)
+
+| Area | Rule / contract | Test module | Status | Notes |
+|---|---|---|---|---|
+| Macro contact resolution | Hero entering demon node removes **all** demons instantly | — | **Not enforced** | GD-002; no spell combat in macro |
+| Demon cap | Max 3 demons per node; 4th → breach, not placed | Partial breach tests | **Partial** | Current spread semantics differ |
+| Infection deck spread | Draw `infection_rate` nodes per player turn end | — | **Not enforced** | Adjacent spread at round boundary today |
+| Hero action budget | 4 actions per hero per turn | — | **Not enforced** | GD-005 |
+| City demon occupation | Demon > 0 → 0 production; full round → purge dev cards | — | **Not enforced** | GD-004 |
+| Offer/accept trading | Asymmetric offer/accept; no ports | — | **Not enforced** | Provisional 1:1 `PlayerTradeRules` exists |
+| No tactical combat in macro | Macro loop never invokes `SpellCombatSession` | Architecture implicit | **Enforced by omission** | GD-001 |
+| Legacy card duel | `CombatResolver` / `EncounterRules` not v1 macro path | `TestCombatRules` | **Legacy** | Debug/reference only |
 
 ---
 
@@ -103,17 +121,30 @@ Integration tests for training exports are registered in [`godot_game/tests/test
 
 ## Recommended future test additions (Run C — not implemented)
 
-1. `TestMacroTrainingTelemetry`: assert terminal row `reward` includes +10 when `terminal=true` and game has winner.
-2. `TestMacroTrainingTelemetry`: spot-check mask bits against `LegalActionQuery.get_view` for fixed seed step 0.
-3. `TestMicroCombatTelemetry`: assert final row `terminal=true` implies `combat_end` in timeline summary with `winner_id`.
-4. `TestMicroCombatTelemetry`: compare step count and selected spells to direct `SpellCombatSession` replay.
-5. `TestMicroCombatTelemetry`: episode with pass-only step when mana exhausted.
-6. Shared fixture: document composite episode key `(seed, policy, step_index)` and `(seed, loadout_a, loadout_b, step_index)` for merge tests.
+### Macro rules (priority)
+
+1. Hero move onto demon node → all demons removed; hero remains.
+2. Demon spread/spawn onto hero node → demon removed immediately.
+3. Demon cap at 3: 4th placement attempt increments breach, does not add demon.
+4. Hero action budget: 5th move in same turn illegal for same hero.
+5. City with demon count > 0 produces 0 resources.
+6. City demon occupied full round → development cards removed.
+
+### Export / telemetry
+
+7. `TestMacroTrainingTelemetry`: assert terminal row `reward` includes +10 when `terminal=true` and game has winner.
+8. `TestMacroTrainingTelemetry`: spot-check mask bits against `LegalActionQuery.get_view` for fixed seed step 0.
+9. `TestMicroCombatTelemetry`: assert final row `terminal=true` implies `combat_end` in timeline summary with `winner_id`.
+10. `TestMicroCombatTelemetry`: compare step count and selected spells to direct `SpellCombatSession` replay.
+11. `TestMicroCombatTelemetry`: episode with pass-only step when mana exhausted.
+12. Shared fixture: document composite episode key `(seed, policy, step_index)` and `(seed, loadout_a, loadout_b, step_index)` for merge tests.
 
 ---
 
 ## Related docs
 
+- [RULEBOOK.md](RULEBOOK.md) — intended v1 rules
+- [RULES_ENGINE_AUDIT.md](RULES_ENGINE_AUDIT.md) — design vs implementation
 - [NEURAL_TRAINING_DATA_EXPORT_AUDIT.md](NEURAL_TRAINING_DATA_EXPORT_AUDIT.md) — readiness assessment
 - [RULES_GAP_ANALYSIS_AND_DECISION_LOG.md](RULES_GAP_ANALYSIS_AND_DECISION_LOG.md) — deferred decisions
 - [TESTING_AND_GIT_WORKFLOW.md](TESTING_AND_GIT_WORKFLOW.md) — test-first milestone process

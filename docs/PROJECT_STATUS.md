@@ -1,32 +1,29 @@
 # Project Status — Gods and Wizards
 
-**Last updated:** 2026-06-11  
+**Last updated:** 2026-06-12 (post–Run C design clarification)  
 **Purpose:** Human-readable handoff for reviewers and Cursor agents before the next milestone.
+
+**Design docs (authoritative intent):** [RULEBOOK.md](RULEBOOK.md), [TURN_TIMING_AND_PHASE_MODEL.md](TURN_TIMING_AND_PHASE_MODEL.md), [RULES_ENGINE_AUDIT.md](RULES_ENGINE_AUDIT.md).
 
 ---
 
 ## Git snapshot
 
-| Item | Value |
+Run locally for current values:
+
+```powershell
+git status --short --branch
+git log -1 --oneline
+```
+
+| Item | How to check |
 |---|---|
-| Active development branch | `milestone/macro-product-autonomous-run` |
-| Latest commit | See `git log -1` on branch (handoff docs commit after this update) |
-| Parent branch | `milestone/macro-foundation-autonomous` @ `bb4c29a` |
-| `origin/main` | `e1b94c7` — **not merged**; milestone branch ahead |
-| Remote | `origin` → https://github.com/Joesalmon1985/Gods-and-Wizards.git |
-| Push status | Check `git status --short --branch` after handoff commit |
+| Current branch | `git branch --show-current` |
+| Latest commit | `git log -1 --oneline` |
+| Remote tracking | `git status --short --branch` |
+| Remote URL | `git remote get-url origin` |
 
-### Recent commits (newest first)
-
-| Commit | Summary |
-|---|---|
-| `9c1df90` | M25: read-only 2D strategic board improvements |
-| `053b57e` | M23: small development-card catalog foundation |
-| `d0a7667` | M24: underworld pressure smoke + telemetry |
-| `1996120` | M21: headless micro-duel smoke runner |
-| `9b46681` | Fix: playthrough CSV road replay + production summaries |
-
-Build legality (`BuildRules.can_build_city`, CSV duplicate-log fix) is on this branch from earlier work.
+Do not treat stale branch names or SHAs in this doc as authoritative.
 
 ---
 
@@ -35,21 +32,23 @@ Build legality (`BuildRules.can_build_city`, CSV duplicate-log fix) is on this b
 ### Command
 
 ```powershell
-& "C:\Tools\Godot\godot.exe" --headless --path "C:\Users\joesa\Documents\Cursor\BoardGame\gods-and-wizards\godot_game" -s res://tests/test_runner.gd
+& "C:\Users\joesa\Documents\Cursor\BoardGame\gods-and-wizards\scripts\Invoke-GodotHeadless.ps1" -ArgumentList @("--headless", "--path", "C:\Users\joesa\Documents\Cursor\BoardGame\gods-and-wizards\godot_game", "-s", "res://tests/test_runner.gd")
 ```
 
-### Result (verified 2026-06-11)
+### Result (verified 2026-06-12, after Run C doc changes)
 
 | Metric | Value |
 |---|---|
-| Modules run | **50** |
-| Assertions | **69,197** |
-| Passed | **69,197** |
+| Exit code | **0** |
+| Modules run | **62** |
+| Assertions | **95,645** |
+| Passed | **95,645** |
 | Failed | **0** |
+| Stale Godot processes after run | **None** (`Get-Process -Name "Godot*"` empty) |
 
 Optional suite filter: `--suite=architecture`, `--suite=integration`, etc. (see `tests/test_registry.gd`).
 
-**Note:** First run after adding new scripts may require `--import` so Godot registers global classes. Full suite typically takes ~50–80 seconds.
+**Note:** First run after adding new scripts may require `--import` so Godot registers global classes. Full suite typically takes ~80–100 seconds.
 
 ---
 
@@ -108,6 +107,30 @@ Do not commit files under `logs/` (gitignored).
 
 ---
 
+## Product mode defaults
+
+| Horizon | Default | Notes |
+|---|---|---|
+| **Long-term product** | 3D wizard spectator/RPG | Human experiences game as god avatar |
+| **Near-term development** | 2D strategic playable/debug | Macro rules stabilisation first |
+| **Developer-only** | Headless CSV, batch sim, telemetry export | Not player-facing |
+
+---
+
+## Design decisions recorded (Run C — docs only)
+
+- Macro hero/demon = **instant contact resolution** (not `SpellCombatSession`).
+- Tactical combat = **`SpellCombatSession`** only; isolated from macro loop.
+- Legacy **`CombatResolver` card duel** = debug/reference.
+- Multi-step macro turns with **`END_TURN`**; step-level legal masks for RL.
+- VP win at **21**; collective breach loss at **10** (design target; code still `BREACH_LIMIT := 7`).
+- No **ports**; offer/accept trading is intended (current 1:1 trade is provisional).
+- Neural training export is **partial/prototyping**; dataset v2 required before serious RL.
+
+See [RULES_GAP_ANALYSIS_AND_DECISION_LOG.md](RULES_GAP_ANALYSIS_AND_DECISION_LOG.md) for full decision log.
+
+---
+
 ## Gameplay systems
 
 ### Fully implemented and test-covered
@@ -127,10 +150,11 @@ Do not commit files under `logs/` (gitignored).
 | 2D strategic board read-only (M18) | `StrategicBoardView`, `strategic_2d_mode.tscn`, `TestStrategicBoardView` |
 | Hero move | `MoveRules`, occupancy rules |
 | Demon spread | Node-to-node along edges |
-| Breach loss | `BreachEndCondition`, `GameConstants.BREACH_LIMIT` |
+| Breach loss | `BreachEndCondition`, `GameConstants.BREACH_LIMIT` (code **7**; design target **10**) |
 | Victory points win | `VictoryPointsEndCondition`, `GameConstants.VP_TO_WIN` |
 | Development build (stub) | Single stub card path, not full drafting |
-| Headless card combat | `CombatRules`, `CombatResolver`, deck runtime |
+| Headless card combat | `CombatResolver` card duel — **legacy/debug**; not macro resolution |
+| Spell combat (tactical) | `SpellCombatSession` — canonical tactical model; isolated sim/replay/export |
 | Encounter resolver bridge | Headless contract for embodied encounters |
 | Bot policies | Random + heuristic; `BotTurnResolver` |
 | Event log + replay | Deterministic replay at any step |
@@ -148,7 +172,12 @@ Do not commit files under `logs/` (gitignored).
 | Embodied wizard | Placeholder scripts only; wizard marker in 3D mode does not affect `GameState` |
 | Combat UI | `ui/combat/combat_presenter.gd` — presentation layer, not wired into main run mode |
 | Integration bridge | `encounter_bridge.gd`, `sync_controller.gd` — contract exists; not full embodied loop |
-| Phase model | Overlay shows generic “Player turn”; no fine-grained phase enum in `GameState` |
+| Phase model | Multi-step turns until `END_TURN` in bot loop; no fine-grained phase enum in `GameState` |
+| Player trade | Provisional instant 1:1 — intended offer/accept model not implemented |
+| Macro contact resolution | Hero move does not yet clear demons instantly (design gap) |
+| Infection deck spread | Adjacent propagation at round boundary — design specifies per-player-turn infection deck |
+| Hero action budget | Not implemented (design: 4 actions/hero/turn) |
+| Neural training data | v1 telemetry export only — **not production RL-ready** |
 | Human player UI | M14 session API complete; no clickable 2D/3D action selection yet |
 | Balance config wiring | JSON skeleton loaded; gameplay constants not yet driven from config |
 | Headless micro-duel runner | `run_headless_duel.gd`, `DuelLogExporter`, `TestHeadlessDuelRunner` |
@@ -162,10 +191,16 @@ Do not commit files under `logs/` (gitignored).
 | **M22 2D human click-to-build** | Wire M14 to 2D view — **next** |
 | **M26 divine instruction offers** | Future headless bridge — documented only |
 | Unified run mode entry (2D primary) | After M22 |
-| Drafting (Seven Wonders-style) | Explicitly out of scope until requested |
+| Offer/accept player trading | Replaces provisional 1:1 |
+| Infection deck demon spread | Per-player-turn; replaces adjacent spread |
+| Macro contact resolution | Instant demon removal on hero enter |
+| Hero action budgets | 4 per hero per turn |
+| City demon occupation rules | Production suppression + dev purge timer |
+| Dataset v2 / board featurizer | Before serious macro RL |
+| Full drafting (Seven Wonders-style) | Explicitly out of scope until requested |
 | Full development card system | Beyond current stub |
 | Full embodied encounter gameplay | 3D combat loop not connected to main scene |
-| Neural network / training | Not started |
+| Neural network / training in Godot | Not started — export telemetry only |
 | Art, animation, polish | Placeholder visuals only |
 | Multiplayer networking | Not started |
 
@@ -223,15 +258,20 @@ See [AUTONOMOUS_SESSION_LOG.md](AUTONOMOUS_SESSION_LOG.md) for agent resume deta
 
 ## Next recommended task
 
-1. **Human review + PR** — `milestone/macro-product-autonomous-run` → `main`.
-2. **M22** — 2D human click-to-build wired to M14 session API.
+1. **Human review** — commit Run C documentation; open PR if needed (`git status --short --branch` for current branch).
+2. **Implementation run:** macro contact resolution (instant demon removal) + tests — see [RULES_ENGINE_AUDIT.md](RULES_ENGINE_AUDIT.md).
+3. Align `BREACH_LIMIT` to design target **10** (`GameConstants` + breach tests).
 
-**Resume branch:** `milestone/macro-product-autonomous-run`
+**Current branch / commit:** run `git branch --show-current` and `git log -1 --oneline`.
 
 ---
 
 ## Quick links
 
+- [Rulebook (design intent)](RULEBOOK.md)
+- [Turn timing and phase model](TURN_TIMING_AND_PHASE_MODEL.md)
+- [Rules engine audit](RULES_ENGINE_AUDIT.md)
+- [Rules gap / decision log](RULES_GAP_ANALYSIS_AND_DECISION_LOG.md)
 - [Autonomous session log](AUTONOMOUS_SESSION_LOG.md)
 - [Run modes](run_modes.md)
 - [Next milestones](NEXT_MILESTONES.md)

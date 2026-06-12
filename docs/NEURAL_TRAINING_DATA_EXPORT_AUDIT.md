@@ -1,7 +1,9 @@
 # Neural Training Data Export Audit
 
-**Last updated:** 2026-06-12  
-**Purpose:** Run C audit of whether headless macro economic and micro spell combat exports produce clean, deterministic, structured data suitable for future neural-network training pipelines. This document does **not** implement training; it assesses readiness and gaps.
+**Last updated:** 2026-06-12 (post–Run C design clarification)  
+**Purpose:** Run C audit of whether headless macro economic and tactical spell combat exports produce clean, deterministic, structured data suitable for future neural-network training pipelines. This document does **not** implement training; it assesses readiness and gaps.
+
+**Design direction (macro RL):** Training target is reinforcement learning with **full global state** observation (every hex, node, roads/cities by owner, hero/demon positions, developments, all player resources, legal mask, phase/turn context, previous action/event). Current macro export is **partial/prototyping only** — dataset v2 required before serious RL training. Do **not** implement neural network training in Godot; export deterministic, structured, versioned telemetry only.
 
 ---
 
@@ -10,9 +12,9 @@
 | Export | Classification | Honest verdict |
 |---|---|---|
 | **Macro economic** (`macro_training_v1`) | **Partial** | Useful step-level telemetry and weak imitation/RL prototyping; **not** production RL-ready. Observation is too sparse, transitions are incomplete, and provenance/episode keys are missing. |
-| **Micro spell combat** (`micro_combat_v1`) | **Mostly Ready** (fixed loadouts) / **Partial** (general) | Usable for deterministic-bot imitation and small-scale RL on a fixed loadout pair with minor parsing; **not** ready for heterogeneous loadouts, multi-encounter macro coupling, or production pipelines without schema v2. |
+| **Tactical spell combat** (`micro_combat_v1`) | **Mostly Ready** (fixed loadouts) / **Partial** (general) | `SpellCombatSession` telemetry; usable for isolated tactical RL/IL prototyping; **not** coupled to macro loop or production pipelines without schema v2. |
 | **Playthrough CSV** | **Debug Only** | Event-log replay for humans; wrong grain and no legal masks. |
-| **Duel log CSV** (`CombatResolver`) | **Debug Only** | Different combat model (card duel); not aligned with `SpellCombatSession`. |
+| **Duel log CSV** (`CombatResolver`) | **Debug Only / Legacy** | Card-duel model; not aligned with `SpellCombatSession`; not macro contact resolution. |
 
 **Bottom line:** Both training telemetry exporters are real, versioned, deterministic, and test-covered — but they are **telemetry and prototyping contracts**, not finished ML datasets. Do not overstate readiness.
 
@@ -359,16 +361,70 @@ For mixed loadouts or production: **Partial**.
 
 ---
 
+## Proposed reward profiles (design direction, not implemented)
+
+Different neural networks may be trained with different reward profiles:
+
+| Profile ID | Emphasis |
+|---|---|
+| `WinMaxAgent` | Terminal win/loss heavy |
+| `VPAgent` | VP delta heavy |
+| `SurvivalAgent` | Breach avoidance / turns survived heavy |
+| `BalancedAgent` | Weighted mix |
+
+Macro reward signals may include: turns survived, VP gained, winning, avoiding breach loss. Current `MacroTrainingEnv` uses provisional VP delta + terminal bonus only.
+
+---
+
+## Dataset v2 minimum fields (design target)
+
+Current v1 schemas (`macro_training_v1`, `micro_combat_v1`) are **telemetry/prototyping contracts**. Dataset v2 should include at minimum:
+
+| Field | Macro | Tactical |
+|---|---|---|
+| `episode_id` | Yes | Yes |
+| `encounter_id` | When 3D encounters exist | Yes for sub-episodes |
+| `macro_step_index` | Yes | On tactical rows linked to macro |
+| `action_space_layout_key` | Yes | N/A (spell catalog instead) |
+| `rules_version` | Yes | Yes |
+| `git_commit` | Yes | Yes |
+| `scenario_name` | Yes | Yes |
+| `player_id` / `actor_id` | Yes | `combatant_id` |
+| `round_number` | Yes | N/A |
+| `turn_number` | Yes | N/A |
+| `phase` | Yes | N/A |
+| `action_id` | Yes | Spell ID or pass |
+| `action_kind` | Yes | N/A |
+| `action_params_json` | Yes | Optional |
+| `legal_mask_json` | Yes | Yes |
+| `reward_profile_id` | Yes | Yes |
+| `reward_components_json` | Yes | Yes |
+| `terminal` | Yes | Yes |
+| `terminal_reason` | Yes | Yes |
+| `post_step_winner_id` | Yes | Yes |
+| `structured_events_json` | Yes | Yes |
+| `pre_observation_json` | Yes (full global state) | Yes |
+| `post_observation_json` / `next_observation` | Yes | Yes |
+| Board featurizer columns | Yes | N/A |
+| Loadout IDs | N/A | Yes |
+| `spell_catalog_version` | N/A | Yes |
+
+**Do not treat v1 export as production-ready RL data.**
+
+---
+
 ## Cross-cutting gaps
 
 1. **No `episode_id`** — composite keys required until schema v2.
 2. **No provenance block** — rules version, catalog version, commit SHA, scenario name not in CSV.
 3. **No `next_observation`** — all transition-based RL needs ETL or replay.
-4. **Provisional rewards** — both envs document interim shaping; not design-final.
-5. **No batch export CLI** — one episode per invocation.
-6. **No human trajectories** — bot/deterministic policy only.
-7. **Macro and micro datasets are independent** — no encounter join key yet (see [MACRO_MICRO_INTEGRATION_DESIGN.md](MACRO_MICRO_INTEGRATION_DESIGN.md)).
-8. **Doc drift:** [LOCAL_VERIFICATION.md](LOCAL_VERIFICATION.md) §4 documents macro/micro commands but the success checklist still lists only four legacy CSVs.
+4. **No full global state observation (macro)** — design requires every hex/node/hero/demon; export has aggregates only.
+5. **Provisional rewards** — interim shaping; reward profiles not implemented.
+6. **No batch export CLI** — one episode per invocation.
+7. **No human trajectories** — bot/deterministic policy only.
+8. **Macro and tactical datasets are independent** — macro uses instant contact resolution, not spell combat; no encounter join key (see [MACRO_MICRO_INTEGRATION_DESIGN.md](MACRO_MICRO_INTEGRATION_DESIGN.md)).
+9. **Multi-step turn model** — multiple export rows per player turn; `phase` column not yet exported.
+10. **Doc drift:** [LOCAL_VERIFICATION.md](LOCAL_VERIFICATION.md) §4 documents macro/micro commands but the success checklist still lists only four legacy CSVs.
 
 ---
 
@@ -377,7 +433,7 @@ For mixed loadouts or production: **Partial**.
 1. **NTD schema v2** — episode IDs, provenance header, post-step outcome fields, structured events.
 2. **Macro board featurizer spec** — document or export fixed-length observation vector.
 3. **Micro global action index** — stable spell action space across loadouts.
-4. **Encounter-linked export** — when `EncounterBridge` drives micro from macro, propagate `encounter_id` and `macro_step_index`.
+4. **Encounter-linked export** — when 3D human encounters exist, propagate `encounter_id` and `macro_step_index` (tactical combat only; macro AI uses instant contact resolution).
 5. **Training export test matrix** — enforce gaps listed in [RULES_ENFORCEMENT_TEST_MATRIX.md](RULES_ENFORCEMENT_TEST_MATRIX.md).
 6. **Batch dataset runner** — multi-seed, multi-policy, unique episode IDs, single merge-safe manifest.
 

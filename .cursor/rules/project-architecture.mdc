@@ -39,9 +39,13 @@ Roads are built on edges.
 
 Cities are built on `BoardNode`s.
 
-Heroes and demons exist on `BoardNode`s.
+Heroes and demons exist on `BoardNode`s as generic macro pieces/counters.
 
-Underworld/demon spread happens node-to-node along edges.
+Macro hero-vs-demon contact is **instant deterministic resolution** (hero removes all demons on node). This is **not** tactical spell combat.
+
+Underworld/demon spread uses a Pandemic-style infection deck (design intent); tactical combat uses `SpellCombatSession` in isolated modes and future 3D encounters only.
+
+The legacy `CombatResolver` card-duel model is debug/reference.
 
 Development cards are built into cities and may unlock board effects, embodied effects, or both.
 
@@ -113,7 +117,7 @@ Core tests must be runnable without opening gameplay scenes.
 
 Work milestone by milestone.
 
-**Read first:** `docs/PROJECT_STATUS.md`, `docs/TESTING_AND_GIT_WORKFLOW.md`, `docs/NEXT_MILESTONES.md`.
+**Read first:** `docs/RULEBOOK.md`, `docs/PROJECT_STATUS.md`, `docs/TESTING_AND_GIT_WORKFLOW.md`, `docs/NEXT_MILESTONES.md`, `docs/RULES_ENGINE_AUDIT.md`.
 
 Before coding a milestone:
 
@@ -145,6 +149,10 @@ Do not let UI, integration, embodied, or run-mode scripts directly mutate `GameS
 
 Do not build a full drafting/development-card system before human playable 2D/strategic interaction exists (unless explicitly requested).
 
-Do not wire embodied combat into the main loop before the headless encounter contract and human turn shell are stable.
+Do not wire tactical spell combat (`SpellCombatSession`) into the macro economy loop.
+
+Do not use legacy card-duel (`CombatResolver`) as v1 macro hero/demon resolution.
+
+Do not build ports or Catan-style fixed trade ratios.
 
 Do not create a second parallel GameState.

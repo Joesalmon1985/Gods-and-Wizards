@@ -1,58 +1,47 @@
 # Next Milestones (Proposed)
 
-**Last updated:** 2026-06-11
+**Last updated:** 2026-06-12 (post–Run C design clarification)
 
-**Strategic direction:** Macro-first, trainable mythic civilisation simulation. One authoritative `GameState`. Headless core and `BotGameSession` are source of truth. **2D strategic mode** supports debug/training/balancing; **3D wizard mode** is a deferred presentation layer. See [GAME_DESIGN_BRIEF.md](GAME_DESIGN_BRIEF.md).
+**Strategic direction:** Macro-first, trainable mythic civilisation simulation. One authoritative `GameState`. Headless core and `BotGameSession` are source of truth. **Near-term dev default:** 2D strategic playable/debug. **Long-term product default:** 3D wizard spectator/RPG. See [GAME_DESIGN_BRIEF.md](GAME_DESIGN_BRIEF.md) and [RULEBOOK.md](RULEBOOK.md).
 
 **Architecture constraints (all milestones):**
 
 - One authoritative `GameState`; no second state machine.
 - Core is headless; no UI in `godot_game/core/`.
 - UI, `run_modes/`, `integration/`, and `embodied/` submit legal actions only — they do not directly mutate `GameState`.
+- **Do not integrate `SpellCombatSession` into the macro economy loop.** Macro contact resolution is instant.
 - Donor projects under `donor_projects/` are reference-only.
 
 ---
 
-## Roadmap reconciliation note (2026-06-11)
+## Run C complete (documentation only)
 
-Completed milestone history (M14–M18) is **not renumbered**.
+Run C captured design decisions in:
 
-During the `milestone/macro-product-autonomous-run` session, these IDs were used for new headless/tooling work:
+- [RULEBOOK.md](RULEBOOK.md)
+- [TURN_TIMING_AND_PHASE_MODEL.md](TURN_TIMING_AND_PHASE_MODEL.md)
+- [RULES_ENGINE_AUDIT.md](RULES_ENGINE_AUDIT.md)
+- Updated gap/decision log, test matrix, neural export audit, macro/tactical integration design
 
-| ID used this run | Delivered | Earlier draft meaning (unchanged / deferred) |
+No gameplay code, tests, or scenes were changed in Run C.
+
+---
+
+## Priority implementation follow-ups (next coding run)
+
+Suggested order based on [RULES_ENGINE_AUDIT.md](RULES_ENGINE_AUDIT.md):
+
+| Priority | Work item | Why |
 |---|---|---|
-| **M21** | Headless micro-duel smoke runner | Same intent — now **done** |
-| **M23** | Small development-card catalog foundation | Draft M23 was unified run-mode entry → see **future M27** below |
-| **M24** | Underworld pressure smoke scenario + telemetry | Draft M24 was balance-config wiring → remains optional future work |
-| **M25** | Read-only 2D strategic board improvements | Extends M18 read-only lens — **done** |
-
-**M22 remains:** 2D human click-to-build (deferred to next run).
-
-**M26 added:** divine instruction offer system (future core/headless bridge — docs only this run).
-
----
-
-## Completed on `milestone/macro-foundation-autonomous`
-
-| ID | Title | Commit | Tests |
-|---|---|---|---|
-| **M14** | Human player turn shell (1 human + 3 bots) | `3242cff` | `TestHumanPlayerSession` |
-| **M15** | Macro training environment skeleton | `5c3ab90` | `TestMacroTrainingEnv` |
-| **M16** | Headless batch balance runner | `8d9c353` | `TestBatchSim` |
-| **M17** | Balance configuration skeleton | `d9a8e73` | `TestBalanceConfig` |
-| **M18** | 2D board state view (read-only) | `772a1c9` | `TestStrategicBoardView` |
-
----
-
-## Completed on `milestone/macro-product-autonomous-run`
-
-| ID | Title | Commit | Tests |
-|---|---|---|---|
-| **M21** | Headless micro-duel smoke runner | `1996120` | `TestHeadlessDuelRunner` |
-| **M23** | Small development-card catalog foundation | `053b57e` | `TestDevelopmentCatalog` |
-| **M24** | Underworld pressure smoke + telemetry | `d0a7667` | `TestUnderworldPressure` |
-| **M25** | Read-only 2D strategic board improvements | `9c1df90` | `TestBoardWorldMapper`, `TestStrategicBoardView` |
-| **Fix** | Playthrough CSV road replay + production summaries | `9b46681` | `TestPlaythroughCsvExporter` |
+| 1 | **Macro contact resolution** — hero removes all demons on enter | Core v1 underworld containment; replaces legacy card duel in macro path |
+| 2 | **Infection deck spread** — per-player-turn, cap 3, breach on 4th | Aligns demon threat with Pandemic-style design |
+| 3 | **City demon occupation** — production suppression, timer, dev purge | Connects underworld to economy |
+| 4 | **Hero action budget** — 4 actions per hero per turn | Turn model completeness |
+| 5 | **Offer/accept trading** — replace provisional 1:1 | Design-aligned trade model; no ports |
+| 6 | **Phase enum + turn timing alignment** | Production/spread timing; telemetry `phase` column |
+| 7 | **Dataset v2 schema + board featurizer spec** | Before serious macro RL (not NN training in Godot) |
+| 8 | **2D human action selection (M22)** | First playable macro loop for humans |
+| 9 | **Drafting session** | When explicitly scheduled — Seven Wonders-style at round end |
 
 ---
 
@@ -60,7 +49,7 @@ During the `milestone/macro-product-autonomous-run` session, these IDs were used
 
 ### Goal
 
-Wire M14 human turn shell to M18 2D view: highlight legal build/move targets from `LegalActionQuery`, submit chosen `GameAction` through session API.
+Wire M14 human turn shell to 2D view: highlight legal build/move targets from `LegalActionQuery`, submit chosen `GameAction` through session API.
 
 ### Why it matters
 
@@ -74,7 +63,7 @@ First **playable** strategic experience: one human can actually play against bot
 
 ### Out of scope
 
-- Drafting UI, 3D wizard embodiment
+- Drafting UI, 3D wizard embodiment, tactical combat in macro loop
 
 **Suggested branch:** `milestone/2d-human-click-to-build`
 
@@ -88,67 +77,36 @@ Headless core bridge between future 3D wizard presentation and legal macro actio
 
 ### Why it matters
 
-Lets embodied wizard UX propose macro choices without becoming a second source of truth.
+Lets embodied wizard UX propose macro choices without becoming a second source of truth. A wizard **cannot** directly move a hero; divine guidance advises macro actions only.
 
 ### Prerequisites
 
-- M21 headless micro-duel runner green
 - M22 playable 2D loop (recommended)
-- Stable encounter contracts (`EncounterRequest` / `EncounterResult`) before embodied integration
-
-### Scope (initial)
-
-- Seeded offer catalog + events
-- Pass/accept through existing action submission paths
-- Headless tests only
+- Macro contact resolution rules stable
+- Stable encounter contracts before embodied integration
 
 ### Out of scope
 
 - Full embodied wizard loop
 - Full drafting
-- Neural-network training
+- Neural-network training in Godot
+- Integrating spell combat into macro AI
 
 **Suggested branch:** `milestone/divine-instruction-offers`
 
 ---
 
-## Future optional milestones (draft IDs preserved)
-
-### Unified run mode entry (draft M23)
-
-Single entry defaulting to 2D playable mode with 3D observatory — **after M22**.
-
-### Balance config wiring (draft M24)
-
-Drive selected `GameConstants` / `BuildCosts` from `BalanceConfig` JSON for batch sweeps.
-
----
-
-## Priority recommendation
-
-| Order | Milestone | Status |
-|---|---|---|
-| 1 | M14–M18 Macro foundation | **Done** (`macro-foundation-autonomous`) |
-| 2 | M21 Headless micro-duel runner | **Done** |
-| 3 | CSV telemetry fix | **Done** |
-| 4 | M24 Underworld pressure telemetry | **Done** |
-| 5 | M23 Development-card foundation | **Done** |
-| 6 | M25 2D read-only improvements | **Done** |
-| 7 | **M22 2D human click-to-build** | **Next (playable loop)** |
-| 8 | M26 Divine instruction offers | Future headless bridge |
-| 9 | Draft M23 unified entry | After M22 |
-| 10 | Draft M24 balance wiring | Optional |
-
----
-
 ## Explicitly not next
 
-- Full drafting system
+- Integrating `SpellCombatSession` into macro hero/demon resolution
+- Ports or Catan-style fixed trade ratios
+- Full drafting system (until explicitly requested)
 - Wizard marker → hero position binding
-- Combat UI in main loop
+- Tactical combat UI in main macro loop
 - Donor project merges
 - Second parallel `GameState`
 - Weakening architecture tests
+- Neural network training inside Godot
 - Merge to `main` without human PR review
 
-See [PROJECT_STATUS.md](PROJECT_STATUS.md) and [AUTONOMOUS_SESSION_LOG.md](AUTONOMOUS_SESSION_LOG.md) for current state.
+See [PROJECT_STATUS.md](PROJECT_STATUS.md), [RULES_ENGINE_AUDIT.md](RULES_ENGINE_AUDIT.md), and [AUTONOMOUS_SESSION_LOG.md](AUTONOMOUS_SESSION_LOG.md) for current state.
