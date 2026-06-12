@@ -33,6 +33,10 @@ static func _test_snapshot_render_deterministic(test_assert: TestAssert) -> void
 	view_a.sync_from_snapshot(snapshot)
 	view_b.sync_from_snapshot(snapshot)
 	test_assert.eq(JSON.stringify(view_a.get_snapshot()), JSON.stringify(view_b.get_snapshot()), "same snapshot should produce identical view data")
+	var bounds := view_a.compute_content_bounds()
+	test_assert.check(bounds.size.x > 0.0 and bounds.size.y > 0.0, "board bounds should be non-empty for a standard snapshot")
+	view_a.fit_to_container(Vector2(1200.0, 900.0), 24.0)
+	test_assert.check(view_a.scale.x > 1.0, "board should scale up to fill a large viewport")
 
 
 static func _test_board_view_does_not_mutate_state(test_assert: TestAssert) -> void:

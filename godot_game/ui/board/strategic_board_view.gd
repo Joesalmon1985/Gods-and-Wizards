@@ -17,6 +17,43 @@ func get_snapshot() -> Dictionary:
 	return _snapshot
 
 
+func compute_content_bounds() -> Rect2:
+	if _snapshot.is_empty():
+		return Rect2()
+	var min_p := Vector2(INF, INF)
+	var max_p := Vector2(-INF, -INF)
+	var margin := HEX_SIZE + 10.0
+	for entry in _snapshot.get("hexes", []):
+		var point := _axial_to_pixel(HexCoord.new(int(entry.get("q", 0)), int(entry.get("r", 0))))
+		min_p = min_p.min(point)
+		max_p = max_p.max(point)
+	for entry in _snapshot.get("nodes", []):
+		var point := _world_dict_to_pixel(entry.get("world", {}))
+		min_p = min_p.min(point)
+		max_p = max_p.max(point)
+	if min_p.x == INF:
+		return Rect2()
+	min_p -= Vector2(margin, margin)
+	max_p += Vector2(margin, margin)
+	return Rect2(min_p, max_p - min_p)
+
+
+func fit_to_container(container_size: Vector2, padding: float = 24.0) -> void:
+	var bounds := compute_content_bounds()
+	if bounds.size.x <= 0.0 or bounds.size.y <= 0.0 or container_size.x <= 0.0 or container_size.y <= 0.0:
+		scale = Vector2.ONE
+		position = Vector2(padding, padding)
+		return
+	var available := container_size - Vector2(padding * 2.0, padding * 2.0)
+	var scale_factor := minf(available.x / bounds.size.x, available.y / bounds.size.y)
+	scale = Vector2(scale_factor, scale_factor)
+	var scaled_size := bounds.size * scale_factor
+	position = Vector2(
+		padding + (available.x - scaled_size.x) * 0.5 - bounds.position.x * scale_factor,
+		padding + (available.y - scaled_size.y) * 0.5 - bounds.position.y * scale_factor
+	)
+
+
 func _draw() -> void:
 	if _snapshot.is_empty():
 		return
