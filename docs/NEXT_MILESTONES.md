@@ -1,6 +1,6 @@
 # Next Milestones (Proposed)
 
-**Last updated:** 2026-06-12 (post–Run H fidelity + Run I planning)
+**Last updated:** 2026-06-12 (Run J planning complete; implementation pending)
 
 **Strategic direction:** Macro-first, trainable mythic civilisation simulation. One authoritative `GameState`. Headless core and `BotGameSession` are source of truth. **Near-term dev default:** 2D strategic playable/debug. **Long-term product default:** 3D wizard spectator/RPG. See [GAME_DESIGN_BRIEF.md](GAME_DESIGN_BRIEF.md) and [RULEBOOK.md](RULEBOOK.md).
 
@@ -17,9 +17,19 @@ Branch `milestone/run-h-rules-card-spell-fidelity`:
 
 ---
 
-## Run I (docs-only — 3D / UI / product planning)
+## Run I complete (docs-only — 3D / UI / product planning)
 
-Branch `milestone/run-i-3d-ui-ux-product-planning` — implementation-ready specs I0–I14; future Impl I1–I7 in [IMPLEMENTATION_PLAN_3D_UI.md](IMPLEMENTATION_PLAN_3D_UI.md).
+Merged to `main`. Specs I0–I14; future Impl I1–I7 in [IMPLEMENTATION_PLAN_3D_UI.md](IMPLEMENTATION_PLAN_3D_UI.md).
+
+---
+
+## Run J planning complete (3D wizard world + dark fantasy reuse)
+
+Branch `milestone/run-j-planning-dark-fantasy-reuse` — authoritative plan: [RUN_J_PLANNING_DARK_FANTASY_REUSE.md](RUN_J_PLANNING_DARK_FANTASY_REUSE.md).
+
+- 3D input/movement/scale/card-display plan + donor asset CSV
+- Micro combat / AI training adaptation track deferred to Run J2/K (no sim migration in Run J)
+- **Next implementation:** Run J on `milestone/run-j-3d-wizard-world` after human review
 
 ---
 

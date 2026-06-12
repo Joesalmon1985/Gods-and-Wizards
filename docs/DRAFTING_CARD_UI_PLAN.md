@@ -38,6 +38,8 @@
 
 Current 2D play: draft picks appear in keyboard action list — replace with card grid in Impl I4.
 
+**3D wizard-world (Run J):** read-only draft pack + hand display via `StrategicDraftViewModel` (Phase 5 of [RUN_J_PLANNING_DARK_FANTASY_REUSE.md](RUN_J_PLANNING_DARK_FANTASY_REUSE.md)); no 3D pick submission in Run J.
+
 ---
 
 ## Audit visibility

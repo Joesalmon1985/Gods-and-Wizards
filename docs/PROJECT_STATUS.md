@@ -1,6 +1,7 @@
 # Project Status — Gods and Wizards
 
-**Last updated:** 2026-06-12 (Run H rules/card/spell fidelity)  
+**Last updated:** 2026-06-12 (Run J planning — 3D wizard world + dark fantasy reuse)  
+**Run J planning:** [RUN_J_PLANNING_DARK_FANTASY_REUSE.md](RUN_J_PLANNING_DARK_FANTASY_REUSE.md) on branch `milestone/run-j-planning-dark-fantasy-reuse` (planning only; implementation pending)  
 **Purpose:** Human-readable handoff for reviewers and Cursor agents before the next milestone.
 
 **Design docs (authoritative intent):** [RULEBOOK.md](RULEBOOK.md), [TURN_TIMING_AND_PHASE_MODEL.md](TURN_TIMING_AND_PHASE_MODEL.md), [RULES_ENGINE_AUDIT.md](RULES_ENGINE_AUDIT.md).  

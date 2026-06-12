@@ -6,7 +6,7 @@
 
 - **Low-poly hex board** — flat terrain tiles, slight elevation variance for readability.
 - **Billboard sprites** — Doom-style agents for heroes, demons, cities, wizards (see [BILLBOARD_SPRITE_ASSET_PIPELINE.md](BILLBOARD_SPRITE_ASSET_PIPELINE.md)).
-- **Readable scale** — board radius 3 fits in single camera frustum; hero travel ~0.3s per edge (cosmetic, not rules).
+- **Readable scale** — board radius 3 fits in single camera frustum. Run J target: cosmetic wizard walk across ~5 hex centre spacings in ~180 s (see [RUN_J_PLANNING_DARK_FANTASY_REUSE.md](RUN_J_PLANNING_DARK_FANTASY_REUSE.md)); superseded the earlier ~0.3s/edge placeholder note.
 
 ---
 
