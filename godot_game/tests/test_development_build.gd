@@ -5,11 +5,7 @@ static func run(test_assert: TestAssert) -> void:
 	var state := ScenarioBuilder.build_bot_ready_game(42)
 	var player := state.players[0]
 	SetupRules.grant_resources(state, player.id, {
-		ResourceType.Type.WOOD: 0,
-		ResourceType.Type.BRICK: 0,
 		ResourceType.Type.WHEAT: 2,
-		ResourceType.Type.SHEEP: 2,
-		ResourceType.Type.ORE: 2,
 	})
 
 	GameStartRules.start_game(state)

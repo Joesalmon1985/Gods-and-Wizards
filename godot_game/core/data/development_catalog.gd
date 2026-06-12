@@ -106,6 +106,29 @@ static func build_cost(development_id: String) -> Dictionary:
 	return card.cost.duplicate()
 
 
+static func build_cost_as_resources(development_id: String) -> Dictionary:
+	var costs: Dictionary = {}
+	for resource_key in build_cost(development_id).keys():
+		costs[_resource_type_from_key(str(resource_key))] = int(build_cost(development_id)[resource_key])
+	return costs
+
+
+static func _resource_type_from_key(key: String) -> ResourceType.Type:
+	match key:
+		"wood":
+			return ResourceType.Type.WOOD
+		"brick":
+			return ResourceType.Type.BRICK
+		"wheat":
+			return ResourceType.Type.WHEAT
+		"sheep":
+			return ResourceType.Type.SHEEP
+		"ore":
+			return ResourceType.Type.ORE
+		_:
+			return ResourceType.Type.WOOD
+
+
 static func resolve_build_id(requested_id: String) -> String:
 	if requested_id != "" and has_id(requested_id):
 		return requested_id

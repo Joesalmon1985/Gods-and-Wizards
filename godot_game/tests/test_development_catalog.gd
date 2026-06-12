@@ -57,8 +57,6 @@ static func _test_unknown_id_falls_back_to_first(test_assert: TestAssert) -> voi
 
 static func _grant_build_resources(state: GameState, player_id: int) -> void:
 	SetupRules.grant_resources(state, player_id, {
-		ResourceType.Type.WOOD: 2,
-		ResourceType.Type.BRICK: 2,
 		ResourceType.Type.WHEAT: 2,
 		ResourceType.Type.SHEEP: 2,
 		ResourceType.Type.ORE: 2,

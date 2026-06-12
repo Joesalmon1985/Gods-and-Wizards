@@ -47,12 +47,13 @@ static func _resolve_production(state: GameState, event_turn: int) -> Array:
 				if player == null:
 					continue
 
-				player.add_resource(resource, 1)
+				var amount := 1 + DevelopmentEffectEngine.production_bonus_for_city(city, resource)
+				player.add_resource(resource, amount)
 				events.append(ResourceGainedEvent.new(
 					turn,
 					player.id,
 					resource,
-					1,
+					amount,
 					coord,
 					vertex
 				))

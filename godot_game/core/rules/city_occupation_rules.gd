@@ -27,9 +27,11 @@ static func evaluate_round_start_purges(state: GameState) -> Array:
 			state.city_demon_occupied_since_round.erase(key)
 			continue
 		var occupied_since: int = int(state.city_demon_occupied_since_round[key])
-		if state.round_number <= occupied_since:
+		var city: City = state.cities_by_vertex[key]
+		var protection := DevelopmentEffectEngine.city_demon_protection_bonus(city)
+		if state.round_number <= occupied_since + protection:
 			continue
-		var vertex: BoardNode = state.cities_by_vertex[key].vertex
+		var vertex: BoardNode = city.vertex
 		if SetupRules.get_demon_count(state, vertex) <= 0:
 			state.city_demon_occupied_since_round.erase(key)
 			continue

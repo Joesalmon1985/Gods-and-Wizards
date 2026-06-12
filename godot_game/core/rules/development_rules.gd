@@ -1,7 +1,6 @@
 class_name DevelopmentRules
 extends RefCounted
 
-const DEFAULT_DEVELOPMENT_ID := ""
 const MAX_DEVELOPMENTS_PER_CITY := 3
 
 
@@ -26,7 +25,7 @@ static func can_build(
 	var player := _player(state, player_id)
 	if player == null or resolved_id not in player.development_hand:
 		return false
-	return BuildCosts.can_afford(player, BuildCosts.BUILD_DEVELOPMENT)
+	return BuildCosts.can_afford(player, DevelopmentCatalog.build_cost_as_resources(resolved_id))
 
 
 static func apply(
@@ -39,7 +38,7 @@ static func apply(
 	var resolved_id := DevelopmentCatalog.resolve_build_id(development_id)
 	if not can_build(state, player_id, vertex, resolved_id):
 		return []
-	player.pay_cost(BuildCosts.BUILD_DEVELOPMENT)
+	player.pay_cost(DevelopmentCatalog.build_cost_as_resources(resolved_id))
 	player.development_hand.erase(resolved_id)
 	var city: City = state.cities_by_vertex[vertex.to_key()]
 	city.developments.append(resolved_id)
@@ -47,9 +46,8 @@ static func apply(
 	var events: Array = [
 		DevelopmentBuiltEvent.new(state.round_number, player_id, vertex, resolved_id),
 	]
-	var bonus := DevelopmentCatalog.victory_points_bonus(resolved_id)
-	if bonus > 0:
-		events.append_array(ScoreRules.grant_victory_points(state, player_id, bonus, "development_built"))
+	events.append_array(DevelopmentEffectEngine.apply_card_on_build(state, player_id, city, resolved_id))
+	DevelopmentEffectEngine.refresh_hero_action_budgets(state)
 	return events
 
 

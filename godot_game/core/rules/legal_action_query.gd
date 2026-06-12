@@ -73,7 +73,10 @@ static func _is_legal(state: GameState, active_player: Player, action: GameActio
 		ActionKind.Kind.BUILD_DEVELOPMENT:
 			if action.vertex == null:
 				return false
-			if not BuildCosts.can_afford(active_player, BuildCosts.BUILD_DEVELOPMENT):
+			if not BuildCosts.can_afford(
+				active_player,
+				DevelopmentCatalog.build_cost_as_resources(action.development_id)
+			):
 				return false
 			return DevelopmentRules.can_build(
 				state,
