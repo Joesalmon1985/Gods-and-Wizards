@@ -1,6 +1,6 @@
 # Rule Contract Test Inventory
 
-**Last updated:** 2026-06-12 (Run F rules-contract audit)  
+**Last updated:** 2026-06-12 (Run H fidelity)  
 **Purpose:** Map every intended v1 rule from the rulebook to contract tests. Tests must derive from design intent, not implementation quirks.
 
 **Sources:** [RULEBOOK.md](RULEBOOK.md), [TURN_TIMING_AND_PHASE_MODEL.md](TURN_TIMING_AND_PHASE_MODEL.md), [DEVELOPMENT_CARD_CATALOG.md](DEVELOPMENT_CARD_CATALOG.md)
@@ -31,7 +31,7 @@
 | RC-B-004 | Seeded draw order deterministic | Architecture | `spread_rules.gd` | `TestDemonSpread`, `TestRuleContractInfection` | same seed → same | — | — | — | Covered |
 | RC-B-005 | Discard reshuffle deterministic | RULEBOOK § Demons | `spread_rules.gd` | `TestRuleContractInfection` | empty pile → reshuffle | — | continue draw | — | Covered |
 | RC-B-006 | Age end infection_rate +1 | RULEBOOK § Demons | `draft_rules.gd` | `TestDraftAgeAdvance` | +1 after 8 rounds | — | — | — | Covered |
-| RC-B-007 | Age-weighted reshuffle probabilities | RULEBOOK § Demons | — | — | — | — | — | — | Undefined |
+| RC-B-007 | Age-weighted reshuffle probabilities | RULEBOOK § Demons | `spread_rules.gd` | `TestRuleContractInfectionSurge` | surge at age II/III | none age I | discard prepend | UnderworldSurgeEvent | Covered |
 
 ---
 
@@ -42,7 +42,7 @@
 | RC-C-001 | Hero clears all demons on enter | RULEBOOK § Heroes | `contact_resolution_rules.gd` | `TestMacroContactResolution` | 1/2/3 demons | — | hero remains | DemonsClearedEvent | Covered |
 | RC-C-002 | Demon spawn onto hero cleared | RULEBOOK § Heroes | `contact_resolution_rules.gd` | `TestMacroContactResolution`, `TestInfectionDeckSpread` | spread to hero node | — | — | clearance event | Covered |
 | RC-C-003 | No SpellCombatSession in macro | GD-001 | — (omission) | `TestMacroContactResolution` | grep macro path | — | — | — | Covered |
-| RC-C-004 | Friendly hero stacking | RULEBOOK § Heroes | — | — | — | — | — | — | Undefined |
+| RC-C-004 | Friendly hero stacking | RULEBOOK § Heroes | `move_rules.gd`, `contact_resolution_rules.gd` | `TestRuleContractHeroStacking` | friendly blocked | hostile clash | both removed | HeroClashEvent | Covered |
 
 ---
 
@@ -79,7 +79,7 @@
 | RC-F-002 | round_number on full cycle | TURN doc | `action_rules.gd` | `TestActionApplication` | wrap → round+1 | — | — | RoundStartedEvent | Covered |
 | RC-F-003 | TurnPhase in state | TURN doc | `turn_lifecycle_rules.gd` | `TestTurnLifecycle` | ACTIVE_PLAYER | — | DRAFT_ROUND | — | Covered |
 | RC-F-004 | END_TURN always legal | TURN doc | `legal_action_query.gd` | `TestStrategicPlayIntegration` | in mask | — | — | — | Covered |
-| RC-F-005 | Production at round boundary | TURN doc (Partial) | `production_rules.gd` | `TestTurnLifecycle` | production on wrap | not mid-round | documented gap | ProductionCheckEvent | Partial |
+| RC-F-005 | Production at active player turn start | TURN doc | `production_rules.gd`, `turn_lifecycle_rules.gd` | `TestRuleContractProductionTiming`, `TestProduction` | active player only | demon-occupied 0 | PRODUCTION phase | ProductionPhaseEvent | Covered |
 | RC-F-006 | Per-turn flags reset | TURN doc | `turn_lifecycle_rules.gd` | `TestTurnLifecycle` | flags cleared | — | — | — | Covered |
 
 ---
@@ -94,7 +94,7 @@
 | RC-G-004 | Duplicate offer same turn blocked | RULEBOOK § Trading | `trade_offer_rules.gd` | `TestTradeOfferAccept` | — | 2nd illegal | — | — | Covered |
 | RC-G-005 | Offer dedup clears on END_TURN | Run F contract | `trade_offer_rules.gd` | `TestRuleContractTrading` | re-offer next turn | — | — | — | Covered |
 | RC-G-006 | PLAYER_TRADE deprecated | RULEBOOK § Trading | `legal_action_query.gd` | `TestTradeOfferAccept` | — | illegal | — | — | Covered |
-| RC-G-007 | Pending offers survive until accept/reject | Current impl | `trade_offer_rules.gd` | `TestRuleContractTrading` | accept next player turn | — | — | — | Partial |
+| RC-G-007 | Pending offers expire after full cycle | RUN_H §5 | `trade_offer_rules.gd` | `TestRuleContractTrading` | accept on target turn | expired reject | turn-age expiry | TradeOfferExpiredEvent | Covered |
 
 ---
 

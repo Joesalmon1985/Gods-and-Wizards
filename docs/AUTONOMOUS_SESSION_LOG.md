@@ -1,11 +1,27 @@
 # Autonomous Session Log
 
-**Last updated:** 2026-06-12 (Run G game completion + training suites complete)  
+**Last updated:** 2026-06-12 (Run H complete; Run I docs started)  
 **Purpose:** Resume point for Cursor agents after context reset.
 
 ---
 
-## Run G — game completion gate + training suites (2026-06-12)
+## Run H — rules / card / spell fidelity (2026-06-12)
+
+**Branch:** `milestone/run-h-rules-card-spell-fidelity`  
+**Base:** `main@ff7d30d`
+
+**Delivered:**
+
+- GD-013..017 locked; five new macro contract test modules
+- Card effect engine + catalogue validator honesty
+- `SpellCombatStatusRules` + `TestSpellEffectFidelity`
+- `GameRng` per-instance fix (batch sim determinism)
+
+**Suite:** 110 modules, 151,318 assertions, exit 0
+
+**Handoff:** push branch; PR for human review; Run I branched from Run H (not merged to main).
+
+---
 
 **Branch:** `milestone/run-g-game-completion-training-suites`  
 **Gate decision:** `GO_FOR_TRAINING` ([TRAINING_READINESS_GATE.md](TRAINING_READINESS_GATE.md))

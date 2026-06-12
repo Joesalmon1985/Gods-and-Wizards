@@ -65,6 +65,7 @@ static func _purge_city_development(state: GameState, city: City) -> Array:
 				)
 			)
 	city.developments.clear()
+	DevelopmentEffectEngine.refresh_player_wizard_flags(state, city.player_id)
 	return events
 
 

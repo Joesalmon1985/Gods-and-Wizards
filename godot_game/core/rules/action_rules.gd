@@ -82,10 +82,20 @@ static func _apply_move_hero(state: GameState, action: GameAction) -> Array:
 	var hero := MoveRules.get_hero(state, action.hero_id)
 	if hero == null:
 		return []
+	var target_key := action.target_node.to_key()
+	if state.heroes_by_node.has(target_key):
+		var occupant: Hero = state.heroes_by_node[target_key]
+		if occupant.player_id != hero.player_id:
+			return ContactResolutionRules.resolve_hostile_hero_clash(
+				state,
+				hero,
+				occupant,
+				action.target_node
+			)
 	var from_node := hero.node
 	state.heroes_by_node.erase(from_node.to_key())
 	hero.node = action.target_node
-	state.heroes_by_node[action.target_node.to_key()] = hero
+	state.heroes_by_node[target_key] = hero
 	var remaining := int(state.hero_actions_remaining.get(hero.id, GameConstants.HERO_ACTIONS_PER_TURN))
 	state.hero_actions_remaining[hero.id] = maxi(0, remaining - 1)
 	var events: Array = [HeroMovedEvent.new(state.round_number, hero.id, from_node, action.target_node)]
@@ -147,6 +157,7 @@ static func _apply_end_turn(state: GameState) -> Array:
 
 	state.active_player_index = (state.active_player_index + 1) % TurnRules.player_count(state)
 	state.turn_number += 1
+	events.append_array(TradeOfferRules.expire_stale_offers(state))
 
 	if state.active_player_index == 0:
 		state.round_number += 1
@@ -157,6 +168,6 @@ static func _apply_end_turn(state: GameState) -> Array:
 		SetupRules.rebuild_action_space(state)
 		state.current_phase = TurnPhase.Phase.DRAFT_ROUND
 	else:
-		TurnLifecycleRules.on_turn_start(state)
+		events.append_array(TurnLifecycleRules.on_turn_start(state))
 
 	return events

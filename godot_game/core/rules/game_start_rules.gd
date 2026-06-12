@@ -6,6 +6,7 @@ static func start_game(state: GameState) -> Array:
 	DraftRules.initialize_for_game(state)
 	var events: Array = [RoundStartedEvent.new(state.round_number)]
 	TurnLifecycleRules.on_round_start(state)
-	events.append_array(ProductionRules.resolve_round_production(state))
-	TurnLifecycleRules.begin_game(state)
+	state.turn_number = 1
+	state.turn_scope_flags.clear()
+	events.append_array(TurnLifecycleRules.on_turn_start(state))
 	return events

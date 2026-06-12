@@ -66,7 +66,8 @@ static func apply_offer(
 		give_resource,
 		give_amount,
 		receive_resource,
-		receive_amount
+		receive_amount,
+		state.turn_number
 	)
 	state.next_trade_offer_id += 1
 	state.pending_trade_offers.append(offer)
@@ -118,6 +119,9 @@ static func apply_accept(state: GameState, active_player_id: int, offer_id: int)
 	offerer.add_resource(offer.receive_resource, offer.receive_amount)
 	acceptor.add_resource(offer.receive_resource, -offer.receive_amount)
 	acceptor.add_resource(offer.give_resource, offer.give_amount)
+	var bonus := DevelopmentEffectEngine.trade_bonus_for_player(state, active_player_id)
+	if bonus > 0:
+		acceptor.add_resource(offer.give_resource, bonus)
 	_remove_offer(state, offer_id)
 	return [
 		TradeAcceptedEvent.new(
@@ -155,6 +159,32 @@ static func apply_reject(state: GameState, active_player_id: int, offer_id: int)
 
 static func clear_turn_trade_state(state: GameState) -> void:
 	state.trade_offers_made_this_turn.clear()
+
+
+static func expire_stale_offers(state: GameState) -> Array:
+	var events: Array = []
+	var player_count := TurnRules.player_count(state)
+	var remaining: Array = []
+	for offer in state.pending_trade_offers:
+		var trade: TradeOffer = offer
+		var turn_age := state.turn_number - trade.created_turn_number
+		if turn_age >= player_count:
+			events.append(
+				TradeOfferExpiredEvent.new(
+					state.round_number,
+					trade.offer_id,
+					trade.from_player_id,
+					trade.to_player_id
+				)
+			)
+		else:
+			remaining.append(trade)
+	state.pending_trade_offers = remaining
+	return events
+
+
+static func expire_offers_for_player(state: GameState, player_id: int) -> Array:
+	return expire_stale_offers(state)
 
 
 static func _offer_signature(

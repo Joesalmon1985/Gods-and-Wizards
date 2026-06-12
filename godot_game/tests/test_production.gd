@@ -24,8 +24,7 @@ static func run(test_assert: TestAssert) -> void:
 		total_resources += bob.get_resource(resource)
 	test_assert.eq(total_resources, gain_count, "resource totals should match gain events")
 
-	test_assert.eq(state.turn_number, 1, "one production round should advance turn to 1")
+	test_assert.eq(state.turn_number, 1, "one production round advances active player turn counter")
 
-	var events_round_two := ProductionRules.resolve_start_of_turn_production(state)
+	var events_round_two := ProductionRules.resolve_active_player_turn_start_production(state)
 	test_assert.check(not events_round_two.is_empty(), "second production round should emit events")
-	test_assert.eq(state.turn_number, 2, "second production round should advance turn to 2")

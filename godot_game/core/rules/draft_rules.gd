@@ -62,7 +62,6 @@ static func resolve_draft_step(state: GameState) -> Array:
 
 static func finalize_round_after_draft(state: GameState) -> Array:
 	var events: Array = resolve_draft_step(state)
-	events.append_array(ProductionRules.resolve_round_production(state))
 	var game_over := GameOverRules.evaluate(state)
 	if game_over != null:
 		state.game_finished = true
@@ -70,7 +69,7 @@ static func finalize_round_after_draft(state: GameState) -> Array:
 		state.current_phase = TurnPhase.Phase.GAME_OVER
 		events.append(game_over)
 	else:
-		TurnLifecycleRules.on_turn_start(state)
+		events.append_array(TurnLifecycleRules.on_turn_start(state))
 	SetupRules.rebuild_action_space(state)
 	return events
 
@@ -119,6 +118,7 @@ static func advance_round_end_with_picks(state: GameState, picks_by_player: Dict
 		_advance_age(state)
 		if state.draft_age != previous_age:
 			events.append(DraftAgeAdvancedEvent.new(state.round_number, state.draft_age))
+			events.append_array(DevelopmentEffectEngine.append_draft_peek_events(state))
 
 	return events
 

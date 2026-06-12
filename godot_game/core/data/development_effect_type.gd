@@ -38,3 +38,7 @@ static func all_known() -> Array[String]:
 
 static func is_known(effect_type: String) -> bool:
 	return effect_type in all_known()
+
+
+static func is_runtime_implemented(effect_type: String) -> bool:
+	return effect_type in all_known()

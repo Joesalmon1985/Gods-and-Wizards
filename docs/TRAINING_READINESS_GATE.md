@@ -6,7 +6,7 @@
 
 ## Decision
 
-### **GO_FOR_TRAINING**
+**Run H regression (2026-06-12):** Full suite exit 0 after production timing, trade expiry, card flags, and spell status engine. **`GameRng` per-instance fix** restores batch-sim determinism (`TestBalanceConfig`). Macro/micro training modules unchanged in contract; re-run before serious RL if obs schema extended for new player flags.
 
 Part 2 milestones G5–G13 may proceed. G10–G11 (neural training suites) are authorised with documented gaps below.
 

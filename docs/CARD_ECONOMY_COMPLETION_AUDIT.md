@@ -36,9 +36,11 @@ Card economy is **complete for catalogue and draft loop**; effect engine is **pa
 | `hero_actions_bonus`, `hero_spawn` | Complete | Budget refresh, hero placement |
 | `city_demon_protection`, `demon_clear_on_play` | Complete | Build-time and purge hooks |
 | `production_discount` | Stub | Recognised; no-op on build |
-| **`trade_bonus`** | **Partial** | Parsed in catalogue; `_apply_one` returns `[]` — no trade-ratio modifier |
-| **`draft_bonus`** | **Partial** | Parsed in catalogue; no extra draft pick |
-| **`wizard_access`** | **Partial** | Parsed in catalogue; no macro wizard/encounter unlock |
+| **`trade_bonus`** | **Complete (Run H)** | `DevelopmentEffectEngine.trade_bonus_for_player`; bonus on accept; `TestDevelopmentEffectFidelity` |
+| **`draft_bonus`** | **Complete (Run H)** | Age-start pack peek; `DraftPackPeekEvent`; `TestDevelopmentEffectFidelity` |
+| **`wizard_access`** | **Complete (Run H)** | Player flags `wizard_encounter_unlock`, `wizard_trade_unlock`; refresh on purge |
+| **`production_discount`** | **Complete (Run H)** | `apply_build_cost_discount`; synthetic fixture in `TestDevelopmentEffectFidelity` |
+| **Catalogue validator** | **Complete (Run H)** | Fails `implemented` cards with unimplemented effect types |
 
 Implementation: `godot_game/core/rules/development_effect_engine.gd`  
 Tests: `TestDevelopmentEffectType`, `TestDevelopmentBuild`, `TestCityDemonOccupation`

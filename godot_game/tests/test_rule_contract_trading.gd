@@ -7,7 +7,8 @@ static func run(test_assert: TestAssert) -> void:
 	_test_target_accepts_on_their_turn(test_assert)
 	_test_non_target_cannot_accept(test_assert)
 	_test_offer_dedup_clears_after_end_turn(test_assert)
-	_test_pending_offer_survives_until_target_turn(test_assert)
+	_test_pending_offer_expires_at_offerer_end_turn(test_assert)
+	_test_expired_offer_cannot_be_accepted(test_assert)
 	_test_trade_events_emitted(test_assert)
 
 
@@ -128,7 +129,7 @@ static func _test_offer_dedup_clears_after_end_turn(test_assert: TestAssert) -> 
 	)
 
 
-static func _test_pending_offer_survives_until_target_turn(test_assert: TestAssert) -> void:
+static func _test_pending_offer_expires_at_offerer_end_turn(test_assert: TestAssert) -> void:
 	var state := ScenarioBuilder.build_four_player_bot_game(15)
 	state.players[0].resources[ResourceType.Type.WOOD] = 2
 	state.players[1].resources[ResourceType.Type.BRICK] = 2
@@ -137,7 +138,28 @@ static func _test_pending_offer_survives_until_target_turn(test_assert: TestAsse
 	)
 	ActionRules.apply(state, offer)
 	ActionRules.apply(state, RuleContractFixtures.end_turn_action(state))
-	test_assert.eq(state.pending_trade_offers.size(), 1, "pending offer should survive offerer END_TURN until resolved")
+	test_assert.eq(state.pending_trade_offers.size(), 1, "offer survives offerer END_TURN same cycle for target accept")
+	for _i in TurnRules.player_count(state) - 1:
+		ActionRules.apply(state, RuleContractFixtures.end_turn_action(state))
+	test_assert.eq(state.pending_trade_offers.size(), 0, "offer expires when offerer END_TURN after full cycle")
+
+
+static func _test_expired_offer_cannot_be_accepted(test_assert: TestAssert) -> void:
+	var state := ScenarioBuilder.build_four_player_bot_game(17)
+	state.players[0].resources[ResourceType.Type.WOOD] = 2
+	state.players[1].resources[ResourceType.Type.BRICK] = 2
+	var offer := RuleContractFixtures.find_trade_offer(
+		state, 1, ResourceType.Type.WOOD, 1, ResourceType.Type.BRICK, 1
+	)
+	ActionRules.apply(state, offer)
+	for _i in TurnRules.player_count(state) - 1:
+		ActionRules.apply(state, RuleContractFixtures.end_turn_action(state))
+	var accept := RuleContractFixtures.find_trade_accept(state, 1)
+	if accept != null:
+		test_assert.check(
+			not LegalActionQuery.get_view(state).legal_mask[accept.action_id],
+			"expired offer cannot be accepted"
+		)
 
 
 static func _test_trade_events_emitted(test_assert: TestAssert) -> void:

@@ -1,6 +1,6 @@
 # Project Status — Gods and Wizards
 
-**Last updated:** 2026-06-12 (Run G game completion + training suites)  
+**Last updated:** 2026-06-12 (Run H rules/card/spell fidelity)  
 **Purpose:** Human-readable handoff for reviewers and Cursor agents before the next milestone.
 
 **Design docs (authoritative intent):** [RULEBOOK.md](RULEBOOK.md), [TURN_TIMING_AND_PHASE_MODEL.md](TURN_TIMING_AND_PHASE_MODEL.md), [RULES_ENGINE_AUDIT.md](RULES_ENGINE_AUDIT.md).  
@@ -36,13 +36,13 @@ Do not treat stale branch names or SHAs in this doc as authoritative.
 & "C:\Users\joesa\Documents\Cursor\BoardGame\gods-and-wizards\scripts\Invoke-GodotHeadless.ps1" -ArgumentList @("--headless", "--path", "C:\Users\joesa\Documents\Cursor\BoardGame\gods-and-wizards\godot_game", "-s", "res://tests/test_runner.gd")
 ```
 
-### Result (verified 2026-06-12, Run G)
+### Result (verified 2026-06-12, Run H)
 
 | Metric | Value |
 |---|---|
 | Exit code | **0** |
-| Modules run | **104** |
-| Assertions | **141,726** |
+| Modules run | **110** |
+| Assertions | **151,318** |
 | Passed | **All** |
 | Failed | **0** |
 | Stale Godot processes after run | Check locally with `Get-Process -Name "Godot*"` |

@@ -11,7 +11,9 @@ static func can_move_hero(state: GameState, player_id: int, hero: Hero, target: 
 	if hero.node.equals(target):
 		return false
 	if state.heroes_by_node.has(target.to_key()):
-		return false
+		var occupant: Hero = state.heroes_by_node[target.to_key()]
+		if occupant.player_id == player_id:
+			return false
 	if int(state.hero_actions_remaining.get(hero.id, GameConstants.HERO_ACTIONS_PER_TURN)) <= 0:
 		return false
 	for adjacent in state.board.get_adjacent_nodes(hero.node):

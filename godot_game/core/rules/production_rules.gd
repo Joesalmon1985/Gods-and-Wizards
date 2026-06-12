@@ -1,16 +1,26 @@
 class_name ProductionRules
 extends RefCounted
 
-static func resolve_start_of_turn_production(state: GameState) -> Array:
-	state.turn_number += 1
-	return _resolve_production(state, state.turn_number)
+static func resolve_active_player_turn_start_production(state: GameState) -> Array:
+	var player := TurnRules.get_active_player(state)
+	if player == null:
+		return []
+	state.current_phase = TurnPhase.Phase.PRODUCTION
+	var events: Array = [ProductionPhaseEvent.new(state.turn_number, player.id)]
+	events.append_array(_resolve_production(state, state.turn_number, player.id))
+	state.current_phase = TurnPhase.Phase.ACTIVE_PLAYER
+	return events
 
 
 static func resolve_round_production(state: GameState) -> Array:
-	return _resolve_production(state, state.round_number)
+	return _resolve_production(state, state.round_number, -1)
 
 
-static func _resolve_production(state: GameState, event_turn: int) -> Array:
+static func resolve_start_of_turn_production(state: GameState) -> Array:
+	return resolve_active_player_turn_start_production(state)
+
+
+static func _resolve_production(state: GameState, event_turn: int, active_player_id: int) -> Array:
 	var events: Array = []
 	var turn := event_turn
 
@@ -42,6 +52,8 @@ static func _resolve_production(state: GameState, event_turn: int) -> Array:
 
 				var city: City = state.cities_by_vertex[vertex_key]
 				if CityOccupationRules.is_city_suppressed(state, vertex):
+					continue
+				if active_player_id >= 0 and city.player_id != active_player_id:
 					continue
 				var player := _get_player(state, city.player_id)
 				if player == null:

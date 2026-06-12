@@ -43,23 +43,20 @@ static func _test_turn_scope_flags_reset_on_turn_start(test_assert: TestAssert) 
 
 static func _test_production_only_on_round_wrap(test_assert: TestAssert) -> void:
 	var state := ScenarioBuilder.build_bot_ready_game(42)
-	GameStartRules.start_game(state)
-	var end_turn := state.action_space.get_action(0)
-	var first_events := ActionRules.apply(state, end_turn)
-	var production_on_first := false
-	for event in first_events:
-		if event is ProductionCheckEvent:
-			production_on_first = true
-	test_assert.check(not production_on_first, "single END_TURN should not run production")
+	var start_events := GameStartRules.start_game(state)
+	var production_on_start := false
+	for event in start_events:
+		if event is ProductionPhaseEvent:
+			production_on_start = true
+	test_assert.check(production_on_start, "game start should run turn-start production")
 
-	var production_on_wrap := false
-	for _i in TurnRules.player_count(state):
-		ActionRules.apply(state, end_turn)
-	var finalize_events := DraftRules.complete_automatic_draft_for_bots(state)
-	for event in finalize_events:
-		if event is ProductionCheckEvent:
-			production_on_wrap = true
-	test_assert.check(production_on_wrap, "full player cycle should run production at round wrap")
+	var end_turn := state.action_space.get_action(0)
+	var production_on_second_turn := false
+	var turn_events := ActionRules.apply(state, end_turn)
+	for event in turn_events:
+		if event is ProductionPhaseEvent:
+			production_on_second_turn = true
+	test_assert.check(production_on_second_turn, "next player turn should run production at turn start")
 
 
 static func _test_legal_mask_size_unchanged_at_step_zero(test_assert: TestAssert) -> void:

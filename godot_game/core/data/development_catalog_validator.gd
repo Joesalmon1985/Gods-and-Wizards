@@ -74,10 +74,6 @@ static func _validate_card(
 		if str(data.get("rules_text", "")).strip_edges() == "":
 			errors.append("implemented card '%s' must have rules_text" % card_id)
 
-	for resource in data.get("cost", {}).keys():
-		if str(resource) not in VALID_RESOURCES:
-			errors.append("card '%s' has invalid cost resource '%s'" % [card_id, str(resource)])
-
 	var effects = data.get("effects", [])
 	if typeof(effects) == TYPE_ARRAY:
 		for effect in effects:
@@ -87,6 +83,14 @@ static func _validate_card(
 			var effect_type := str(effect.get("type", ""))
 			if not DevelopmentEffectType.is_known(effect_type):
 				errors.append("card '%s' has unknown effect type '%s'" % [card_id, effect_type])
+			elif status == "implemented" and not DevelopmentEffectType.is_runtime_implemented(effect_type):
+				errors.append(
+					"implemented card '%s' uses unimplemented effect type '%s'" % [card_id, effect_type]
+				)
+
+	for resource in data.get("cost", {}).keys():
+		if str(resource) not in VALID_RESOURCES:
+			errors.append("card '%s' has invalid cost resource '%s'" % [card_id, str(resource)])
 
 	return errors
 

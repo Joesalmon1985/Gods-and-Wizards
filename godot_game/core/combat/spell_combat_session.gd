@@ -48,6 +48,7 @@ func get_legal_spell_ids() -> Array[String]:
 	return SpellCombatRules.legal_spell_ids(
 		loadout,
 		catalog,
+		caster,
 		float(caster["mana"]),
 		sim_time,
 		cooldowns
@@ -61,10 +62,11 @@ func step(spell_id: String) -> Dictionary:
 	var caster: Dictionary = get_active_combatant()
 	var opponent: Dictionary = get_opponent()
 	var events: Array = []
+	events.append_array(_tick_all_combatants())
 
 	if SpellCombatRules.is_pass(spell_id):
 		sim_time += 1.0
-		_regen_mana(caster, 8.0)
+		_apply_regen(caster, 8.0)
 		events.append(_append_event("pass", {"combatant_id": caster["id"], "sim_time": sim_time}))
 	else:
 		var spell := catalog.get_spell(spell_id)
@@ -72,18 +74,25 @@ func step(spell_id: String) -> Dictionary:
 		if spell == null or not legal.has(spell_id):
 			return _step_result([])
 
+		var cast_time := SpellCombatStatusRules.effective_cast_time(spell, caster, sim_time)
+		if cast_time == INF:
+			return _step_result([])
+
 		events.append(_append_event("cast_start", {
 			"combatant_id": caster["id"],
 			"spell_id": spell_id,
 			"sim_time": sim_time,
-			"cast_time": spell.cast_time,
+			"cast_time": cast_time,
 			"hit_time": spell.hit_time,
 		}))
 
-		sim_time += spell.cast_time + spell.hit_time
-		_cooldowns_by_combatant[active_index][spell_id] = sim_time + spell.cooldown
+		sim_time += cast_time + spell.hit_time
+		var cd_duration := SpellCombatStatusRules.effective_cooldown_duration(spell, caster, sim_time)
+		_cooldowns_by_combatant[active_index][spell_id] = sim_time + cd_duration
 
-		var outcome := SpellCombatRules.apply_spell_effects(spell, caster, opponent)
+		var outcome := SpellCombatRules.apply_spell_effects(spell, caster, opponent, sim_time)
+		for status_event in outcome.get("status_events", []):
+			events.append(_append_event(str(status_event.get("type", "status")), status_event))
 		if float(outcome["damage_to_target"]) > 0.0:
 			events.append(_append_event("spell_hit", {
 				"caster_id": caster["id"],
@@ -99,7 +108,7 @@ func step(spell_id: String) -> Dictionary:
 				"heal": outcome["heal_to_caster"],
 				"sim_time": sim_time,
 			}))
-		_regen_mana(caster, 2.0)
+		_apply_regen(caster, 2.0)
 
 	_evaluate_terminal(events)
 	if not finished:
@@ -118,6 +127,7 @@ func observe(combatant_index: int = -1) -> Dictionary:
 	var index := combatant_index if combatant_index >= 0 else active_index
 	var combatant: Dictionary = combatants[index]
 	var opponent: Dictionary = combatants[1 - index]
+	var cooldowns: Dictionary = _cooldowns_by_combatant[index]
 	return {
 		"seed": seed,
 		"sim_time": sim_time,
@@ -129,6 +139,9 @@ func observe(combatant_index: int = -1) -> Dictionary:
 		"opponent_health": opponent["health"],
 		"opponent_mana": opponent["mana"],
 		"loadout_spell_ids": combatant["loadout"].spell_ids.duplicate(),
+		"cooldowns_by_spell_id": cooldowns.duplicate(),
+		"statuses": SpellCombatStatusRules.statuses_summary(combatant, sim_time),
+		"opponent_statuses": SpellCombatStatusRules.statuses_summary(opponent, sim_time),
 		"finished": finished,
 		"winner_id": winner_id,
 	}
@@ -163,7 +176,25 @@ func _init_combatant(index: int, loadout_id: String, loadouts: Dictionary) -> vo
 		"mana": loadout.base_mana,
 		"max_mana": loadout.base_mana,
 		"loadout": loadout,
+		"statuses": [],
 	})
+
+
+func _tick_all_combatants() -> Array:
+	var events: Array = []
+	for combatant in combatants:
+		events.append_array(SpellCombatStatusRules.tick_statuses(combatant, sim_time))
+	return events
+
+
+func _apply_regen(combatant: Dictionary, base_mana: float) -> void:
+	var deltas := SpellCombatStatusRules.regen_deltas(combatant, sim_time)
+	combatant["health"] = minf(
+		float(combatant.get("max_health", combatant["health"])),
+		float(combatant["health"]) + float(deltas.get("hp", 0.0))
+	)
+	var max_mana := float(combatant.get("max_mana", 0.0))
+	combatant["mana"] = minf(max_mana, float(combatant["mana"]) + base_mana + float(deltas.get("mana", 0.0)))
 
 
 func _evaluate_terminal(events: Array) -> void:
@@ -194,11 +225,6 @@ func _append_event(event_type: String, payload: Dictionary) -> Dictionary:
 		event[key] = payload[key]
 	timeline.append(event)
 	return event
-
-
-func _regen_mana(combatant: Dictionary, amount: float) -> void:
-	var max_mana := float(combatant.get("max_mana", 0.0))
-	combatant["mana"] = minf(max_mana, float(combatant["mana"]) + amount)
 
 
 func _step_result(events: Array) -> Dictionary:

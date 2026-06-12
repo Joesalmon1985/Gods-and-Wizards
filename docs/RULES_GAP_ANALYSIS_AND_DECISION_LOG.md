@@ -37,6 +37,11 @@ Authoritative design rules: [RULEBOOK.md](RULEBOOK.md). Implementation status: [
 | **GD-010** | Win condition | — | **VP-only win at 21**; collective breach loss at **10** | 2026-06-12 | Aligns with `GameConstants.VP_TO_WIN` | **Done (Run D)** — `BREACH_LIMIT := 10` |
 | **GD-011** | Legacy combat | `EncounterRules` uses card duel | **Legacy/debug**; not v1 macro resolution; `SpellCombatSession` is canonical tactical model | 2026-06-12 | Terminology clarity | Deprecate or rewrite `EncounterRules` |
 | **GD-012** | Macro RL observation | Export is active-player aggregates | **Design target:** full global state for macro RL | 2026-06-12 | Multi-agent centralized training | Dataset v2 + board featurizer |
+| **GD-013** | Infection surge | Simple discard reshuffle only | **Underworld Surge** after each player END: Age I 0%, II 10%, III 20% (`roll_d10`); emit `UnderworldSurgeEvent` | 2026-06-12 | RC-B-007 Run H | `TestRuleContractInfectionSurge` |
+| **GD-014** | Hero stacking | All nodes blocked for heroes | **Friendly deny; hostile clash** removes both heroes; `HeroClashEvent` | 2026-06-12 | RC-C-004 Run H | `TestRuleContractHeroStacking` |
+| **GD-015** | Dev in occupied city | Build blocked; ambiguous | **Cannot build** new development while demons > 0 on city vertex | 2026-06-12 | RC-D-006 Run H | `TestRuleContractOccupiedDevelopment` |
+| **GD-016** | Production timing | Round-wrap production | **Active-player turn-start** production (`PRODUCTION` phase); only active player's cities | 2026-06-12 | RC-F-005 Run H | `TestRuleContractProductionTiming` |
+| **GD-017** | Trade offer persistence | Cross-turn until accept | **Expire after full player cycle** (turn-age ≥ player count); see RUN_H_RULE_DECISIONS §5 | 2026-06-12 | RC-G-007 Run H | `TestRuleContractTrading` |
 
 ---
 

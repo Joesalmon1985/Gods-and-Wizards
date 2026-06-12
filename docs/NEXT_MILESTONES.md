@@ -1,8 +1,25 @@
 # Next Milestones (Proposed)
 
-**Last updated:** 2026-06-12 (post–Run G game completion + training suites)
+**Last updated:** 2026-06-12 (post–Run H fidelity + Run I planning)
 
 **Strategic direction:** Macro-first, trainable mythic civilisation simulation. One authoritative `GameState`. Headless core and `BotGameSession` are source of truth. **Near-term dev default:** 2D strategic playable/debug. **Long-term product default:** 3D wizard spectator/RPG. See [GAME_DESIGN_BRIEF.md](GAME_DESIGN_BRIEF.md) and [RULEBOOK.md](RULEBOOK.md).
+
+---
+
+## Run H complete (rules / card / spell fidelity)
+
+Branch `milestone/run-h-rules-card-spell-fidelity`:
+
+- Macro: Underworld Surge, hero clash, turn-start production, trade offer expiry
+- Cards: four stub effect types implemented; validator honesty
+- Spells: prioritised status engine; [MICRO_SPELL_EFFECT_FIDELITY_MATRIX.md](MICRO_SPELL_EFFECT_FIDELITY_MATRIX.md)
+- **110 modules, 151,318 assertions, exit 0** — pause for human review before merge
+
+---
+
+## Run I (docs-only — 3D / UI / product planning)
+
+Branch `milestone/run-i-3d-ui-ux-product-planning` — implementation-ready specs I0–I14; future Impl I1–I7 in [IMPLEMENTATION_PLAN_3D_UI.md](IMPLEMENTATION_PLAN_3D_UI.md).
 
 ---
 

@@ -12,7 +12,9 @@ static func build_bot_ready_game(game_seed: int) -> GameState:
 static func run_production_rounds(state: GameState, rounds: int) -> Array:
 	var all_events: Array = []
 	for _i in range(rounds):
-		all_events.append_array(ProductionRules.resolve_start_of_turn_production(state))
+		all_events.append_array(ProductionRules.resolve_active_player_turn_start_production(state))
+		state.active_player_index = (state.active_player_index + 1) % state.players.size()
+		state.turn_number += 1
 	return all_events
 
 

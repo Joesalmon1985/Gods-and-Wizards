@@ -49,5 +49,5 @@ static func _seeded_index(seed: int, size: int) -> int:
 	if size <= 0:
 		return 0
 	var rng := GameRng.new()
-	rng.seed = seed
+	rng.seed(seed)
 	return rng.randi_range(0, size - 1)

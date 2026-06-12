@@ -21,7 +21,49 @@ static func resolve_player_turn_end(state: GameState) -> Array:
 	var drawn := _draw_nodes(state, state.infection_rate)
 	for node in drawn:
 		events.append_array(try_add_demon(state, node))
+	events.append_array(_check_underworld_surge(state))
 	return events
+
+
+static func surge_chance_for_age(draft_age: int) -> int:
+	match draft_age:
+		1:
+			return 0
+		2:
+			return 10
+		3:
+			return 20
+		_:
+			return 20
+
+
+static func _check_underworld_surge(state: GameState) -> Array:
+	var chance := surge_chance_for_age(state.draft_age)
+	if chance <= 0:
+		return []
+	if state.infection_discard_pile.is_empty():
+		return []
+	var roll := state.rng.roll_d10()
+	var threshold := ceili(float(chance) / 10.0)
+	if roll >= threshold:
+		return []
+	return _apply_underworld_surge(state)
+
+
+static func _apply_underworld_surge(state: GameState) -> Array:
+	var discard_count := state.infection_discard_pile.size()
+	var keys := state.infection_discard_pile.duplicate()
+	state.infection_discard_pile.clear()
+	_shuffle_draw_pile(state, keys)
+	var merged: Array[String] = []
+	for key in keys:
+		merged.append(key)
+	for key in state.infection_draw_pile:
+		merged.append(key)
+	state.infection_draw_pile = merged
+	return [
+		UnderworldSurgeEvent.new(state.round_number, state.draft_age, discard_count),
+	]
 
 
 static func try_add_demon(state: GameState, node: BoardNode) -> Array:

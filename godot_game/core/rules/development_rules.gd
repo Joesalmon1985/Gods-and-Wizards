@@ -25,7 +25,16 @@ static func can_build(
 	var player := _player(state, player_id)
 	if player == null or resolved_id not in player.development_hand:
 		return false
-	return BuildCosts.can_afford(player, DevelopmentCatalog.build_cost_as_resources(resolved_id))
+	return BuildCosts.can_afford(
+		player,
+		_build_cost_for_player(state, player_id, resolved_id)
+	)
+
+
+static func _build_cost_for_player(state: GameState, player_id: int, development_id: String) -> Dictionary:
+	var base := DevelopmentCatalog.build_cost_as_resources(development_id)
+	var discount := DevelopmentEffectEngine.production_discount_for_player(state, player_id)
+	return DevelopmentEffectEngine.apply_build_cost_discount(base, discount)
 
 
 static func apply(
@@ -38,7 +47,7 @@ static func apply(
 	var resolved_id := DevelopmentCatalog.resolve_build_id(development_id)
 	if not can_build(state, player_id, vertex, resolved_id):
 		return []
-	player.pay_cost(DevelopmentCatalog.build_cost_as_resources(resolved_id))
+	player.pay_cost(_build_cost_for_player(state, player_id, resolved_id))
 	player.development_hand.erase(resolved_id)
 	var city: City = state.cities_by_vertex[vertex.to_key()]
 	city.developments.append(resolved_id)

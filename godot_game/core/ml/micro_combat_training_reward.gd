@@ -16,7 +16,7 @@ static func compute_components(actor_id: String, events: Array, session: SpellCo
 		if event_type == "spell_hit":
 			if str(event.get("caster_id", "")) == actor_id:
 				components["damage_dealt"] = float(components["damage_dealt"]) + absf(float(event.get("damage", 0.0)))
-		elif event_type == "spell_heal":
+		elif event_type == "heal_applied":
 			if str(event.get("caster_id", "")) == actor_id:
 				components["healing"] = float(components["healing"]) + float(event.get("amount", 0.0))
 	if session != null and session.finished and session.winner_id == actor_id:

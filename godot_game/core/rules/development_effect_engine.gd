@@ -11,7 +11,7 @@ static func apply_on_build(
 	for effect in effects:
 		if typeof(effect) != TYPE_DICTIONARY:
 			continue
-		events.append_array(_apply_one(state, player_id, city, effect))
+		events.append_array(_apply_one(state, player_id, city, effect, null))
 	return events
 
 
@@ -19,7 +19,12 @@ static func apply_card_on_build(state: GameState, player_id: int, city: City, ca
 	var card: DevelopmentCardDefinition = DevelopmentCatalog.get_card(card_id)
 	if card == null:
 		return []
-	return apply_on_build(state, player_id, city, card.effects)
+	var events: Array = []
+	for effect in card.effects:
+		if typeof(effect) != TYPE_DICTIONARY:
+			continue
+		events.append_array(_apply_one(state, player_id, city, effect, card))
+	return events
 
 
 static func production_bonus_for_city(city: City, resource: ResourceType.Type) -> int:
@@ -72,6 +77,102 @@ static func hero_actions_bonus_for_player(state: GameState, player_id: int) -> i
 	return bonus
 
 
+static func trade_bonus_for_player(state: GameState, player_id: int) -> int:
+	return _sum_built_effect_amount(state, player_id, DevelopmentEffectType.TRADE_BONUS)
+
+
+static func draft_bonus_for_player(state: GameState, player_id: int) -> int:
+	return _sum_built_effect_amount(state, player_id, DevelopmentEffectType.DRAFT_BONUS)
+
+
+static func production_discount_for_player(state: GameState, player_id: int) -> int:
+	return _sum_built_effect_amount(state, player_id, DevelopmentEffectType.PRODUCTION_DISCOUNT)
+
+
+static func apply_build_cost_discount(base_cost: Dictionary, discount: int) -> Dictionary:
+	if discount <= 0:
+		return base_cost.duplicate()
+	var adjusted := base_cost.duplicate()
+	var remaining := discount
+	for resource in ResourceType.all():
+		var key := ResourceType.to_key(resource)
+		if not adjusted.has(key):
+			continue
+		var take := mini(int(adjusted[key]), remaining)
+		adjusted[key] = int(adjusted[key]) - take
+		remaining -= take
+		if remaining <= 0:
+			break
+	return adjusted
+
+
+static func append_draft_peek_events(state: GameState) -> Array:
+	var events: Array = []
+	for player in state.players:
+		if draft_bonus_for_player(state, player.id) <= 0:
+			continue
+		var pack: Array = state.draft_packs_by_player.get(player.id, [])
+		if pack.is_empty():
+			continue
+		events.append(DraftPackPeekEvent.new(state.round_number, player.id, str(pack[0])))
+	return events
+
+
+static func _sum_built_effect_amount(state: GameState, player_id: int, effect_type: String) -> int:
+	var total := 0
+	for city in state.cities:
+		if city.player_id != player_id:
+			continue
+		for card_id in city.developments:
+			var card: DevelopmentCardDefinition = DevelopmentCatalog.get_card(card_id)
+			if card == null:
+				continue
+			for effect in card.effects:
+				if typeof(effect) != TYPE_DICTIONARY:
+					continue
+				if str(effect.get("type", "")) == effect_type:
+					total += int(effect.get("amount", 0))
+	return total
+
+
+static func _apply_wizard_access(player: Player, card: DevelopmentCardDefinition) -> void:
+	for tag in card.tags:
+		var tag_str := str(tag)
+		if tag_str == "wizard_encounter_unlock":
+			player.wizard_encounter_unlock = true
+		if tag_str == "wizard_trade_unlock":
+			player.wizard_trade_unlock = true
+	if not player.wizard_encounter_unlock and not player.wizard_trade_unlock:
+		player.wizard_encounter_unlock = true
+
+
+static func refresh_player_wizard_flags(state: GameState, player_id: int) -> void:
+	var player := _player(state, player_id)
+	if player == null:
+		return
+	player.wizard_encounter_unlock = false
+	player.wizard_trade_unlock = false
+	for city in state.cities:
+		if city.player_id != player_id:
+			continue
+		for card_id in city.developments:
+			var card: DevelopmentCardDefinition = DevelopmentCatalog.get_card(card_id)
+			if card == null:
+				continue
+			for effect in card.effects:
+				if typeof(effect) != TYPE_DICTIONARY:
+					continue
+				if str(effect.get("type", "")) == DevelopmentEffectType.WIZARD_ACCESS:
+					_apply_wizard_access(player, card)
+
+
+static func _player(state: GameState, player_id: int) -> Player:
+	for player in state.players:
+		if player.id == player_id:
+			return player
+	return null
+
+
 static func refresh_hero_action_budgets(state: GameState) -> void:
 	for hero in state.heroes:
 		var bonus := hero_actions_bonus_for_player(state, hero.player_id)
@@ -109,14 +210,20 @@ static func _apply_one(
 	state: GameState,
 	player_id: int,
 	city: City,
-	effect: Dictionary
+	effect: Dictionary,
+	card: DevelopmentCardDefinition
 ) -> Array:
 	var effect_type := str(effect.get("type", ""))
 	var amount := int(effect.get("amount", 0))
 	match effect_type:
 		DevelopmentEffectType.VP_FLAT:
 			return ScoreRules.grant_victory_points(state, player_id, amount, "development_built")
-		DevelopmentEffectType.WIZARD_ACCESS, DevelopmentEffectType.TRADE_BONUS, DevelopmentEffectType.DRAFT_BONUS, DevelopmentEffectType.PRODUCTION_DISCOUNT:
+		DevelopmentEffectType.WIZARD_ACCESS:
+			var player := _player(state, player_id)
+			if card != null and player != null:
+				_apply_wizard_access(player, card)
+			return []
+		DevelopmentEffectType.TRADE_BONUS, DevelopmentEffectType.DRAFT_BONUS, DevelopmentEffectType.PRODUCTION_DISCOUNT:
 			return []
 		DevelopmentEffectType.DEMON_CLEAR_ON_PLAY:
 			var current := SetupRules.get_demon_count(state, city.vertex)
