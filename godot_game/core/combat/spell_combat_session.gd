@@ -91,6 +91,11 @@ func step(spell_id: String) -> Dictionary:
 		_cooldowns_by_combatant[active_index][spell_id] = sim_time + cd_duration
 
 		var outcome := SpellCombatRules.apply_spell_effects(spell, caster, opponent, sim_time)
+		if spell.dual_cast:
+			var outcome2 := SpellCombatRules.apply_spell_effects(spell, caster, opponent, sim_time)
+			outcome["damage_to_target"] = float(outcome["damage_to_target"]) + float(outcome2["damage_to_target"])
+			outcome["heal_to_caster"] = float(outcome["heal_to_caster"]) + float(outcome2["heal_to_caster"])
+			outcome["status_events"].append_array(outcome2.get("status_events", []))
 		for status_event in outcome.get("status_events", []):
 			events.append(_append_event(str(status_event.get("type", "status")), status_event))
 		if float(outcome["damage_to_target"]) > 0.0:

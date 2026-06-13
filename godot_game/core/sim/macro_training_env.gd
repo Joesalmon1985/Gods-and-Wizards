@@ -50,6 +50,7 @@ func get_observation(player_id: int) -> Dictionary:
 		"development_hand_json": JSON.stringify(player.development_hand),
 		"draft_pack_size": int(state.draft_packs_by_player.get(player_id, []).size()),
 		"action_space_layout_key": MacroFeatureFeaturizer.action_space_layout_key(state),
+		"board_features_json": JSON.stringify(MacroBoardFeaturizer.to_json_array(state)),
 	}
 
 

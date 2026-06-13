@@ -54,6 +54,10 @@ static func apply_spell_statuses(
 			"spell_id": spell.spell_id,
 		})
 		events.append(_status_event("status_applied", target, spell.spell_id, KIND_SILENCE, sim_time))
+	if spell.silence_random_duration > 0.0 and spell.silence_random_n > 0.0:
+		events.append_array(
+			_apply_random_silence(target, spell, sim_time, int(spell.silence_random_n))
+		)
 	if spell.buff_duration > 0.0 and _has_buff_modifiers(spell):
 		_add_status(caster, {
 			"kind": KIND_BUFF,
@@ -229,3 +233,49 @@ static func _status_event(
 		"status_kind": kind,
 		"sim_time": sim_time,
 	}
+
+
+static func apply_counter_spell(
+	caster: Dictionary,
+	target: Dictionary,
+	sim_time: float
+) -> Array:
+	ensure_statuses(target)
+	var events: Array = []
+	_clear_dots(target, sim_time)
+	_add_status(target, {
+		"kind": KIND_SILENCE,
+		"expires_at": sim_time + 2.0,
+		"spell_id": "counter",
+	})
+	events.append(_status_event("counter_spell_applied", target, "counter", KIND_SILENCE, sim_time))
+	return events
+
+
+static func _apply_random_silence(
+	target: Dictionary,
+	spell: SpellDefinition,
+	sim_time: float,
+	count: int
+) -> Array:
+	ensure_statuses(target)
+	var events: Array = []
+	if count <= 0 or spell.silence_random_duration <= 0.0:
+		return events
+	_add_status(target, {
+		"kind": KIND_SILENCE,
+		"expires_at": sim_time + spell.silence_random_duration,
+		"spell_id": spell.spell_id,
+	})
+	events.append(_status_event("random_silence_applied", target, spell.spell_id, KIND_SILENCE, sim_time))
+	return events
+
+
+static func _clear_dots(target: Dictionary, sim_time: float) -> void:
+	ensure_statuses(target)
+	var kept: Array = []
+	for status in target["statuses"]:
+		if str(status.get("kind", "")) == KIND_DOT:
+			continue
+		kept.append(status)
+	target["statuses"] = kept

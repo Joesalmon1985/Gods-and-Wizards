@@ -236,8 +236,34 @@ Exports step-level macro training rows (observations, legal masks, selected acti
 **Classification:** Partial/prototyping telemetry — **not production RL-ready.** Dataset v2 required before serious macro RL. Macro RL design target uses full global state observation; v1 export has aggregate scalars only. See [NEURAL_TRAINING_DATA_EXPORT_AUDIT.md](NEURAL_TRAINING_DATA_EXPORT_AUDIT.md).
 
 ```powershell
-& "C:\Tools\Godot\godot.exe.exe" --headless --path (Join-Path $ProjectRoot "godot_game") -s res://run_modes/run_macro_training_export.gd -- --seed 42 --max-steps 50 --output (Join-Path $ProjectRoot "logs\macro_training_seed_42.csv")
+& "C:\Tools\Godot\godot.exe.exe" --headless --path (Join-Path $ProjectRoot "godot_game") -s res://run_modes/run_macro_training_export.gd -- --seed 42 --episodes 10 --max-steps 50 --output (Join-Path $ProjectRoot "logs\macro_training_seed_42.csv")
 ```
+
+Relative `--output logs/...` resolves to repo root (see `ExportPathResolver`).
+
+---
+
+## G. Audit playthrough export (Run K)
+
+**Script:** `res://run_modes/run_audit_playthrough.gd`
+
+Unified audit CSV with `rules_version`, `catalog_version`, optional `git_sha`, optional manifest.
+
+```bash
+scripts/invoke-godot-headless.sh --headless --path godot_game \
+  -s res://run_modes/run_audit_playthrough.gd \
+  -- --seed 42 --max-turns 100 --output logs/audit_playthrough.csv --manifest logs/manifest.json
+```
+
+---
+
+## H. Live learned-policy evaluation (Run K, Route B)
+
+**Scripts:** `run_macro_learned_eval.gd`, `run_micro_learned_eval.gd`
+
+Godot loads PyTorch-exported JSON weights (`TinyNeuralNetwork` layout) and runs headless rollouts. Python wrappers: `training/eval/evaluate_macro_policy.py`, `evaluate_micro_policy.py`.
+
+See [RUN_K_RULES_TRAINING_COMPLETION.md](RUN_K_RULES_TRAINING_COMPLETION.md).
 
 ---
 
@@ -248,7 +274,7 @@ Exports step-level macro training rows (observations, legal masks, selected acti
 Exports step-level **tactical combat** telemetry from `SpellCombatSession` / `MicroCombatTrainingEnv`. This is the canonical tactical combat export — not macro contact resolution and not the legacy card-duel runner (§D).
 
 ```powershell
-& "C:\Tools\Godot\godot.exe.exe" --headless --path (Join-Path $ProjectRoot "godot_game") -s res://run_modes/run_micro_combat_export.gd -- --seed 123 --max-steps 80 --output (Join-Path $ProjectRoot "logs\micro_combat_seed_123.csv")
+& "C:\Tools\Godot\godot.exe.exe" --headless --path (Join-Path $ProjectRoot "godot_game") -s res://run_modes/run_micro_combat_export.gd -- --seed 123 --episodes 20 --max-steps 80 --output (Join-Path $ProjectRoot "logs\micro_combat_seed_123.csv")
 ```
 
 ---

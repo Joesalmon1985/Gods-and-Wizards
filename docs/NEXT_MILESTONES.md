@@ -1,8 +1,21 @@
 # Next Milestones (Proposed)
 
-**Last updated:** 2026-06-12 (post–Run H fidelity + Run I planning)
+**Last updated:** 2026-06-13 (post–Run K)
 
 **Strategic direction:** Macro-first, trainable mythic civilisation simulation. One authoritative `GameState`. Headless core and `BotGameSession` are source of truth. **Near-term dev default:** 2D strategic playable/debug. **Long-term product default:** 3D wizard spectator/RPG. See [GAME_DESIGN_BRIEF.md](GAME_DESIGN_BRIEF.md) and [RULEBOOK.md](RULEBOOK.md).
+
+---
+
+## Run K complete (rules + training foundation)
+
+Branch `milestone/run-k-rules-training-completion`:
+
+- K0 breach cascade neighbor spread + contract tests
+- K0B hero movement / demon-clearing contracts
+- K2 audit CSV export; K3 micro spell fidelity; K4 macro board featurizer
+- K5 `training/` PyTorch BC package; **Route B** live Godot eval
+- K9 smoke: 10 macro + 20 micro train episodes; 5 + 10 held-out live evals
+- **121 modules, ~165,649 assertions, exit 0** — see [RUN_K_RULES_TRAINING_COMPLETION.md](RUN_K_RULES_TRAINING_COMPLETION.md)
 
 ---
 

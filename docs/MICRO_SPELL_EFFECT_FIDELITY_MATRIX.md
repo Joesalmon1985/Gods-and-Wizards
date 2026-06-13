@@ -1,8 +1,8 @@
-# Micro Spell Effect Fidelity Matrix (Run H)
+# Micro Spell Effect Fidelity Matrix (Run H + K)
 
-**Date:** 2026-06-12  
-**Branch:** `milestone/run-h-rules-card-spell-fidelity`  
-**Authority:** `SpellCombatStatusRules`, `SpellCombatRules`, `TestSpellEffectFidelity`
+**Date:** 2026-06-13 (Run K counter/dual/random silence)  
+**Branch:** `milestone/run-k-rules-training-completion`  
+**Authority:** `SpellCombatStatusRules`, `SpellCombatRules`, `TestSpellEffectFidelity`, `TestCounterSpell`, `TestDualCast`, `TestRandomSilence`
 
 ## Implemented (runtime + tests)
 
@@ -20,14 +20,15 @@
 | Status expiry | `expires_at` on statuses | `tick_statuses` | `TestSpellEffectFidelity` |
 | Observation | cooldowns + statuses | `SpellCombatSession.observe` | `TestSpellEffectFidelity` |
 | Deterministic replay | — | seeded duel policy | `TestSpellEffectFidelity` |
+| Counter spell | `is_counter_spell` | `apply_counter_spell` clears DoT + silence | `TestCounterSpell` |
+| Dual cast | `dual_cast` | second `apply_spell_effects` in session | `TestDualCast` |
+| Random silence | `silence_random_duration`, `silence_random_n` | `_apply_random_silence` | `TestRandomSilence` |
 
-## Explicitly deferred (Run H scope)
+## Explicitly deferred (post–Run K)
 
 | Effect | Reason |
 |---|---|
-| `is_counter_spell` interrupt semantics | Complex interaction parity; needs dedicated contract suite |
-| `dual_cast` double resolution | Catalogue edge case; unsafe without full interaction model |
-| Full catalogue field parity | Prioritised high-value effects only; remaining fields documented here |
+| Full catalogue field parity | Not every spell id has per-spell contract test |
 | Spell–spell edge-case parity | Counter chains, simultaneous expiry ordering beyond v1 tests |
 
 ## Status key

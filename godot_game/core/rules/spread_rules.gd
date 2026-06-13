@@ -67,16 +67,59 @@ static func _apply_underworld_surge(state: GameState) -> Array:
 
 
 static func try_add_demon(state: GameState, node: BoardNode) -> Array:
-	var events: Array = []
 	var current := SetupRules.get_demon_count(state, node)
 	if current >= MAX_DEMONS_PER_NODE:
-		state.breach_count += 1
-		events.append(BreachEvent.new(state.round_number, state.breach_count))
-		return events
-
+		var breached: Dictionary = {}
+		return _breach_node_and_spread(state, node, breached, node)
 	SetupRules.set_demon_count(state, node, current + 1)
-	events.append(DemonSpreadEvent.new(state.round_number, node, node, 1))
+	var events: Array = [
+		DemonSpreadEvent.new(state.round_number, node, node, 1),
+	]
 	events.append_array(ContactResolutionRules.resolve_hero_node_after_demon_placement(state, node))
+	return events
+
+
+static func _breach_node_and_spread(
+	state: GameState,
+	node: BoardNode,
+	breached: Dictionary,
+	spread_from: BoardNode
+) -> Array:
+	var events: Array = []
+	var key := node.to_key()
+	if breached.has(key):
+		return events
+	breached[key] = true
+	state.breach_count += 1
+	events.append(BreachEvent.new(state.round_number, state.breach_count))
+	events.append(
+		BreachCascadeEvent.new(state.round_number, node, spread_from, state.breach_count)
+	)
+	for adjacent in state.board.get_adjacent_nodes(node):
+		var adj_key := adjacent.to_key()
+		if breached.has(adj_key):
+			events.append(
+				BreachSpreadSkippedEvent.new(state.round_number, adjacent, node)
+			)
+			continue
+		events.append_array(_cascade_add_to_neighbor(state, adjacent, breached, node))
+	return events
+
+
+static func _cascade_add_to_neighbor(
+	state: GameState,
+	neighbor: BoardNode,
+	breached: Dictionary,
+	from_node: BoardNode
+) -> Array:
+	var current := SetupRules.get_demon_count(state, neighbor)
+	if current >= MAX_DEMONS_PER_NODE:
+		return _breach_node_and_spread(state, neighbor, breached, from_node)
+	SetupRules.set_demon_count(state, neighbor, current + 1)
+	var events: Array = [
+		DemonSpreadEvent.new(state.round_number, from_node, neighbor, 1),
+	]
+	events.append_array(ContactResolutionRules.resolve_hero_node_after_demon_placement(state, neighbor))
 	return events
 
 

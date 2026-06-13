@@ -1,6 +1,6 @@
 # Rule Contract Test Inventory
 
-**Last updated:** 2026-06-12 (Run H fidelity)  
+**Last updated:** 2026-06-13 (Run K)  
 **Purpose:** Map every intended v1 rule from the rulebook to contract tests. Tests must derive from design intent, not implementation quirks.
 
 **Sources:** [RULEBOOK.md](RULEBOOK.md), [TURN_TIMING_AND_PHASE_MODEL.md](TURN_TIMING_AND_PHASE_MODEL.md), [DEVELOPMENT_CARD_CATALOG.md](DEVELOPMENT_CARD_CATALOG.md)
@@ -14,7 +14,8 @@
 | ID | Rule | Source | Implementation | Tests | Success | Reject | Edge | Events | Status |
 |---|---|---|---|---|---|---|---|---|---|
 | RC-A-001 | Max 3 demons per node | RULEBOOK § Demons | `spread_rules.gd` | `TestDemonSpread`, `TestRuleContractBreach` | try_add 0→1,1→2,2→3 | 4th not placed | cap at 3 | DemonSpreadEvent | Covered |
-| RC-A-002 | 4th demon → breach, not placed | RULEBOOK § Demons | `spread_rules.gd` | `TestDemonSpread`, `TestForcedBreachScenario`, `TestRuleContractBreach` | forced END_TURN draw | — | repeated over-cap | BreachEvent | Covered |
+| RC-A-002 | 4th demon → breach, not placed | RULEBOOK § Demons | `spread_rules.gd` | `TestDemonSpread`, `TestForcedBreachScenario`, `TestRuleContractBreach`, `TestBreachCascadeContract` | forced END_TURN draw | — | repeated over-cap | BreachEvent | Covered |
+| RC-A-006 | Breach cascade to adjacent nodes | Run K / RULEBOOK | `spread_rules.gd` | `TestBreachCascadeContract` | neighbor +1 / recursive breach | skip already-breached | cyclic graph | BreachCascadeEvent | Covered |
 | RC-A-003 | Breach limit 10 | RULEBOOK § Win/loss | `breach_end_condition.gd` | `TestBreachEnd`, `TestRuleContractBreach` | loss at 10 | no loss at 9 | exactly 10 | GameOverEvent | Covered |
 | RC-A-004 | Breach visible in summary/CSV/play | Architecture | `event_summary.gd`, `playthrough_csv_exporter.gd` | `TestForcedBreachScenario`, `TestRuleContractUiBoundary` | summary + CSV row | — | — | readable text | Covered |
 | RC-A-005 | Multi-breach per turn (rate>1, same node) | RULEBOOK § Demons | `spread_rules.gd` | `TestRuleContractBreach` | 2 draws same node | — | breach +2 | 2× BreachEvent | Covered |

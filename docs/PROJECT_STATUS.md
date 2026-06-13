@@ -1,7 +1,9 @@
 # Project Status — Gods and Wizards
 
-**Last updated:** 2026-06-12 (Run H rules/card/spell fidelity)  
+**Last updated:** 2026-06-13 (Run K)  
 **Purpose:** Human-readable handoff for reviewers and Cursor agents before the next milestone.
+
+**Run K (authoritative):** [RUN_K_RULES_TRAINING_COMPLETION.md](RUN_K_RULES_TRAINING_COMPLETION.md) — breach cascade, training package, live eval Route B.
 
 **Design docs (authoritative intent):** [RULEBOOK.md](RULEBOOK.md), [TURN_TIMING_AND_PHASE_MODEL.md](TURN_TIMING_AND_PHASE_MODEL.md), [RULES_ENGINE_AUDIT.md](RULES_ENGINE_AUDIT.md).  
 **Run G:** [RUN_G_PLAN.md](RUN_G_PLAN.md), [TRAINING_READINESS_GATE.md](TRAINING_READINESS_GATE.md) — gate `GO_FOR_TRAINING`.
@@ -36,13 +38,13 @@ Do not treat stale branch names or SHAs in this doc as authoritative.
 & "C:\Users\joesa\Documents\Cursor\BoardGame\gods-and-wizards\scripts\Invoke-GodotHeadless.ps1" -ArgumentList @("--headless", "--path", "C:\Users\joesa\Documents\Cursor\BoardGame\gods-and-wizards\godot_game", "-s", "res://tests/test_runner.gd")
 ```
 
-### Result (verified 2026-06-12, Run H)
+### Result (verified 2026-06-13, Run K)
 
 | Metric | Value |
 |---|---|
 | Exit code | **0** |
-| Modules run | **110** |
-| Assertions | **151,318** |
+| Modules run | **121** |
+| Assertions | **~165,649** |
 | Passed | **All** |
 | Failed | **0** |
 | Stale Godot processes after run | Check locally with `Get-Process -Name "Godot*"` |

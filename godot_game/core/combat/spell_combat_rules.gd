@@ -54,6 +54,9 @@ static func apply_spell_effects(
 	var heal_to_caster := 0.0
 	var status_events: Array = []
 
+	if spell.is_counter_spell:
+		status_events.append_array(SpellCombatStatusRules.apply_counter_spell(caster, target, sim_time))
+
 	if spell.damage > 0.0 and not spell.target_self_ok:
 		damage_to_target = spell.damage
 	elif spell.damage > 0.0 and spell.target_self_ok:

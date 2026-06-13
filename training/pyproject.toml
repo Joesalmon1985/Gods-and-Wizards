@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gaw-training"
+version = "0.1.0"
+description = "Run K external PyTorch BC training for Gods and Wizards macro/micro telemetry"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy>=1.24",
+    "pandas>=2.0",
+    "torch>=2.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.4"]
+
+[project.scripts]
+gaw-train-macro-bc = "train.train_macro_bc:main"
+gaw-train-micro-bc = "train.train_micro_bc:main"
+gaw-eval-macro-policy = "eval.evaluate_macro_policy:main"
+gaw-eval-micro-policy = "eval.evaluate_micro_policy:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["etl*", "models*", "train*", "eval*"]
+
+[tool.setuptools]
+py-modules = ["checkpoint_metadata"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

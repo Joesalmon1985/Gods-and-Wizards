@@ -39,9 +39,14 @@ static func _test_deterministic_draw_sequence(test_assert: TestAssert) -> void:
 
 static func _test_no_adjacent_propagation(test_assert: TestAssert) -> void:
 	var spread_source := FileAccess.get_file_as_string("res://core/rules/spread_rules.gd")
+	var infection_section := spread_source.split("static func resolve_player_turn_end")[1].split("static func surge_chance")[0]
 	test_assert.check(
-		"get_adjacent_nodes" not in spread_source,
-		"infection spread should not use adjacent propagation"
+		"get_adjacent_nodes" not in infection_section,
+		"infection deck spread should not use adjacent propagation"
+	)
+	test_assert.check(
+		spread_source.find("_breach_node_and_spread") >= 0,
+		"breach cascade should propagate to connected nodes when a node is full"
 	)
 
 
