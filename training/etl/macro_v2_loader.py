@@ -11,10 +11,15 @@ import numpy as np
 import pandas as pd
 import torch
 
-from etl.featurizers import MACRO_FEATURE_SIZE, MACRO_FEATURIZER_VERSION, featurize_macro_observation
+from etl.featurizers import (
+    COMPACT_MACRO_ACTION_SLOTS,
+    MACRO_FEATURE_SIZE,
+    MACRO_FEATURIZER_VERSION,
+    featurize_macro_observation,
+)
 
 SCHEMA_VERSION = "macro_training_v2"
-DEFAULT_OUTPUT_SIZE = 64
+LAYOUT_VERSION = "compact_global_index_v1"
 
 
 @dataclass
@@ -41,15 +46,23 @@ def _parse_json_column(value: Any, default: Any) -> Any:
     return json.loads(text)
 
 
-def _macro_target_index(row: pd.Series) -> int:
-    selected = int(row["selected_action_id"])
-    legal_ids = _parse_json_column(row["legal_action_ids_json"], [])
-    if not legal_ids:
-        raise ValueError("row missing legal_action_ids_json")
-    for index, action_id in enumerate(legal_ids):
-        if int(action_id) == selected:
-            return index
-    # Fallback: first legal slot (teacher mismatch)
+def _compact_global_indices(legal_ids: list[Any], mask_bits: list[Any]) -> list[int]:
+    indices: list[int] = []
+    for i, bit in enumerate(mask_bits):
+        if i >= len(legal_ids):
+            break
+        if bool(bit):
+            indices.append(i)
+    return indices[:COMPACT_MACRO_ACTION_SLOTS]
+
+
+def _macro_target_compact(legal_ids: list[Any], mask_bits: list[Any], selected_action_id: int) -> int:
+    compact_indices = _compact_global_indices(legal_ids, mask_bits)
+    if not compact_indices:
+        return 0
+    for compact_idx, global_idx in enumerate(compact_indices):
+        if int(legal_ids[global_idx]) == int(selected_action_id):
+            return compact_idx
     return 0
 
 
@@ -71,12 +84,11 @@ def load_macro_v2_csv(
     if schema != SCHEMA_VERSION:
         raise ValueError(f"expected schema {SCHEMA_VERSION}, got {schema}")
 
-    mask_lengths = [
-        len(_parse_json_column(row["legal_mask_json"], []))
-        for _, row in frame.iterrows()
-    ]
-    inferred_output = max(mask_lengths) if mask_lengths else DEFAULT_OUTPUT_SIZE
-    resolved_output = output_size or inferred_output
+    resolved_output = output_size or COMPACT_MACRO_ACTION_SLOTS
+    if resolved_output != COMPACT_MACRO_ACTION_SLOTS:
+        raise ValueError(
+            f"macro policy head must be {COMPACT_MACRO_ACTION_SLOTS} compact slots, got {resolved_output}"
+        )
 
     features: list[np.ndarray] = []
     targets: list[int] = []
@@ -86,22 +98,22 @@ def load_macro_v2_csv(
 
     for _, row in frame.iterrows():
         obs = _parse_json_column(row["pre_observation_json"], {})
+        legal_ids = _parse_json_column(row["legal_action_ids_json"], [])
         mask_bits = _parse_json_column(row["legal_mask_json"], [])
-        if len(mask_bits) < resolved_output:
-            mask_bits = mask_bits + [0] * (resolved_output - len(mask_bits))
-        elif len(mask_bits) > resolved_output:
-            mask_bits = mask_bits[:resolved_output]
+        compact_indices = _compact_global_indices(legal_ids, mask_bits)
+        compact_mask = [1.0] * len(compact_indices)
+        compact_mask.extend([0.0] * (COMPACT_MACRO_ACTION_SLOTS - len(compact_mask)))
 
         feature = featurize_macro_observation(obs)
         if feature.shape[0] != MACRO_FEATURE_SIZE:
             raise ValueError(f"macro feature dim mismatch: {feature.shape[0]} != {MACRO_FEATURE_SIZE}")
 
-        target = _macro_target_index(row)
-        mask_arr = np.asarray(mask_bits, dtype=np.float32)
+        target = _macro_target_compact(legal_ids, mask_bits, int(row["selected_action_id"]))
+        mask_arr = np.asarray(compact_mask, dtype=np.float32)
         if mask_arr[target] <= 0.0:
             legal_indices = np.flatnonzero(mask_arr > 0.0)
             if legal_indices.size == 0:
-                raise ValueError("row has empty legal mask with no fallback target")
+                raise ValueError("row has empty compact legal mask")
             target = int(legal_indices[0])
 
         features.append(feature)
@@ -134,5 +146,6 @@ def load_macro_v2_csv(
             "source_csv": str(path.resolve()),
             "action_space_layout_key": layout_key,
             "rules_version": rules_version,
+            "legal_mask_layout_version": LAYOUT_VERSION,
         },
     )

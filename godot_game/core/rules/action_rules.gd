@@ -3,6 +3,8 @@ extends RefCounted
 
 static func apply(state: GameState, action: GameAction) -> Array:
 	var view := LegalActionQuery.get_view(state)
+	if action.action_id < 0 or action.action_id >= view.legal_mask.size():
+		return []
 	if not view.legal_mask[action.action_id]:
 		return []
 

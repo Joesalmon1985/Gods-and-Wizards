@@ -13,9 +13,13 @@ func _init() -> void:
 	elif not suite_filter.is_empty():
 		modules = TestRegistry.modules_for_category(suite_filter)
 
+	var error_monitor := TestScriptErrorMonitor.new()
+	OS.add_logger(error_monitor)
+
 	var test_assert := TestAssert.new()
 	var modules_run := 0
 	var assertions_before := 0
+	var total_script_errors := 0
 
 	for entry in modules:
 		var module_name: String = entry["name"]
@@ -23,11 +27,25 @@ func _init() -> void:
 		var category: String = entry["category"]
 		assertions_before = test_assert.assertions_run
 		test_assert.begin_module(module_name)
+		error_monitor.reset()
 		module.run(test_assert)
 		modules_run += 1
 		var module_assertions := test_assert.assertions_run - assertions_before
+		var module_script_errors := error_monitor.script_error_count()
+		total_script_errors += module_script_errors
+		if module_script_errors > 0:
+			for script_error in error_monitor.script_errors:
+				test_assert.failures.append(
+					"[%s] SCRIPT ERROR: %s" % [module_name, script_error]
+				)
 		if _module_failed(test_assert, module_name):
 			print("[%s] %s: FAILED (%d assertions)" % [category, module_name, module_assertions])
+		elif module_script_errors > 0:
+			print(
+				"[%s] %s: FAILED (%d assertions, %d script errors)" % [
+					category, module_name, module_assertions, module_script_errors
+				]
+			)
 		else:
 			print("[%s] %s: passed (%d assertions)" % [category, module_name, module_assertions])
 
@@ -37,6 +55,7 @@ func _init() -> void:
 	print("Ran %d modules, %d assertions" % [modules_run, test_assert.assertions_run])
 	print("Passed: %d" % passed_assertions)
 	print("Failed: %d" % failed_count)
+	print("SCRIPT ERROR count: %d" % total_script_errors)
 
 	if test_assert.has_failures():
 		for failure in test_assert.failures:

@@ -19,7 +19,7 @@ static func _test_occupied_city_produces_nothing(test_assert: TestAssert) -> voi
 	for event in events:
 		if event is ResourceGainedEvent:
 			var gain: ResourceGainedEvent = event
-			if gain.vertex.equals(city.vertex):
+			if gain.source_vertex.equals(city.vertex):
 				gained_for_city = true
 	test_assert.check(not gained_for_city, "demon-occupied city should not gain resources")
 	test_assert.eq(

@@ -6,13 +6,23 @@ from typing import Any
 
 import numpy as np
 
-MACRO_FEATURE_SIZE = 16
+MACRO_SCALAR_FEATURE_SIZE = 16
+MACRO_BOARD_FEATURE_SIZE = 240
+MACRO_FEATURE_SIZE = MACRO_SCALAR_FEATURE_SIZE + MACRO_BOARD_FEATURE_SIZE
 MICRO_FEATURE_SIZE = 10
-MACRO_FEATURIZER_VERSION = "macro_feature_v1"
+MACRO_FEATURIZER_VERSION = "macro_policy_v2"
 MICRO_FEATURIZER_VERSION = "micro_combat_feature_v1"
+COMPACT_MACRO_ACTION_SLOTS = 64
+MICRO_POLICY_ACTION_SLOTS = 6  # five loadout spells + pass
 
 
 def featurize_macro_observation(observation: dict[str, Any]) -> np.ndarray:
+    scalars = _macro_scalars(observation)
+    board = _macro_board(observation)
+    return np.concatenate([scalars, board])
+
+
+def _macro_scalars(observation: dict[str, Any]) -> np.ndarray:
     resources = observation.get("resources", {})
     if isinstance(resources, str):
         import json
@@ -39,6 +49,19 @@ def featurize_macro_observation(observation: dict[str, Any]) -> np.ndarray:
         ],
         dtype=np.float32,
     )
+
+
+def _macro_board(observation: dict[str, Any]) -> np.ndarray:
+    values = np.zeros(MACRO_BOARD_FEATURE_SIZE, dtype=np.float32)
+    raw = observation.get("board_features_json", [])
+    if isinstance(raw, str):
+        import json
+
+        raw = json.loads(raw) if raw else []
+    if isinstance(raw, list):
+        for i, value in enumerate(raw[:MACRO_BOARD_FEATURE_SIZE]):
+            values[i] = float(value)
+    return values
 
 
 def featurize_micro_observation(observation: dict[str, Any]) -> np.ndarray:

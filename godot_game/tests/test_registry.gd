@@ -112,6 +112,8 @@ static func all_modules() -> Array:
 		{"category": CATEGORY_INTEGRATION, "name": "TestPlaythroughCsvExporter", "module": TestPlaythroughCsvExporter},
 		{"category": CATEGORY_INTEGRATION, "name": "TestAuditExport", "module": TestAuditExport},
 		{"category": CATEGORY_INTEGRATION, "name": "TestMacroBoardFeaturizer", "module": TestMacroBoardFeaturizer},
+		{"category": CATEGORY_INTEGRATION, "name": "TestMacroLegalActionLayout", "module": TestMacroLegalActionLayout},
+		{"category": CATEGORY_INTEGRATION, "name": "TestMicroLegalActionLayout", "module": TestMicroLegalActionLayout},
 		{"category": CATEGORY_INTEGRATION, "name": "TestCounterSpell", "module": TestCounterSpell},
 		{"category": CATEGORY_INTEGRATION, "name": "TestDualCast", "module": TestDualCast},
 		{"category": CATEGORY_INTEGRATION, "name": "TestRandomSilence", "module": TestRandomSilence},

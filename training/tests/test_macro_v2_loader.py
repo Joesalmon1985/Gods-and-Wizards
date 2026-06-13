@@ -16,7 +16,7 @@ def test_load_macro_v2_csv_shapes() -> None:
     assert len(dataset) == 3
     assert dataset.features.shape == (3, MACRO_FEATURE_SIZE)
     assert dataset.targets.shape == (3,)
-    assert dataset.masks.shape == (3, 8)
+    assert dataset.masks.shape == (3, 64)
     assert dataset.metadata["schema_version"] == "macro_training_v2"
     assert dataset.metadata["action_space_layout_key"] == "actions_8"
 

@@ -65,9 +65,15 @@ func choose_action_index(logits: PackedFloat32Array, legal_mask: Array) -> int:
 		if not bool(legal_mask[i]):
 			continue
 		var score := logits[i]
+		if is_nan(score):
+			score = -INF
 		if score > best_score:
 			best_score = score
 			best_index = i
+	if best_index < 0:
+		for i in range(mini(logits.size(), legal_mask.size())):
+			if bool(legal_mask[i]):
+				return i
 	return best_index
 
 

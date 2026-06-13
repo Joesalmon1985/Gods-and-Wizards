@@ -57,9 +57,17 @@ func get_observation(player_id: int) -> Dictionary:
 func get_legal_action_view(player_id: int) -> LegalActionView:
 	if session == null:
 		return LegalActionView.new(ActionSpace.new())
+	_resolve_pending_draft_state()
 	if player_id != session.get_active_player_id():
 		var empty_space := session.state.action_space if session.state != null else ActionSpace.new()
 		return LegalActionView.new(empty_space)
+	if session.is_waiting_for_human():
+		var human_actions := session.get_legal_human_actions()
+		if not human_actions.is_empty():
+			return LegalActionView.from_legal_actions(
+				session.state.action_space,
+				human_actions
+			)
 	return LegalActionQuery.get_view(session.state)
 
 
@@ -89,6 +97,7 @@ func get_legal_actions(player_id: int) -> Array[GameAction]:
 func step(action: GameAction) -> Dictionary:
 	if session == null or session.finished:
 		return _step_result([])
+	_resolve_pending_draft_state()
 	var events: Array = []
 	if session.is_waiting_for_human():
 		events = session.submit_human_action(action)
@@ -108,6 +117,8 @@ func step(action: GameAction) -> Dictionary:
 					session.state.winner_id = game_over.winner_id
 					session._record_event(game_over)
 					session.finished = true
+		if session.state.awaiting_draft_step:
+			_resolve_pending_draft_state()
 	return _step_result(events)
 
 
@@ -222,3 +233,26 @@ func _outcome_reason(state: GameState) -> String:
 		if event is GameOverEvent:
 			return event.reason
 	return ""
+
+
+func _resolve_pending_draft_state() -> void:
+	if session == null or session.finished:
+		return
+	if not session.state.awaiting_draft_step:
+		return
+	var events := DraftRules.complete_automatic_draft_for_bots(session.state)
+	if events.is_empty():
+		return
+	for event in events:
+		session.events.append(event)
+		session.event_log.append(event)
+	session.waiting_for_draft = false
+	session.waiting_for_human = false
+	session.finished = session.state.game_finished
+	if not session.finished:
+		var game_over := GameOverRules.evaluate(session.state)
+		if game_over != null:
+			session.state.game_finished = true
+			session.state.winner_id = game_over.winner_id
+			session._record_event(game_over)
+			session.finished = true

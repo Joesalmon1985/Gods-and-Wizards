@@ -11,10 +11,11 @@ import numpy as np
 import pandas as pd
 import torch
 
-from etl.featurizers import MICRO_FEATURE_SIZE, MICRO_FEATURIZER_VERSION, featurize_micro_observation
+from etl.featurizers import MICRO_FEATURE_SIZE, MICRO_FEATURIZER_VERSION, MICRO_POLICY_ACTION_SLOTS, featurize_micro_observation
 
 SCHEMA_VERSION = "micro_combat_v2"
-DEFAULT_OUTPUT_SIZE = 16
+LAYOUT_VERSION = "loadout_spells_plus_pass_v1"
+PASS_SPELL_ID = "__pass__"
 
 
 @dataclass
@@ -41,19 +42,31 @@ def _parse_json_column(value: Any, default: Any) -> Any:
     return json.loads(text)
 
 
-def _micro_target_index(row: pd.Series, output_size: int) -> int:
+def _normalize_mask(mask_bits: list[Any], loadout: list[str]) -> list[float]:
+    bits = [float(x) for x in mask_bits]
+    pass_index = len(loadout)
+    if len(bits) == pass_index:
+        bits.append(1.0)
+    if len(bits) < MICRO_POLICY_ACTION_SLOTS:
+        bits.extend([0.0] * (MICRO_POLICY_ACTION_SLOTS - len(bits)))
+    elif len(bits) > MICRO_POLICY_ACTION_SLOTS:
+        bits = bits[:MICRO_POLICY_ACTION_SLOTS]
+    return bits
+
+
+def _micro_target_index(row: pd.Series, loadout: list[str], mask_bits: list[float]) -> int:
     selected = str(row["selected_action"])
-    loadout = _parse_json_column(row["loadout_spell_ids_json"], [])
+    pass_index = len(loadout)
+    if selected == PASS_SPELL_ID:
+        return pass_index
     if selected in loadout:
         index = loadout.index(selected)
-        if index < output_size:
+        if index < pass_index and mask_bits[index] > 0.0:
             return index
-    legal_ids = _parse_json_column(row["legal_spell_ids_json"], [])
-    if selected in legal_ids:
-        if selected in loadout:
-            return loadout.index(selected)
-        return legal_ids.index(selected)
-    return 0
+    legal_indices = [i for i, bit in enumerate(mask_bits) if bit > 0.0]
+    if not legal_indices:
+        return pass_index
+    return int(legal_indices[0])
 
 
 def load_micro_v2_csv(
@@ -74,12 +87,11 @@ def load_micro_v2_csv(
     if schema != SCHEMA_VERSION:
         raise ValueError(f"expected schema {SCHEMA_VERSION}, got {schema}")
 
-    mask_lengths = [
-        len(_parse_json_column(row["legal_mask_json"], []))
-        for _, row in frame.iterrows()
-    ]
-    inferred_output = max(mask_lengths) if mask_lengths else DEFAULT_OUTPUT_SIZE
-    resolved_output = output_size or inferred_output
+    resolved_output = output_size or MICRO_POLICY_ACTION_SLOTS
+    if resolved_output != MICRO_POLICY_ACTION_SLOTS:
+        raise ValueError(
+            f"micro policy head must be {MICRO_POLICY_ACTION_SLOTS} slots (spells+pass), got {resolved_output}"
+        )
 
     features: list[np.ndarray] = []
     targets: list[int] = []
@@ -90,26 +102,27 @@ def load_micro_v2_csv(
 
     for _, row in frame.iterrows():
         obs = _parse_json_column(row["pre_observation_json"], {})
-        if "legal_spell_count" not in obs:
-            obs["legal_spell_count"] = len(_parse_json_column(row["legal_spell_ids_json"], []))
+        loadout = _parse_json_column(row.get("loadout_spell_ids_json", []), [])
+        if not loadout:
+            loadout = obs.get("loadout_spell_ids", [])
+        if isinstance(loadout, str):
+            loadout = json.loads(loadout) if loadout else []
 
-        mask_bits = _parse_json_column(row["legal_mask_json"], [])
-        if len(mask_bits) < resolved_output:
-            mask_bits = mask_bits + [0] * (resolved_output - len(mask_bits))
-        elif len(mask_bits) > resolved_output:
-            mask_bits = mask_bits[:resolved_output]
-
+        mask_bits = _normalize_mask(_parse_json_column(row["legal_mask_json"], []), loadout)
         mask_arr = np.asarray(mask_bits, dtype=np.float32)
         legal_indices = np.flatnonzero(mask_arr > 0.0)
         if legal_indices.size == 0:
             skipped_pass_only += 1
             continue
 
+        if "legal_spell_count" not in obs:
+            obs["legal_spell_count"] = int(np.sum(mask_arr[:len(loadout)]))
+
         feature = featurize_micro_observation(obs)
         if feature.shape[0] != MICRO_FEATURE_SIZE:
             raise ValueError(f"micro feature dim mismatch: {feature.shape[0]} != {MICRO_FEATURE_SIZE}")
 
-        target = _micro_target_index(row, resolved_output)
+        target = _micro_target_index(row, loadout, mask_bits)
         if mask_arr[target] <= 0.0:
             target = int(legal_indices[0])
 
@@ -120,7 +133,7 @@ def load_micro_v2_csv(
         terminal.append(1.0 if str(row.get("terminal", "false")).lower() == "true" else 0.0)
 
     if not features:
-        raise ValueError(f"micro CSV has no trainable rows after filtering pass-only steps: {path}")
+        raise ValueError(f"micro CSV has no trainable rows after filtering: {path}")
 
     feature_tensor = torch.from_numpy(np.stack(features))
     target_tensor = torch.tensor(targets, dtype=torch.long)
@@ -144,5 +157,6 @@ def load_micro_v2_csv(
             "source_csv": str(path.resolve()),
             "spell_catalog_version": str(frame.iloc[0].get("spell_catalog_version", "")),
             "rules_version": "run_g_v2",
+            "legal_mask_layout_version": LAYOUT_VERSION,
         },
     )

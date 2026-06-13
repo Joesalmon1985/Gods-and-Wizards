@@ -115,15 +115,17 @@ Spec: [MACRO_BOARD_FEATURIZER_SPEC.md](MACRO_BOARD_FEATURIZER_SPEC.md)
 ```text
 checkpoint path: logs/checkpoints/run_k_macro_god_bc.json
 metadata path: logs/checkpoints/run_k_macro_god_bc.json.meta.json
-training command: cd training && python -m train.train_macro_bc --csv ../logs/run_k_macro_train.csv --output-weights ../logs/checkpoints/run_k_macro_god_bc.json --seed 42 --epochs 30
-eval command: cd training && python -m eval.evaluate_macro_policy --checkpoint ../logs/checkpoints/run_k_macro_god_bc.json --episodes 5 --seed 900 --output ../logs/eval_macro_run_k.csv --godot-root ..
+checkpoint_loaded: true (all held-out episodes)
+observation_supplied: true
+legal_mask_supplied: true
 held-out episodes: 5 (seeds 900–904)
-completed episodes: 4 (natural game end: breach loss)
-turn-capped episodes: 1 (seed 904, max_steps=300)
+completed episodes: 3 (natural game end: breach loss)
+turn-capped episodes: 2 (seeds 901, 903; max_steps=300)
 crashes: 0 (all godot_exit_code=0)
-legal-action violations: 252 total illegal policy picks (fallback to first legal action applied; env steps always legal)
-baseline comparison: vs macro baselines seed 900, 5 episodes, max_steps=40 — heuristic avg_vp=0.8, avg_reward=2.8; BC live avg_vp=1.0, 4/5 natural completions with max_steps=300 (see logs/run_k_macro_baseline.csv)
-result summary: Checkpoint loads in Godot (checkpoint_loaded=true); obs + legal_mask per step; 4/5 held-out episodes finished naturally (shared breach loss); 1 turn-capped; no crashes. BC reproduces heuristic-like VP on smoke scale; high illegal_action_count reflects action-head size mismatch vs live mask (prototype BC).
+illegal applied actions: 0 (compact_global_index_v1, 64-slot head)
+raw model fallback count: 0 (no illegal-action fallback path used)
+baseline comparison: vs macro baselines seed 900, 5 episodes — heuristic avg_vp=0.8; BC live 3/5 natural completions, avg_vp≈1.0, 0 illegal actions
+result summary: Post-cleanup Route B eval; 256-dim obs (macro_policy_v2); compact legal mask before argmax; train acc=0.832 on 500 export rows.
 ```
 
 **Live eval proof (Route B):** `LearnedPolicyEvaluator.evaluate_macro` loads JSON weights, extracts `MacroFeatureFeaturizer` obs, builds compact legal mask from `LegalActionQuery`, selects via masked `TinyNeuralNetwork`, applies via `MacroTrainingEnv.step`. Eval CSV columns: `completed_episode`, `turn_capped`, `crashed`, `illegal_action_count`, `game_finished`, `godot_exit_code`.
@@ -131,20 +133,22 @@ result summary: Checkpoint loads in Godot (checkpoint_loaded=true); obs + legal_
 #### Micro/combatant neural policy
 
 ```text
-checkpoint path: logs/checkpoints/run_k_micro_hero_bc.json
-metadata path: logs/checkpoints/run_k_micro_hero_bc.json.meta.json
-training command: cd training && python -m train.train_micro_bc --csv ../logs/run_k_micro_train.csv --output-weights ../logs/checkpoints/run_k_micro_hero_bc.json --seed 42 --epochs 30
-eval command: cd training && python -m eval.evaluate_micro_policy --checkpoint ../logs/checkpoints/run_k_micro_hero_bc.json --episodes 10 --seed 800 --output ../logs/eval_micro_run_k.csv --godot-root ..
-held-out combats: 10 (seeds 800–809, hero_patrol vs demon_breach)
+checkpoint path: logs/checkpoints/run_k_micro_combatant_bc.json
+metadata path: logs/checkpoints/run_k_micro_combatant_bc.json.meta.json
+checkpoint_loaded: true (all held-out combats)
+observation_supplied: true
+legal_mask_supplied: true
+held-out combats: 10 (seeds 901–910, hero_patrol vs demon_breach)
 completed combats: 10
-timeouts: 0 (all finished in ~28 steps, max_steps=200)
+timeouts: 0 (all finished in 28 steps, max_steps=200)
 crashes: 0 (all godot_exit_code=0)
-legal-action violations: 140 total (14 per combat; fallback to pass/first legal)
-baseline comparison: vs micro baselines seed 800, 10 episodes — random hero_win_rate=0.4, avg_steps=20; damage_first/survival/mana hero_win_rate=0.0, avg_steps=28. BC live: hero_win_rate=0.0, avg_steps=28 (see logs/run_k_micro_baseline.csv)
-result summary: Shared role-conditioned BC (Option B below); all 10 combats completed; demon_breach won all (smoke BC not tuned for hero wins).
+illegal applied actions: 0 (loadout_spells_plus_pass_v1, 6-slot head including pass)
+raw model fallback count: 0
+baseline comparison: vs micro baselines seed 800, 10 episodes — random hero_win_rate=0.4; heuristics 0.0 hero wins; BC live 0/10 hero wins, avg_steps=28
+result summary: Shared role-conditioned policy (Option B); train acc=1.0 on 560 export rows; 0 illegal-action fallbacks on held-out eval (seed 901).
 ```
 
-**Hero-side / demon-side vs shared policy (Option B):** Single checkpoint `run_k_micro_hero_bc.json` is intentionally a **shared role-conditioned policy**, not separate hero/demon models. Training CSV includes both combatants' turns (280 BC rows after filtering pass-only steps from 560 total). `MicroCombatFeatureFeaturizer` encodes role via `active_combatant_id` vs `combatant_id` plus per-side health/mana/loadout size. At live eval, the **same weights** drive both `hero_patrol` and `demon_breach` turns each step. Filename retains `hero` for Run K smoke artifact naming; metadata `policy_kind=micro_bc` is role-agnostic.
+**Hero-side / demon-side vs shared policy (Option B):** Single checkpoint `run_k_micro_combatant_bc.json` is a **shared role-conditioned policy** trained on both combatants' turns. `MicroCombatFeatureFeaturizer` encodes role via observation features. Action head: 5 loadout spell slots + dedicated pass slot (`loadout_spells_plus_pass_v1`).
 
 **Live eval proof (Route B):** `LearnedPolicyEvaluator.evaluate_micro` loads weights, `session.observe()` + `build_legal_mask()`, masked spell selection, `env.step(spell_id)`. Eval CSV: `completed`, `illegal_action_count`, `steps`, `winner_id`, `godot_exit_code`.
 
@@ -178,56 +182,66 @@ cd training && .venv/bin/python -m train.train_macro_bc \
   --output-weights ../logs/checkpoints/run_k_macro_god_bc.json
 .venv/bin/python -m train.train_micro_bc \
   --csv ../logs/run_k_micro_train.csv \
-  --output-weights ../logs/checkpoints/run_k_micro_hero_bc.json
+  --output-weights ../logs/checkpoints/run_k_micro_combatant_bc.json
 
 # Live eval (Godot rollouts)
 .venv/bin/python -m eval.evaluate_macro_policy \
   --checkpoint ../logs/checkpoints/run_k_macro_god_bc.json \
   --episodes 5 --seed 900 --output ../logs/eval_macro_run_k.csv --godot-root ..
 .venv/bin/python -m eval.evaluate_micro_policy \
-  --checkpoint ../logs/checkpoints/run_k_micro_hero_bc.json \
-  --episodes 10 --seed 800 --output ../logs/eval_micro_run_k.csv --godot-root ..
+  --checkpoint ../logs/checkpoints/run_k_micro_combatant_bc.json \
+  --episodes 10 --seed 901 --output ../logs/eval_micro_run_k.csv --godot-root ..
 ```
 
 ### Artifacts (gitignored; not committed)
 
 | Path | Rows / size |
 |---|---|
-| `logs/run_k_macro_train.csv` | 400 step rows (10 episodes) |
+| `logs/run_k_macro_train.csv` | 500 step rows (10 episodes) |
 | `logs/run_k_micro_train.csv` | 560 step rows (20 combats) |
 | `logs/checkpoints/run_k_macro_god_bc.json` | Godot weights + `.pt` + `.meta.json` |
-| `logs/checkpoints/run_k_micro_hero_bc.json` | Godot weights + `.pt` + `.meta.json` |
+| `logs/checkpoints/run_k_micro_combatant_bc.json` | Godot weights + `.pt` + `.meta.json` |
 | `logs/eval_macro_run_k.csv` | 5 live macro episodes |
 | `logs/eval_micro_run_k.csv` | 10 live micro combats |
 
-### Macro live eval (seed 900–904)
+### Macro live eval (seed 900–904, final acceptance 2026-06-13)
 
 | Seed | completed | turn_capped | steps | breach | VP | illegal_actions | godot_exit |
 |---|---|---|---|---|---|---|---|
-| 900 | yes | no | 187 | 10 | 1 | 40 | 0 |
-| 901 | yes | no | 227 | 18 | 1 | 48 | 0 |
-| 902 | yes | no | 232 | 12 | 1 | 48 | 0 |
-| 903 | yes | no | 290 | 16 | 1 | 64 | 0 |
-| 904 | no | **yes** | 300 | 0 | 1 | 52 | 0 |
+| 900 | yes | no | 82 | 10 | 1 | 0 | 0 |
+| 901 | no | **yes** | 300 | 0 | 0 | 0 | 0 |
+| 902 | yes | no | 152 | 12 | 1 | 0 | 0 |
+| 903 | no | **yes** | 300 | 0 | 3 | 0 | 0 |
+| 904 | yes | no | 130 | 134 | 1 | 0 | 0 |
 
-**Note:** Turn-capped episodes prove policy runs but are not evidence of strong play. High `illegal_action_count` expected for untrained-on-layout BC with mismatched action head size vs live mask.
+### Micro live eval (seed 901–910, final acceptance 2026-06-13)
 
-### Micro live eval (seed 800–809)
-
-All 10 episodes: `completed=true`, `godot_exit_code=0`, winner predominantly `demon_breach` (heuristic opponent), ~28 steps per combat.
+All 10 episodes: `completed=true`, `godot_exit_code=0`, `illegal_action_count=0`, winner `demon_breach`, 28 steps per combat.
 
 ---
 
 ## Test suite (Run K)
 
-**Modules:** 121 (was 110)  
-**Assertions:** ~165,649  
-**Exit code:** 0 (after `TestDemonSpread` cascade distinction fix)
+**Godot full suite (final acceptance 2026-06-13):**
 
-New modules: `TestAuditExport`, `TestMacroBoardFeaturizer`, `TestCounterSpell`, `TestDualCast`, `TestRandomSilence`, `TestBreachCascadeContract`, `TestRuleContractHeroMovement`.
+```text
+modules: 123
+assertions: 167745
+failures: 0
+SCRIPT ERROR count: 0
+exit code: 0
+log: logs/run_k_final_full_suite.txt
+```
+
+**Python pytest:** 11 passed (`cd training && python -m pytest -q`)
+
+**Harness:** `test_runner.gd` registers `TestScriptErrorMonitor` (`OS.add_logger`) and fails the suite when any module emits a Godot `ERROR_TYPE_SCRIPT` during `module.run()`. Summary line: `SCRIPT ERROR count: N`. Harmless shutdown noise only: `ERROR: 1 resources still in use at exit` (CanvasItem RID leak).
+
+New modules: `TestAuditExport`, `TestMacroBoardFeaturizer`, `TestCounterSpell`, `TestDualCast`, `TestRandomSilence`, `TestBreachCascadeContract`, `TestRuleContractHeroMovement`, `TestMacroLegalActionLayout`, `TestMicroLegalActionLayout`, `TestScriptErrorMonitor` (harness).
 
 ```bash
-scripts/invoke-godot-headless.sh --headless --path godot_game -s res://tests/test_runner.gd
+scripts/invoke-godot-headless.sh --headless --path godot_game -s res://tests/test_runner.gd 2>&1 | tee logs/run_k_final_full_suite.txt
+grep -n "SCRIPT ERROR\|FAILED" logs/run_k_final_full_suite.txt || true
 cd training && python -m pytest -q
 ```
 
@@ -235,10 +249,10 @@ cd training && python -m pytest -q
 
 ## Remaining limitations (post-K)
 
-- Macro BC uses 16-dim aggregate featurizer, not full board tensor in policy head.
-- Micro BC skips pass-only steps (empty legal mask) in ETL — pass action not in loadout index space.
+- Macro BC policy head uses 64-slot compact legal layout; full action-space tensor not in head.
 - `trade_bonus` / `draft_bonus` / `wizard_access` card effects still stubbed.
 - Spell combat not integrated into macro economy loop (by design).
+- Turn-capped macro eval episodes prove rollout stability, not strong play.
 
 ---
 

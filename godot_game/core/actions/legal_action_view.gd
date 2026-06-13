@@ -16,3 +16,13 @@ func to_dict() -> Dictionary:
 		"action_ids": action_ids.duplicate(),
 		"legal_mask": legal_mask.duplicate(),
 	}
+
+
+static func from_legal_actions(action_space: ActionSpace, legal_actions: Array) -> LegalActionView:
+	var view := LegalActionView.new(action_space)
+	var legal_ids: Dictionary = {}
+	for action in legal_actions:
+		legal_ids[int(action.action_id)] = true
+	for i in range(view.action_ids.size()):
+		view.legal_mask[i] = legal_ids.has(view.action_ids[i])
+	return view

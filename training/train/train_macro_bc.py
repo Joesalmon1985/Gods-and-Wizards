@@ -8,7 +8,7 @@ from pathlib import Path
 import torch
 
 import checkpoint_metadata
-from etl.macro_v2_loader import load_macro_v2_csv
+from etl.macro_v2_loader import LAYOUT_VERSION, load_macro_v2_csv
 from models.masked_policy import export_godot_weights
 from train.common import TrainConfig, build_model, evaluate_bc, set_seed, train_bc
 
@@ -23,7 +23,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--epochs", type=int, default=50)
     parser.add_argument("--batch-size", type=int, default=32)
     parser.add_argument("--learning-rate", type=float, default=1e-3)
-    parser.add_argument("--output-size", type=int, default=None, help="Action head size; inferred from mask if omitted")
+    parser.add_argument("--output-size", type=int, default=64, help="Compact macro action head size (fixed at 64)")
     parser.add_argument("--git-commit", default="", help="Optional provenance stamp")
     return parser.parse_args(argv)
 
@@ -87,7 +87,7 @@ def main(argv: list[str] | None = None) -> int:
     metadata.extra["training_command"] = training_cmd
     metadata.extra["eval_command"] = eval_cmd
     metadata.extra["observation_schema_version"] = "macro_training_v2"
-    metadata.extra["legal_mask_layout_version"] = "compact_legal_list_v1"
+    metadata.extra["legal_mask_layout_version"] = str(dataset.metadata.get("legal_mask_layout_version", LAYOUT_VERSION))
     checkpoint_metadata.save_metadata(metadata, weights_path)
 
     print(

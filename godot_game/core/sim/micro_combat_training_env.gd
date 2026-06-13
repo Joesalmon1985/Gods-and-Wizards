@@ -23,12 +23,7 @@ func get_legal_spell_ids() -> Array[String]:
 func build_legal_mask() -> Array[int]:
 	if session == null:
 		return []
-	var loadout: CombatantSpellLoadout = session.get_active_combatant()["loadout"]
-	var legal := get_legal_spell_ids()
-	var mask: Array[int] = []
-	for spell_id in loadout.spell_ids:
-		mask.append(1 if legal.has(spell_id) else 0)
-	return mask
+	return MicroLegalActionLayout.build_mask(session)
 
 
 func step(spell_id: String) -> Dictionary:

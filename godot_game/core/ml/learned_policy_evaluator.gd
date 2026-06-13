@@ -24,12 +24,15 @@ static func evaluate_macro(
 		var player_id := env.session.get_active_player_id()
 		var view := env.get_legal_action_view(player_id)
 		var obs := env.get_observation(player_id)
-		var mask := _compact_mask(view)
+		var compact := MacroLegalActionLayout.build_compact(view)
 		var logits := net.forward(MacroFeatureFeaturizer.extract(obs))
-		var action_index := net.choose_action_index(logits, mask)
-		var action: GameAction = null
-		if action_index >= 0 and action_index < view.action_ids.size() and view.legal_mask[action_index]:
-			action = env.session.state.action_space.get_action(view.action_ids[action_index])
+		var action_index := net.choose_action_index(logits, compact["mask"])
+		var action := MacroLegalActionLayout.action_from_compact_slot(
+			view,
+			env.session.state,
+			action_index,
+			compact
+		)
 		if action == null:
 			illegal_count += 1
 			var legal := env.get_legal_actions(player_id)
@@ -83,15 +86,14 @@ static func evaluate_micro(
 	var completed := false
 	while not env.is_done() and steps < max_steps:
 		var obs := env.session.observe()
-		var mask := env.build_legal_mask()
+		var mask := MicroLegalActionLayout.build_mask(env.session)
 		var loadout: CombatantSpellLoadout = env.session.get_active_combatant()["loadout"]
 		var logits := net.forward(MicroCombatFeatureFeaturizer.extract(obs))
 		var action_index := net.choose_action_index(logits, mask)
-		var spell_id := SpellCombatRules.PASS_SPELL_ID
-		if action_index >= 0 and action_index < mask.size() and mask[action_index]:
-			spell_id = loadout.spell_ids[action_index]
-		else:
+		var spell_id := MicroLegalActionLayout.spell_id_for_slot(loadout, action_index)
+		if action_index < 0 or action_index >= mask.size() or not bool(mask[action_index]):
 			illegal_count += 1
+			spell_id = SpellCombatRules.PASS_SPELL_ID
 		env.step(spell_id)
 		steps += 1
 		if env.is_done():
@@ -130,13 +132,6 @@ static func _load_network(path: String, expected_input: int) -> TinyNeuralNetwor
 	if net.input_size != expected_input:
 		push_warning("Weight input_size %d != expected %d" % [net.input_size, expected_input])
 	return net
-
-
-static func _compact_mask(view: LegalActionView) -> Array:
-	var bits: Array = []
-	for i in range(view.legal_mask.size()):
-		bits.append(view.legal_mask[i])
-	return bits
 
 
 static func _vp_for_player(state: GameState, player_id: int) -> int:

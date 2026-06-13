@@ -16,7 +16,7 @@ def test_load_micro_v2_csv_shapes() -> None:
     assert len(dataset) == 3
     assert dataset.features.shape == (3, MICRO_FEATURE_SIZE)
     assert dataset.targets.shape == (3,)
-    assert dataset.masks.shape == (3, 2)
+    assert dataset.masks.shape == (3, 6)
     assert dataset.metadata["schema_version"] == "micro_combat_v2"
     assert dataset.metadata["spell_catalog_version"] == "spell_catalog_v1"
 
